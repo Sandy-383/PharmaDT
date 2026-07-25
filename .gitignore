@@ -1,0 +1,41 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Datasets — never commit these (Stage 2)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Ledger signing keys — private material, never commit (Stage 4)
+data/keys/*
+!data/keys/.gitkeep
+
+# Model checkpoints
+*.pt
+*.pth
+*.pkl
+*.joblib
+
+# Experiment outputs
+experiments/results/
+experiments/runs/
+
+# Environment
+.env
+
+# Node / dashboard (Stage 14)
+node_modules/
+dashboard/dist/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

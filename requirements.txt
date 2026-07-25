@@ -1,0 +1,61 @@
+# PharmaDT — pinned dependencies
+#
+# Two pins deviate from the Implementation Guide's Stage 0 list because the
+# list as printed cannot be resolved by pip on any Python version. Both
+# deviations are marked DEVIATION below with the conflict that forces them.
+
+# ── Core simulation & domain (Stage 3) ────────────────────────────────
+simpy==4.1.1
+networkx==3.3
+
+# ── Persistence (Stage 1) ─────────────────────────────────────────────
+sqlalchemy==2.0.31
+psycopg2-binary==2.9.9
+alembic==1.13.2
+
+# ── Config & API (Stage 0, Stage 14) ──────────────────────────────────
+pydantic==2.8.2
+pydantic-settings==2.4.0
+fastapi==0.112.0
+uvicorn[standard]==0.30.5
+
+# ── Cryptographic provenance ledger (Stage 4) ─────────────────────────
+# DEVIATION: guide pins 43.0.0, but flwr 1.10.0 requires
+# cryptography<43.0.0,>=42.0.4. 42.0.8 also matches what the guide's own
+# software-requirements table (Part A, row A10) asks for: "cryptography 42.x".
+cryptography==42.0.8
+
+# ── Data & ML (Stages 2, 6, 7, 10) ────────────────────────────────────
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==17.0.0
+requests==2.32.3
+scikit-learn==1.5.1
+xgboost==2.1.0
+torch==2.4.0
+prophet==1.1.5
+
+# ── Route optimisation (Stage 9) ──────────────────────────────────────
+# DEVIATION: guide pins 9.10.4067, which requires protobuf>=5.26.1 and is
+# therefore mutually exclusive with flwr (protobuf<5.0.0 through at least
+# flwr 1.17). 9.9.3963 is the newest OR-Tools on the protobuf 4.x line.
+ortools==9.9.3963
+
+# ── Federated learning (Stage 11) ─────────────────────────────────────
+flwr==1.10.0
+opacus==1.5.1
+
+# ── Multi-agent RL (Stage 12) ─────────────────────────────────────────
+pettingzoo==1.24.3
+gymnasium==0.29.1
+
+# ── Scenario definitions (Stage 13) ───────────────────────────────────
+pyyaml==6.0.2
+
+# ── Testing (NFR-07: 80% coverage) ────────────────────────────────────
+pytest==8.3.2
+pytest-cov==5.0.0
+
+# ── Tooling ───────────────────────────────────────────────────────────
+# Not in the guide's list, but Stage 0 requires a working `make lint`.
+ruff==0.6.2

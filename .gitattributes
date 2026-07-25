@@ -1,0 +1,18 @@
+# Normalise to LF in the repository. The team develops on Windows but the
+# Dockerfile copies these files into a Linux image, where CRLF breaks shell
+# scripts and psql input such as ledger/schema.sql.
+* text=auto eol=lf
+
+# Windows-native scripts must keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary — never touch.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.parquet binary
+*.pt binary
+*.pth binary
+*.pkl binary

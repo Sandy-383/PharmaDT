@@ -1,0 +1,27 @@
+# Stage 0 brings up the database only. The `api` and `dashboard` services are
+# added in Stage 14, at which point `docker compose up` must stand the whole
+# system up from a clean checkout (Stage 15 packaging requirement).
+
+services:
+  db:
+    image: postgres:15
+    container_name: pharmadt-db
+    environment:
+      POSTGRES_USER: pharmadt
+      POSTGRES_PASSWORD: pharmadt
+      POSTGRES_DB: pharmadt
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Lets `make db-up` block until Postgres actually accepts connections,
+    # rather than racing the smoke test against a container that is up but
+    # not yet listening.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pharmadt -d pharmadt"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  pgdata:

@@ -1,0 +1,24 @@
+# Keep the build context small — .venv alone is ~1GB.
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+.git/
+.gitignore
+
+# Datasets and private key material never belong in an image.
+data/raw/
+data/processed/
+data/keys/
+
+notebooks/
+experiments/
+dashboard/node_modules/
+dashboard/dist/
+
+*.pt
+*.pth
+.env
