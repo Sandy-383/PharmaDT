@@ -6,6 +6,7 @@ instead. Later stages extend :class:`Settings` with their own fields rather
 than introducing constants at their point of use.
 """
 
+from datetime import date
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -31,6 +32,11 @@ class Settings(BaseSettings):
     sim_seed: int = 42
     sim_days: int = 365
     num_nodes: int = 12
+
+    # Calendar date that simulated day 0 maps to. Batch manufacture and expiry
+    # dates are real dates, so the twin needs a fixed epoch to convert against;
+    # leaving it floating would make seeded data non-reproducible across runs.
+    sim_start_date: date = date(2026, 1, 1)
 
 
 @lru_cache

@@ -20,6 +20,8 @@ make install
 # 2. Database
 cp .env.example .env
 make db-up                      # Postgres 15, waits until healthy
+make migrate                    # create the schema
+make seed                       # 12 nodes, 5 drugs, 20 batches
 
 # 3. Verify
 make test
@@ -97,8 +99,30 @@ cannot be resolved by pip on any Python version:
 one (Parquet output, the openFDA API, the RDP accountant, `make lint`) without
 listing it.
 
+## Domain model
+
+Seven tables, defined in `pharmadt/core/models.py` and migrated by Alembic:
+`drugs`, `nodes`, `batches`, `inventory_records`, `shipments`, `demand_records`,
+`agent_decisions`. `provenance_records` is added in Stage 4, alongside the
+append-only trigger that makes it immutable — creating the table earlier would
+open a window in which the "immutable" audit log is quietly mutable.
+
+Invariants are enforced as database CHECK constraints, not only in Python:
+inventory cannot go negative, a shipment cannot arrive before it departs or be
+sent to itself, fulfilled demand cannot exceed demand raised, and a cold-chain
+drug must carry a temperature band. The twin bulk-inserts events in Stage 3 and
+will not be running ORM validators on every row, so the database has to be the
+one holding the line.
+
+`compute_batch_fingerprint` is the single definition of a batch's SHA-256
+identity, shared by batch creation and by Stage 4's counterfeit check. Fields
+are joined with an explicit separator rather than concatenated, so a forger
+cannot shift a character across a field boundary and preserve the digest.
+
 ## Status
 
-Stage 0 complete. See the implementation guide for the full 15-stage plan; the
-Stage 10.5 integration gate is the milestone at which the system is complete
-and demonstrable.
+Stages 0 and 1 complete — 71 tests, 92% coverage.
+
+See the implementation guide for the full 15-stage plan; the Stage 10.5
+integration gate is the milestone at which the system is complete and
+demonstrable.

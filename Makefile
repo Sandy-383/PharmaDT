@@ -3,7 +3,7 @@
 # `make sim` must reproduce a full run from a clean checkout — that is an
 # explicit condition of the Stage 10.5 integration gate, so keep it working.
 
-.PHONY: help install db-up db-down db-logs test cov sim api lint fmt clean
+.PHONY: help install db-up db-down db-logs migrate migration seed reseed test cov sim api lint fmt clean
 
 help:
 	@echo "PharmaDT targets:"
@@ -11,6 +11,10 @@ help:
 	@echo "  db-up     Start Postgres 15 and wait until it accepts connections"
 	@echo "  db-down   Stop the database"
 	@echo "  db-logs   Follow database logs"
+	@echo "  migrate   Apply all pending Alembic migrations"
+	@echo "  migration Autogenerate a migration:  make migration m=\"add x\""
+	@echo "  seed      Insert the 12-node / 5-drug / 20-batch fixture"
+	@echo "  reseed    Wipe and re-insert the fixture"
 	@echo "  test      Run the test suite"
 	@echo "  cov       Run tests with a coverage report"
 	@echo "  sim       Run the digital twin simulation"
@@ -31,6 +35,19 @@ db-down:
 
 db-logs:
 	docker compose logs -f db
+
+migrate:
+	alembic upgrade head
+
+# Usage: make migration m="add provenance_records"
+migration:
+	alembic revision --autogenerate -m "$(m)"
+
+seed:
+	python -m pharmadt.core.seed
+
+reseed:
+	python -m pharmadt.core.seed --reset
 
 test:
 	python -m pytest
