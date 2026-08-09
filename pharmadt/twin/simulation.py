@@ -469,6 +469,11 @@ def main() -> None:
     parser.add_argument(
         "--persist", action="store_true", help="bulk-insert demand records afterwards"
     )
+    parser.add_argument(
+        "--anchor",
+        action="store_true",
+        help="append custody events to the provenance ledger after the run",
+    )
     args = parser.parse_args()
 
     setup_started = time.perf_counter()
@@ -511,6 +516,14 @@ def main() -> None:
 
     if args.persist:
         print(f"Persisted: {persist_demand_records(world)} demand records")
+
+    if args.anchor:
+        # Imported here so a plain `make sim` never needs the ledger or its keys.
+        from pharmadt.ledger.chain import HashChainLedger
+
+        ledger = HashChainLedger()
+        anchored = ledger.anchor_events(world.events)
+        print(f"Anchored:  {anchored} custody events (chain height {ledger.height()})")
 
 
 if __name__ == "__main__":

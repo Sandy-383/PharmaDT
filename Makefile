@@ -15,6 +15,12 @@ help:
 	@echo "  migration Autogenerate a migration:  make migration m=\"add x\""
 	@echo "  seed      Insert the 12-node / 5-drug / 20-batch fixture"
 	@echo "  reseed    Wipe and re-insert the fixture"
+	@echo ""
+	@echo "  keys         Issue per-node ECDSA signing keys"
+	@echo "  sim-anchor   Run the twin and append custody events to the ledger"
+	@echo "  verify-chain Verify the provenance chain end to end"
+	@echo "  tamper-demo  Demonstrate tamper-evidence (Stage 4 DoD)"
+	@echo ""
 	@echo "  test      Run the test suite"
 	@echo "  cov       Run tests with a coverage report"
 	@echo "  sim       Run the digital twin simulation"
@@ -48,6 +54,18 @@ seed:
 
 reseed:
 	python -m pharmadt.core.seed --reset
+
+keys:
+	python -m pharmadt.ledger.keyring
+
+sim-anchor:
+	python -m pharmadt.twin.simulation --anchor
+
+verify-chain:
+	python -m pharmadt.ledger.verify
+
+tamper-demo:
+	python -m pharmadt.ledger.demo
 
 test:
 	python -m pytest

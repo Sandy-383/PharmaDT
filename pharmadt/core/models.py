@@ -13,6 +13,8 @@ from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
+    CHAR,
+    BigInteger,
     Boolean,
     CheckConstraint,
     Date,
@@ -344,6 +346,45 @@ class AgentDecision(Base):
         return f"<AgentDecision {self.decision_id} {self.agent_name} day={self.sim_day}>"
 
 
-# ProvenanceRecord is defined in Stage 4 alongside the append-only trigger that
-# enforces its immutability. Declaring the table here without that trigger would
-# create a window in which the "immutable" audit log is silently mutable.
+class ProvenanceRecord(Base):
+    """One signed, hash-chained link in a batch's custody trail.
+
+    Append-only, and enforced as such by a database trigger rather than by
+    convention — the immutability claim holds even against the application
+    layer, which is the point worth making in a viva.
+
+    Deliberately carries no foreign keys, matching the specified DDL. An audit
+    log must be able to record what happened even when the entity it refers to
+    has since changed, and a cascade that could delete ledger rows would defeat
+    the entire purpose of the table.
+    """
+
+    __tablename__ = "provenance_records"
+
+    seq: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    batch_id: Mapped[str] = mapped_column(Text, nullable=False)
+    event_type: Mapped[str] = mapped_column(Text, nullable=False)
+    from_node: Mapped[str | None] = mapped_column(Text)
+    to_node: Mapped[str | None] = mapped_column(Text)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    sim_day: Mapped[int] = mapped_column(Integer, nullable=False)
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    prev_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
+    record_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False, unique=True)
+    signer_node: Mapped[str] = mapped_column(Text, nullable=False)
+    signature: Mapped[str] = mapped_column(Text, nullable=False)
+    # Written only on the last record of each Merkle block; NULL elsewhere.
+    merkle_root: Mapped[str | None] = mapped_column(CHAR(64))
+
+    # Named to match the migration's DDL exactly. Left as `index=True` the ORM
+    # would call it ix_provenance_records_batch_id, and every future
+    # autogenerate would propose dropping the real one and creating its own.
+    __table_args__ = (Index("idx_prov_batch", "batch_id"),)
+
+    def __repr__(self) -> str:
+        return (
+            f"<ProvenanceRecord seq={self.seq} {self.event_type} "
+            f"batch={self.batch_id} day={self.sim_day}>"
+        )

@@ -10,6 +10,7 @@ into unrelated failures.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import date
 
 import pytest
@@ -35,6 +36,43 @@ def db_session() -> Iterator[Session]:
         if transaction.is_active:
             transaction.rollback()
         connection.close()
+
+
+@pytest.fixture
+def ledger(db_session: Session):
+    """A ledger bound to the rolled-back test transaction.
+
+    The provenance table is append-only, so a test that wrote to the real
+    ledger could never undo it. Injecting the session keeps every appended
+    record inside the transaction the fixture discards.
+    """
+    from pharmadt.ledger.chain import HashChainLedger
+
+    @contextmanager
+    def factory() -> Iterator[Session]:
+        yield db_session
+
+    return HashChainLedger(session_factory=factory)
+
+
+@pytest.fixture
+def empty_ledger(db_session: Session, ledger):
+    """A ledger that starts from genesis, without destroying the real one.
+
+    Clears the provenance table inside the test transaction — which needs the
+    triggers briefly out of the way, since they block DELETE by design. The
+    fixture's rollback restores every record.
+
+    Note that ``seq`` will not restart at 1: PostgreSQL sequences are
+    non-transactional, so consumed values are never given back. Tests assert on
+    hash links rather than on sequence numbers.
+    """
+    from sqlalchemy import text
+
+    db_session.execute(text("ALTER TABLE provenance_records DISABLE TRIGGER USER"))
+    db_session.execute(text("DELETE FROM provenance_records"))
+    db_session.execute(text("ALTER TABLE provenance_records ENABLE TRIGGER USER"))
+    return ledger
 
 
 @pytest.fixture

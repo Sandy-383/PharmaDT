@@ -8,6 +8,7 @@ than introducing constants at their point of use.
 
 from datetime import date
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -84,6 +85,14 @@ class Settings(BaseSettings):
 
     # ── Expiry (Stage 3 wastage, Stage 8 alerting) ────────────────────
     expiry_alert_days: int = 30  # FR-04
+
+    # ── Provenance ledger (Stage 4) ───────────────────────────────────
+    # Records per Merkle block. The root is written onto the last record of
+    # each block, so inclusion proofs cost O(log 64) = 6 sibling hashes.
+    merkle_interval: int = 64
+    # Private signing keys. Gitignored — in production these belong in an HSM
+    # or KMS, which the report states explicitly rather than implying.
+    keys_dir: Path = Path("data/keys")
 
 
 @lru_cache

@@ -41,6 +41,8 @@ class ProvenanceLedger(ABC):
         to_node: str | None,
         payload: Mapping[str, Any],
         signer_node: str,
+        *,
+        sim_day: int = 0,
     ) -> str:
         """Append one signed, chained record. Returns its ``record_hash``.
 
@@ -48,6 +50,12 @@ class ProvenanceLedger(ABC):
         registry; that allow-list is the permissioning layer. Implementations
         must reject an ``event_type`` outside
         :data:`~pharmadt.core.events.LEDGER_EVENT_TYPES`.
+
+        ``sim_day`` extends the signature given in the implementation guide,
+        whose ``provenance_records`` table declares ``sim_day NOT NULL`` while
+        its ``record_event`` has no way to supply one. Passing it through the
+        payload instead would bury a first-class, queried column inside an
+        unindexable JSONB key.
         """
 
     @abstractmethod

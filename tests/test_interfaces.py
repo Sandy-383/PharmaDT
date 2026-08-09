@@ -23,7 +23,9 @@ def test_interfaces_cannot_be_instantiated(abstract: type) -> None:
 
 def test_partial_ledger_implementation_is_rejected() -> None:
     class HalfLedger(ProvenanceLedger):
-        def record_event(self, batch_id, event_type, from_node, to_node, payload, signer_node):
+        def record_event(
+            self, batch_id, event_type, from_node, to_node, payload, signer_node, *, sim_day=0
+        ):
             return "deadbeef"
 
         def get_provenance(self, batch_id):
@@ -141,7 +143,9 @@ def test_record_event_signature_matches_event_fields() -> None:
     params = set(inspect.signature(ProvenanceLedger.record_event).parameters)
     params.discard("self")
 
-    event_fields = {"batch_id", "event_type", "from_node", "to_node", "payload"}
+    # Every field an Event carries must be expressible in a ledger append,
+    # including sim_day — the provenance table declares it NOT NULL.
+    event_fields = {"batch_id", "event_type", "from_node", "to_node", "payload", "sim_day"}
     assert event_fields <= params
     assert "signer_node" in params, "the ledger additionally needs a signer"
 

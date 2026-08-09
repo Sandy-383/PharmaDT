@@ -26,6 +26,12 @@ make seed                       # 12 nodes, 5 drugs, 20 batches
 # 3. Verify
 make test
 make sim                        # 365 simulated days, prints baseline KPIs
+
+# 4. Provenance ledger
+make keys                       # issue per-node ECDSA keypairs
+make sim-anchor                 # run the twin, anchor custody events
+make verify-chain               # walk every hash and signature
+make tamper-demo                # prove tamper-evidence
 ```
 
 `make help` lists every target.
@@ -170,9 +176,55 @@ Demand means are currently analytic defaults from `config.py`. Stage 2 refits
 them per (node, drug) from Rossmann and replaces the profiles wholesale; the
 sampling model does not change, only where its parameters come from.
 
+## Provenance ledger
+
+A 365-day run anchors **13,614 custody events**, verified end to end in ~1.1s.
+Each record binds its content and its predecessor's hash into a SHA-256 digest,
+signed with the acting node's P-256 key. `make tamper-demo` walks the whole
+argument: the triggers refuse mutation, the chain verifies, a batch's trace
+reads manufacturer → warehouse → distributor → pharmacy, an inclusion proof
+checks against its Merkle root, an edited record is caught **and named**, and a
+forged fingerprint is rejected. It restores what it changes, so it is repeatable.
+
+**Immutability is enforced by the database, not by convention.** Three triggers
+guard the table. The third one matters more than it looks: row-level `DELETE`
+triggers do not fire for `TRUNCATE`, so without a statement-level guard the
+entire ledger could be erased in one statement while the other two sat and
+watched.
+
+The two controls are deliberately independent. The triggers *prevent* tampering;
+the hash chain *detects* it. An attacker who can `ALTER TABLE ... DISABLE
+TRIGGER` defeats the first and still cannot defeat the second — that is exactly
+what the demo shows.
+
+Two design choices worth defending:
+
+- **Merkle anchoring follows RFC 6962 (Certificate Transparency), not Bitcoin.**
+  Bitcoin duplicates the final leaf when a level has an odd node count, which
+  lets distinct leaf sets produce the same root (CVE-2012-2459). RFC 6962 splits
+  at the largest power of two and domain-separates leaves from internal nodes.
+  A test asserts the collision case is not collidable.
+- **`recorded_at` is outside the hash.** It is database-assigned, and a
+  `TIMESTAMPTZ` is not guaranteed to render back to the string it went in as —
+  which would fail verification on records nobody touched. Intermittent
+  tamper alarms are worse than none, because they train you to ignore them. The
+  triggers already block any `UPDATE` to it.
+
+The chain is reproducible even though signatures are not: rebuilding from a
+dropped volume with freshly issued keys yields the same tip hash, because the
+record hash covers content while ECDSA draws a random nonce per signature.
+
+| Requirement | Fabric mechanism | Delivered here |
+|---|---|---|
+| FR-07 immutable handoff record | Block + world state | Hash-chained append-only row |
+| NFR-04 signed transactions | MSP + X.509 CA | ECDSA P-256 per-node keypair |
+| NFR-04 only authorised peers write | Channel policy | Public-key allow-list in `nodes` |
+| NFR-08 immutable audit trail | Ledger history | `verify_chain()` + DB triggers |
+| Anti-counterfeit | Chaincode hash check | SHA-256 batch fingerprint |
+
 ## Status
 
-Stages 0, 1, and 3 complete — 150 tests, 93% coverage.
+Stages 0, 1, 3, and 4 complete — 255 tests, 84% coverage.
 
 Stage 2 (dataset acquisition) is not started. It runs in parallel with Stage 3
 in the guide's plan and needs Kaggle and openFDA access; the twin runs on
