@@ -3,7 +3,12 @@
 # `make sim` must reproduce a full run from a clean checkout — that is an
 # explicit condition of the Stage 10.5 integration gate, so keep it working.
 
-.PHONY: help install db-up db-down db-logs migrate migration seed reseed test cov sim api lint fmt clean
+# `data` and `eda` MUST stay in .PHONY: a directory named data/ exists, so
+# without it make considers the target already satisfied and silently does
+# nothing at all.
+.PHONY: help install db-up db-down db-logs migrate migration seed reseed \
+        data eda keys sim-anchor verify-chain tamper-demo \
+        test cov sim api lint fmt clean
 
 help:
 	@echo "PharmaDT targets:"
@@ -15,6 +20,9 @@ help:
 	@echo "  migration Autogenerate a migration:  make migration m=\"add x\""
 	@echo "  seed      Insert the 12-node / 5-drug / 20-batch fixture"
 	@echo "  reseed    Wipe and re-insert the fixture"
+	@echo ""
+	@echo "  data         Download and preprocess every dataset (Stage 2)"
+	@echo "  eda          Re-execute the EDA notebook"
 	@echo ""
 	@echo "  keys         Issue per-node ECDSA signing keys"
 	@echo "  sim-anchor   Run the twin and append custody events to the ledger"
@@ -54,6 +62,12 @@ seed:
 
 reseed:
 	python -m pharmadt.core.seed --reset
+
+data:
+	python -m pharmadt.ml.preprocessing --all
+
+eda:
+	python -m jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda_datasets.ipynb
 
 keys:
 	python -m pharmadt.ledger.keyring

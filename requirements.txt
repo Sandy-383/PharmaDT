@@ -59,3 +59,10 @@ pytest-cov==5.0.0
 # ── Tooling ───────────────────────────────────────────────────────────
 # Not in the guide's list, but Stage 0 requires a working `make lint`.
 ruff==0.6.2
+
+# ── Notebooks (Stage 2 DoD) ───────────────────────────────────────────
+# The EDA notebook is committed with its outputs, so reading it needs nothing.
+# These are here so it can be re-executed rather than only admired.
+nbformat==5.11.0
+nbconvert==7.17.1
+ipykernel==7.3.0

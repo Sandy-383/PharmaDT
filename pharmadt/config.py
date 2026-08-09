@@ -10,6 +10,7 @@ from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -85,6 +86,11 @@ class Settings(BaseSettings):
 
     # ── Expiry (Stage 3 wastage, Stage 8 alerting) ────────────────────
     expiry_alert_days: int = 30  # FR-04
+
+    # ── Dataset acquisition (Stage 2) ─────────────────────────────────
+    # Kaggle personal access token, used as a Bearer credential. SecretStr so
+    # it cannot be printed by an accidental repr of the settings object.
+    kaggle_api_token: SecretStr | None = None
 
     # ── Provenance ledger (Stage 4) ───────────────────────────────────
     # Records per Merkle block. The root is written onto the last record of

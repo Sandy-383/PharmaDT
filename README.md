@@ -27,7 +27,11 @@ make seed                       # 12 nodes, 5 drugs, 20 batches
 make test
 make sim                        # 365 simulated days, prints baseline KPIs
 
-# 4. Provenance ledger
+# 4. Datasets (needs KAGGLE_API_TOKEN in .env)
+make data                       # download + preprocess into data/processed/
+make eda                        # re-execute the EDA notebook
+
+# 5. Provenance ledger
 make keys                       # issue per-node ECDSA keypairs
 make sim-anchor                 # run the twin, anchor custody events
 make verify-chain               # walk every hash and signature
@@ -176,6 +180,57 @@ Demand means are currently analytic defaults from `config.py`. Stage 2 refits
 them per (node, drug) from Rossmann and replaces the profiles wholesale; the
 sampling model does not change, only where its parameters come from.
 
+## Datasets
+
+`make data` runs `pharmadt/ml/preprocessing.py` — one loader per dataset, tidy
+DataFrame out, Parquet into `data/processed/`. Raw downloads and processed
+outputs are both gitignored; nothing here needs a human in the loop except CMS.
+
+| Dataset | Rows | Feeds | Status |
+|---|---|---|---|
+| Rossmann store sales | 844,338 | Demand models (Stage 6) | Kaggle token + accepted competition rules |
+| Demand profiles | 30 | The twin's stochastic demand | Fitted from Rossmann |
+| openFDA recalls | 2,624 | Anomaly labels (Stage 10) | Public, but flaky — the loader retries |
+| CVRPLIB benchmarks | 4 | Routing gap vs optimum (Stage 9) | PyVRP mirror; the puc-rio paths 404 |
+| Supply-chain priors | 5 | Lead-time and defect priors | Kaggle public dataset |
+| CMS Part D | — | Validating Rossmann | **Manual** — `data.cms.gov` returns 403 to scripts |
+
+### What fitting the data actually changed
+
+The twin previously ran on three hand-picked constants. Fitting 30 real series
+showed one of them was materially wrong:
+
+| Parameter | Assumed | Fitted range | Verdict |
+|---|---|---|---|
+| `dispersion` | 0.35 | 0.14 – 0.46 | Plausible |
+| `weekend_factor` | 0.60 | 0.28 – 1.51 | Wrong *shape* — 240 of 1,115 stores are **busier** at weekends |
+| `seasonal_amplitude` | 0.25 | 0.008 – 0.116 | Overstated ~6× on average |
+
+That is the concrete argument for Stage 2 existing. A wrong-but-stable constant
+produces a perfectly plausible KPI, so no amount of staring at the simulation
+would have surfaced it.
+
+`make sim` now reports which source it used (`rossmann-fitted` or
+`analytic-defaults`) and falls back cleanly, so the twin still runs on a clean
+checkout with no datasets downloaded.
+
+### Validity threat, stated plainly
+
+Rossmann is **retail drugstore takings in euros**, not units of a drug
+dispensed. The pipeline therefore takes only the *shape* of each series —
+variability, weekday effect, seasonality — and rescales the level to
+`base_daily_demand`. The magnitude does not transfer and is not claimed to.
+
+The prescribed mitigation is validating against CMS Medicare Part D drug-level
+utilisation. `data.cms.gov` returns HTTP 403 to scripted clients, so that
+extract must be downloaded by hand into `data/raw/cms/`, where the loader picks
+it up. **Until then this threat is open, not closed**, and the report should say
+so rather than imply otherwise.
+
+`notebooks/01_eda_datasets.ipynb` documents seasonality, weekday effects, and
+missingness, and is committed with its figures so it can be read without running
+anything.
+
 ## Provenance ledger
 
 A 365-day run anchors **13,614 custody events**, verified end to end in ~1.1s.
@@ -224,7 +279,10 @@ record hash covers content while ECDSA draws a random nonce per signature.
 
 ## Status
 
-Stages 0, 1, 3, and 4 complete — 255 tests, 84% coverage.
+Stages 0, 1, 2, 3, and 4 complete — 281 tests, lint clean.
+
+One dataset (CMS Part D) needs a manual download; everything else builds with
+`make data`.
 
 Stage 2 (dataset acquisition) is not started. It runs in parallel with Stage 3
 in the guide's plan and needs Kaggle and openFDA access; the twin runs on

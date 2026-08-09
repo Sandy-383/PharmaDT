@@ -110,6 +110,9 @@ class World:
         self.excursions = 0
         self.shipments_delivered = 0
         self.inventory_samples: list[int] = []
+        # Where the demand parameters came from; reported so a run's KPIs can
+        # always be traced back to the data behind them.
+        self.demand_source = "analytic-defaults"
 
         # Stage 6 flips this off when the Inventory Agent takes over ordering.
         self.baseline_policy_enabled = True
@@ -220,24 +223,60 @@ def _load_reference_data() -> tuple[list[Any], dict[str, DrugSpec], list[BatchSp
     return nodes, drugs, batches
 
 
+FITTED_PROFILES = DEFAULT_OUTPUT_DIR / "demand_profiles.parquet"
+
+
+def _load_fitted_profiles() -> dict[tuple[str, str], DemandProfile]:
+    """Demand profiles fitted from Rossmann, if Stage 2 has produced them.
+
+    Absent, the twin falls back to the analytic defaults in ``config``, so the
+    simulation still runs on a clean checkout with no datasets downloaded.
+    """
+    if not FITTED_PROFILES.exists():
+        return {}
+
+    import pandas as pd
+
+    frame = pd.read_parquet(FITTED_PROFILES)
+    return {
+        (row.node_id, row.drug_id): DemandProfile(
+            mean=float(row.mean),
+            dispersion=float(row.dispersion),
+            weekend_factor=float(row.weekend_factor),
+            seasonal_amplitude=float(row.seasonal_amplitude),
+        )
+        for row in frame.itertuples()
+    }
+
+
 def _assign_demand_profiles(
     nodes: dict[str, TwinNode], drug_ids: list[str], rng: np.random.Generator
-) -> None:
-    """Give each retail node a per-drug demand profile.
+) -> str:
+    """Give each retail node a per-drug demand profile. Returns the source used.
 
     Means vary between nodes so that the network has genuinely uneven pressure;
     a uniform network would make redistribution (Stage 7) pointless because no
     node would ever hold a surplus while a peer ran dry.
     """
+    fitted = _load_fitted_profiles()
+
     for node_id in sorted(nodes):
         node = nodes[node_id]
         if not node.sells_to_consumers:
             continue
         for drug_id in drug_ids:
-            scale = float(rng.uniform(0.6, 1.4))
-            node.demand_profiles[drug_id] = DemandProfile(
-                mean=settings.base_daily_demand * scale
-            )
+            profile = fitted.get((node_id, drug_id))
+            if profile is None:
+                scale = float(rng.uniform(0.6, 1.4))
+                profile = DemandProfile(mean=settings.base_daily_demand * scale)
+            else:
+                # Keep the generator in step with the analytic path so that
+                # switching data sources does not silently shift every other
+                # random draw in the run.
+                rng.uniform(0.6, 1.4)
+            node.demand_profiles[drug_id] = profile
+
+    return "rossmann-fitted" if fitted else "analytic-defaults"
 
 
 def _opening_position(node: TwinNode, drug_id: str, graph: nx.DiGraph) -> int:
@@ -323,7 +362,7 @@ def build_world(seed: int | None = None) -> World:
         nodes[spec.node_id] = node
 
     drug_ids = sorted(drugs)
-    _assign_demand_profiles(nodes, drug_ids, setup_rng)
+    demand_source = _assign_demand_profiles(nodes, drug_ids, setup_rng)
 
     env = simpy.Environment()
     world = World(
@@ -334,6 +373,7 @@ def build_world(seed: int | None = None) -> World:
         batches={b.batch_id: b for b in batch_specs},
         rng=sim_rng,
     )
+    world.demand_source = demand_source
     _position_opening_stock(world, graph, batch_specs)
     return world
 
@@ -489,6 +529,7 @@ def main() -> None:
 
     print(f"Network:  {network_summary(world.graph)}")
     print(f"Seed:     {args.seed}")
+    print(f"Demand:   {world.demand_source}")
     print(f"Setup:    {setup_elapsed:.2f}s (loading reference data)")
     # NFR-01's 1000 steps/s is a property of the loop, so it is timed alone.
     print(f"Run:      {run_elapsed:.2f}s for {kpis['sim_days']} simulated days "
