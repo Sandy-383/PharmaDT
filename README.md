@@ -231,6 +231,49 @@ so rather than imply otherwise.
 missingness, and is committed with its figures so it can be read without running
 anything.
 
+## Agent framework
+
+`pharmadt/agents/base.py` and `bus.py` are the skeleton the five agents plug
+into. Each runs one `observe → decide → act` cycle per simulated day, driven by
+`AgentOrchestrator.run_agents(world_state, sim_day)`.
+
+**Bus topics are the labelled edges of the architecture diagram**, declared as an
+enum rather than bare strings. A mistyped topic is otherwise the worst kind of
+bug: `publish("replenishment.oder", ...)` reaches nobody, raises nothing, and
+surfaces only as an agent that mysteriously never acts. A test asserts the enum
+still matches the eight edges in the diagram.
+
+| Topic | Publisher | Subscriber |
+|---|---|---|
+| `forecast.data` | Demand | Inventory |
+| `shortage.alert` | Demand | Inventory |
+| `demand.hotspot` | Demand | Expiry |
+| `counterfeit.flag` | Anomaly | Expiry, Dashboard |
+| `replenishment.order` | Inventory | Route |
+| `redistribution.request` | Expiry | Route |
+| `route.plan` | Route | Digital twin |
+| `ledger.event` | Ledger | Anomaly |
+
+Three decisions worth defending:
+
+- **Subclasses are structurally forbidden from overriding `act()`.** `__init_subclass__`
+  raises if they try. `act()` carries the NFR-08 audit logging, and an override
+  would bypass it silently — the audit trail would hold for four agents and
+  quietly not for the fifth. Agents customise `apply()` instead.
+- **Decisions are buffered, not written per action.** NFR-01 wants 1000 steps
+  per second and a round trip per decision would put the ceiling far below that,
+  so they bulk-insert after the run, exactly as the event log and ledger do.
+  Choosing *not* to act is recorded too — "why did the agent not reorder here?"
+  is an audit question in its own right.
+- **Agents run in dependency order** (Demand → Inventory → Expiry → Route →
+  Anomaly), not registration order, since each consumes what the previous
+  publishes. Registration order would make results depend on import order.
+
+Attaching an agent costs little: a 365-day run with one attached holds ~1,800
+steps/s and stays byte-identical across runs. With no orchestrator set, the twin
+runs its Stage 3 baseline untouched — which is exactly the control arm Stage 6
+is measured against.
+
 ## Provenance ledger
 
 A 365-day run anchors **13,614 custody events**, verified end to end in ~1.1s.
@@ -279,7 +322,10 @@ record hash covers content while ECDSA draws a random nonce per signature.
 
 ## Status
 
-Stages 0, 1, 2, 3, and 4 complete — 281 tests, lint clean.
+Stages 0, 1, 2, 3, 4, and 5 complete — 322 tests, lint clean.
+
+Stages 6–10 (the five agents) can now be built in parallel against the
+framework, which is the split the guide's team plan assumes.
 
 One dataset (CMS Part D) needs a manual download; everything else builds with
 `make data`.

@@ -113,6 +113,10 @@ class World:
         # Where the demand parameters came from; reported so a run's KPIs can
         # always be traced back to the data behind them.
         self.demand_source = "analytic-defaults"
+        # Set by Stage 5's AgentOrchestrator when agents are attached. Left
+        # None, the twin runs its Stage 3 baseline policy untouched, which is
+        # exactly the control arm the agents are measured against.
+        self.orchestrator: Any = None
 
         # Stage 6 flips this off when the Inventory Agent takes over ordering.
         self.baseline_policy_enabled = True
@@ -385,9 +389,27 @@ def _monitor_process(world: World):
         yield world.env.timeout(1)
 
 
+def _agent_process(world: World):
+    """Run one agent cycle per simulated day.
+
+    Scheduled before the node processes so agents observe the state at the
+    start of the day and any orders they publish are picked up by that same
+    day's fulfilment pass. Running them last would put a full day's lag between
+    every decision and its effect, which would show up as an agent that looks
+    slower to react than it is.
+    """
+    while True:
+        world.orchestrator.run_agents(world.snapshot(), int(world.env.now))
+        yield world.env.timeout(1)
+
+
 def run_simulation(world: World, days: int | None = None) -> World:
     """Start every process and advance the clock."""
     days = settings.sim_days if days is None else days
+
+    # Registered first so it runs first each day; see _agent_process.
+    if world.orchestrator is not None:
+        world.env.process(_agent_process(world))
 
     for node_id in sorted(world.nodes):
         node = world.nodes[node_id]
@@ -557,6 +579,11 @@ def main() -> None:
 
     if args.persist:
         print(f"Persisted: {persist_demand_records(world)} demand records")
+        if world.orchestrator is not None:
+            from pharmadt.agents.base import persist_decisions
+
+            written = persist_decisions(world.orchestrator.collect_decisions())
+            print(f"Persisted: {written} agent decisions")
 
     if args.anchor:
         # Imported here so a plain `make sim` never needs the ledger or its keys.
