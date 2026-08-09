@@ -38,6 +38,53 @@ class Settings(BaseSettings):
     # leaving it floating would make seeded data non-reproducible across runs.
     sim_start_date: date = date(2026, 1, 1)
 
+    # ── Network topology (Stage 3) ────────────────────────────────────
+    transit_speed_km_per_day: float = 400.0
+    transit_cost_base_per_unit: float = 0.5
+    transit_cost_per_km_per_unit: float = 0.002
+
+    # ── Consumer demand (Stage 3) ─────────────────────────────────────
+    # Analytic defaults. Stage 2 refits these per (node, drug) from Rossmann
+    # and injects them as a DemandProfile; the shape of the model does not
+    # change, only where the numbers come from.
+    base_daily_demand: float = 40.0
+    demand_dispersion: float = 0.35
+    demand_weekend_factor: float = 0.6
+    demand_seasonal_amplitude: float = 0.25
+
+    # ── Baseline replenishment policy (Stage 3) ───────────────────────
+    # A fixed-threshold (s, S) policy. Stage 6's Inventory Agent must beat
+    # this; it is the control arm of that comparison, not a placeholder.
+    #
+    # order_up_to_days must stay at or below the 28-day demand window in
+    # twin.nodes.DEMAND_HISTORY_DAYS. A node orders its whole horizon in one
+    # lump, and its supplier estimates demand by averaging observed orders over
+    # that window — so a horizon longer than the window biases the supplier's
+    # rate estimate upward by their ratio, and the bias compounds at every tier.
+    # At 42 against a 28-day window the warehouses ended up holding nine months
+    # of network demand.
+    # The reorder point covers lead time plus the review period and nothing
+    # else. That naivety is the point: it ignores demand variability entirely,
+    # which is exactly the gap Stage 6's safety-stock term (z·σ·√L, z = 1.65)
+    # is meant to close. Padding it here would leave that agent nothing to win.
+    reorder_point_days: int = 3
+    order_up_to_days: int = 21
+
+    # ── Manufacturing (Stage 3) ───────────────────────────────────────
+    # Stage 13's factory-shutdown scenario works by driving capacity to zero,
+    # so production has to be a real constraint rather than infinite supply.
+    production_batch_size: int = 20_000
+    production_capacity_per_day: int = 120_000
+
+    # ── Cold chain (Stage 3) ──────────────────────────────────────────
+    coldchain_excursion_prob_per_day: float = 0.02
+    ambient_temp_c: float = 25.0
+    cold_setpoint_c: float = 5.0
+    cold_excursion_temp_c: float = 12.0
+
+    # ── Expiry (Stage 3 wastage, Stage 8 alerting) ────────────────────
+    expiry_alert_days: int = 30  # FR-04
+
 
 @lru_cache
 def get_settings() -> Settings:

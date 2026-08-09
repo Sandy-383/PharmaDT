@@ -17,6 +17,9 @@ include = ["pharmadt*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+markers = [
+    "slow: full-length runs used to verify a stage's Definition of Done",
+]
 
 [tool.coverage.run]
 source = ["pharmadt"]

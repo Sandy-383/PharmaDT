@@ -25,6 +25,7 @@ make seed                       # 12 nodes, 5 drugs, 20 batches
 
 # 3. Verify
 make test
+make sim                        # 365 simulated days, prints baseline KPIs
 ```
 
 `make help` lists every target.
@@ -119,9 +120,63 @@ identity, shared by batch creation and by Stage 4's counterfeit check. Fields
 are joined with an explicit separator rather than concatenated, so a forger
 cannot shift a character across a field boundary and preserve the digest.
 
+## Digital twin
+
+`make sim` runs a SimPy discrete-event simulation over the 12-node network:
+1 manufacturer, 2 warehouses, 3 distributors, 6 pharmacies, with lateral edges
+between pharmacies served by the same distributor so Stage 7 has real
+transshipment routes rather than a round trip through the distributor.
+
+Five processes drive it — consumer demand, ordering and fulfilment, transit,
+expiry, and cold chain. Demand is a gamma-mixed Poisson (i.e. negative
+binomial) with weekday and seasonal effects: real pharmaceutical demand is
+overdispersed, and a plain Poisson would tie variance to the mean and understate
+stockout risk, which is the KPI the project is judged on. Stock is consumed
+first-expired-first-out.
+
+Baseline over 365 days at seed 42, ~0.2s (≈2,200 steps/s against NFR-01's
+1,000):
+
+| KPI | Value |
+|---|---|
+| Service level | 99.72% |
+| Stockout rate (unit-weighted) | 0.28% |
+| Inventory turns | 3.74 / year |
+| Cold-chain excursions | 12 |
+| Events emitted | 14,566 |
+
+The replenishment policy is a deliberately naive fixed-threshold (s, S): its
+reorder point covers lead time and the review period and nothing else. It
+ignores demand variability entirely, which is precisely the gap Stage 6's
+safety-stock term (z·σ·√L, z = 1.65) is meant to close — padding it here would
+leave that agent nothing to win.
+
+Two constraints on the parameters are worth knowing before tuning them.
+`order_up_to_days` must stay at or below the 28-day demand window, because a
+node orders its whole horizon in one lump and its supplier estimates demand by
+averaging observed orders over that window; a longer horizon biases the
+supplier's estimate upward by the ratio, and the bias compounds at every tier.
+And a node's demand history has to be a day-indexed series with quiet days
+zero-filled — counting only the days an order happened to arrive divides by the
+wrong denominator and inflates the estimated rate the same way. Both bugs were
+present and both produced plausible-looking KPIs rather than crashes; there are
+named regression tests for each in `tests/test_twin_nodes.py`.
+
+Two runs at the same seed produce byte-identical event logs. That is load
+bearing: Stage 4 hashes this event stream into a chain, and Stage 15 compares
+ablation arms against each other.
+
+Demand means are currently analytic defaults from `config.py`. Stage 2 refits
+them per (node, drug) from Rossmann and replaces the profiles wholesale; the
+sampling model does not change, only where its parameters come from.
+
 ## Status
 
-Stages 0 and 1 complete — 71 tests, 92% coverage.
+Stages 0, 1, and 3 complete — 150 tests, 93% coverage.
+
+Stage 2 (dataset acquisition) is not started. It runs in parallel with Stage 3
+in the guide's plan and needs Kaggle and openFDA access; the twin runs on
+analytic demand parameters until it lands.
 
 See the implementation guide for the full 15-stage plan; the Stage 10.5
 integration gate is the milestone at which the system is complete and
