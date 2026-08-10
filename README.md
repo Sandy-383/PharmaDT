@@ -360,6 +360,48 @@ forecaster to consumer-facing nodes removes it.
 Better service *and* less inventory than inventory-alone — the forecast lets the
 reorder point hold a thinner buffer.
 
+## Expiry Agent (Stage 8)
+
+FEFO issuing (already the twin's policy) plus redistribution of near-expiry
+stock by **sealed-bid second-price (Vickrey) auction**. Vickrey is named
+deliberately: truthful bidding is dominant, because the price a winner pays is
+set by the runner-up's bid rather than its own. Under a first-price auction
+every node shades its bid and the allocation stops tracking who can actually
+use the stock — the only thing redistribution is trying to discover.
+
+Over eight seeds, 365 days:
+
+| | Wastage | Stockout | Avg inventory |
+|---|---|---|---|
+| without Expiry Agent | 4,123 | 0.00008 | 139,169 |
+| **with Expiry Agent** | **462** | 0.00032 | 138,655 |
+
+**88.8% wastage reduction**, inventory unchanged, service still 99.97%. Seven of
+eight seeds improved; the eighth (which wasted nothing to begin with) got worse,
+and that is reported rather than dropped.
+
+### Three measured corrections
+
+The first version reduced wastage by **4%**, not 88%. Each fix came from a
+measurement, not a guess:
+
+1. **Buyers must be downstream, not only lateral.** All wastage sat at
+   `NODE-PH-05`, `NODE-WH-02` and `NODE-DC-03` — none of which have same-tier
+   peers. Upstream stock had no route out and simply expired where it sat.
+   Pushing one tier down, toward consumption, is what a real distributor does.
+2. **Act earlier than you alert.** FR-04's 30 days is a *detection* threshold.
+   At 30 days the receiving node usually cannot sell the stock either, so the
+   transfer relocates the waste. Sweeping the horizon: 30d → 3,728 units,
+   120d → 625. Detection and action are different questions.
+3. **Buyers must net off stock they already hold.** Otherwise every node claims
+   it can absorb the whole lot, stock lands where it will not sell, and
+   redistribution manufactures the waste it exists to prevent.
+
+A genuine topology finding fell out of this: a distributor branch with a single
+customer (`NODE-DC-03 → NODE-PH-05`) is a **redistribution dead end**. Stock
+there has nowhere lateral to go. That is a network-design conclusion, not a
+code defect.
+
 ## Provenance ledger
 
 A 365-day run anchors **13,614 custody events**, verified end to end in ~1.1s.

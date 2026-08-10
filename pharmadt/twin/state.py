@@ -42,6 +42,8 @@ class NodeState:
     storage_utilisation: float
     storage_capacity: int
     demand_history: Mapping[str, tuple[int, ...]]
+    #: Lots close enough to expiry for the Expiry Agent to care about.
+    expiring_lots: tuple[Mapping[str, Any], ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         """Plain JSON-serialisable form — what agents and the API consume."""
@@ -55,6 +57,7 @@ class NodeState:
             "storage_utilisation": round(self.storage_utilisation, 4),
             "storage_capacity": self.storage_capacity,
             "demand_history": {k: list(v) for k, v in self.demand_history.items()},
+            "expiring_lots": [dict(lot) for lot in self.expiring_lots],
         }
 
     def to_vector(self, drugs: Sequence[str]) -> np.ndarray:
@@ -94,10 +97,46 @@ class NodeState:
         return n_drugs * FEATURES_PER_DRUG + 2
 
 
-def node_state(node: TwinNode, sim_day: int, drugs: Sequence[str] | None = None) -> NodeState:
+def _expiring_lots(node: TwinNode, sim_day: int, horizon: int) -> tuple[dict[str, Any], ...]:
+    """Lots within ``horizon`` days of expiry, soonest first.
+
+    Filtered at source rather than handed over whole: a node can hold dozens of
+    lots and only the near-expiry ones are actionable, so emitting all of them
+    every simulated day would cost the twin real time for data nobody reads.
+    """
+    near: list[dict[str, Any]] = []
+    for drug_id, lots in node.lots.items():
+        for lot in lots:
+            days_left = lot.expiry_day - sim_day
+            if lot.quantity > 0 and days_left <= horizon:
+                near.append(
+                    {
+                        "batch_id": lot.batch_id,
+                        "drug_id": drug_id,
+                        "quantity": lot.quantity,
+                        "expiry_day": lot.expiry_day,
+                        "days_to_expiry": days_left,
+                    }
+                )
+    near.sort(key=lambda lot: (lot["days_to_expiry"], lot["batch_id"]))
+    return tuple(near)
+
+
+def node_state(
+    node: TwinNode,
+    sim_day: int,
+    drugs: Sequence[str] | None = None,
+    expiry_horizon: int | None = None,
+) -> NodeState:
     """Snapshot one node."""
     keys = list(drugs) if drugs is not None else node.drugs_handled()
+    # The redistribution horizon, not the FR-04 alert threshold: the Expiry
+    # Agent has to see stock while there is still time for someone to sell it.
+    horizon = (
+        settings.redistribution_horizon_days if expiry_horizon is None else expiry_horizon
+    )
     return NodeState(
+        expiring_lots=_expiring_lots(node, sim_day, horizon),
         node_id=node.node_id,
         node_type=node.node_type,
         sim_day=sim_day,

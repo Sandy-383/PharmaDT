@@ -410,3 +410,58 @@ def coldchain_process(
                     },
                 )
             )
+
+
+def transfer_lot(
+    world: World,
+    from_node: str,
+    to_node: str,
+    batch_id: str,
+    drug_id: str,
+    quantity: int,
+    day: int,
+) -> int:
+    """Move part of a lot laterally between nodes. Returns units actually moved.
+
+    Physical stock moves immediately rather than through the shipment pipeline.
+    Lateral transfers are same-tier hops between peers served by one
+    distributor, and a near-expiry lot that spent two days in transit would
+    often arrive with nothing left to sell -- which would make redistribution
+    look useless for a reason that is an artefact of the model rather than of
+    the policy.
+
+    The batch keeps its identity across the move, so the provenance chain
+    records a REDISTRIBUTION handoff for the same batch_id rather than
+    inventing a new one.
+    """
+    source = world.nodes.get(from_node)
+    destination = world.nodes.get(to_node)
+    if source is None or destination is None or quantity <= 0:
+        return 0
+
+    lots = source.lots.get(drug_id, [])
+    lot = next((lot_ for lot_ in lots if lot_.batch_id == batch_id), None)
+    if lot is None:
+        return 0
+
+    moved = min(quantity, lot.quantity, destination.available_space())
+    if moved <= 0:
+        return 0
+
+    lot.quantity -= moved
+    source._drop_empty(drug_id)
+    destination.add_lot(
+        Lot(batch_id=batch_id, drug_id=drug_id, expiry_day=lot.expiry_day, quantity=moved)
+    )
+
+    world.emit(
+        Event(
+            event_type=EventType.REDISTRIBUTION,
+            sim_day=day,
+            batch_id=batch_id,
+            from_node=from_node,
+            to_node=to_node,
+            payload={"drug_id": drug_id, "quantity": moved},
+        )
+    )
+    return moved

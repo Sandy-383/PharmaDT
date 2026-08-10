@@ -114,6 +114,29 @@ class Settings(BaseSettings):
     # it cannot be printed by an accidental repr of the settings object.
     kaggle_api_token: SecretStr | None = None
 
+    # ── Expiry Agent (Stage 8) ────────────────────────────────────────
+    # How far ahead the redistribution auction looks. Deliberately *not*
+    # expiry_alert_days: FR-04's 30 days is a *detection* threshold, and
+    # detection and action are different questions. At 30 days the receiving
+    # node usually cannot sell the stock either, so the transfer relocates the
+    # waste instead of preventing it. Measured over seeds 45/47/49:
+    #
+    #   horizon    30d    60d    90d   120d
+    #   wastage  3,728  3,728  4,456    625
+    #
+    # Stock has to move while somebody still has time to sell it.
+    redistribution_horizon_days: int = 120
+    # Nominal economics for the redistribution auction. Absolute values do not
+    # matter — only their ratios decide whether a transfer is worth making, so
+    # these are stated as a unit price with everything else relative to it.
+    unit_value: float = 10.0
+    # Disposal costs money on top of losing the stock, so avoiding it is worth
+    # more than the goods alone. This sets the auction's reserve price.
+    disposal_cost_per_unit: float = 2.0
+    # Per unit, per km. Above roughly a tenth of unit value, transport swamps
+    # the saving and redistribution stops being worth doing at any distance.
+    transport_cost_per_unit_km: float = 0.002
+
     # ── Provenance ledger (Stage 4) ───────────────────────────────────
     # Records per Merkle block. The root is written onto the last record of
     # each block, so inclusion proofs cost O(log 64) = 6 sibling hashes.

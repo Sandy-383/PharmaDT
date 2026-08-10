@@ -69,10 +69,28 @@ def variant_demand(seed: int) -> Any:
     return world
 
 
+def variant_expiry(seed: int) -> Any:
+    """Stage 8: adds FEFO redistribution by Vickrey auction."""
+    from pharmadt.agents.demand import DemandAgent
+    from pharmadt.agents.expiry import ExpiryAgent
+    from pharmadt.agents.inventory import InventoryAgent
+    from pharmadt.twin.simulation import attach_agents
+
+    world = _build(seed)
+    attach_agents(
+        world,
+        DemandAgent(),
+        InventoryAgent(graph=world.graph),
+        ExpiryAgent(graph=world.graph),
+    )
+    return world
+
+
 VARIANTS: dict[str, Callable[[int], Any]] = {
     "baseline": variant_baseline,
     "inventory": variant_inventory,
     "demand": variant_demand,
+    "expiry": variant_expiry,
 }
 
 
