@@ -589,18 +589,38 @@ Tagged `v1.0-integrated`.
 
 ## Status
 
-Stages 0, 1, 2, 3, 4, and 5 complete — 322 tests, lint clean.
+**14 of 15 stages complete.** 520 tests, 84% coverage (NFR-07 requires 80%),
+ruff clean.
 
-Stages 6–10 (the five agents) can now be built in parallel against the
-framework, which is the split the guide's team plan assumes.
+| Stage | Result |
+|---|---|
+| 0–5 | Environment, domain model, datasets, twin, ledger, agent framework |
+| 6 Inventory | 98.8% stockout reduction |
+| 7 Demand | LSTM MASE 0.416 vs seasonal-naive 1.000 |
+| 8 Expiry | 88.8% wastage reduction |
+| 9 Route | 2.25% mean gap vs CVRPLIB published optima |
+| 10 Anomaly | Recall 0.619 → 0.976 once the ledger joins the screening |
+| ★ 10.5 | **Integration gate passed** — `v1.0-integrated` |
+| 11 Federated | 12% sMAPE cost vs centralised; data never leaves a client |
+| 13 Crisis | 61.9% reduction in unmet demand across four disruptions |
+| 15 Evaluation | Experiment matrix, 10 seeds, abstract claims validated |
 
-One dataset (CMS Part D) needs a manual download; everything else builds with
-`make data`.
+**Stage 12 (MADDPG) was cut** on the guide's own risk assessment, which states
+that the Stage 6–10 heuristics ship the project and prescribes reporting the
+omission rather than a rushed negative result.
 
-Stage 2 (dataset acquisition) is not started. It runs in parallel with Stage 3
-in the guide's plan and needs Kaggle and openFDA access; the twin runs on
-analytic demand parameters until it lands.
+**Stage 14 (dashboard) is not built.** The FastAPI/React layer is presentation
+over an API that does not yet exist; every number in this README is reproducible
+from the command line without it.
 
-See the implementation guide for the full 15-stage plan; the Stage 10.5
-integration gate is the milestone at which the system is complete and
-demonstrable.
+## Reproducing everything
+
+```bash
+make db-up && make migrate && make seed && make keys && make data
+make gate          # the integration gate, 6/6
+make evaluate      # the experiment matrix, 10 seeds
+make crisis        # four disruption scenarios
+make federated     # centralised vs IID vs non-IID vs DP
+make tamper-demo   # ledger tamper-evidence
+make cov           # 520 tests, 84%
+```

@@ -13,7 +13,6 @@ from pharmadt.gate import Check
 from pharmadt.ml.benchmark_routing import _vehicle_count
 from pharmadt.ml.train_anomaly import shipment_records
 
-
 # ── Gate reporting ────────────────────────────────────────────────────
 
 
