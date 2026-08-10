@@ -320,6 +320,46 @@ carries most of the buffer, so extra safety stock mostly sits until it expires.
 `make frontier` traces the whole curve — and being *tunable* is the real
 contribution here, since a fixed threshold offers no dial at all.
 
+## Demand Agent (Stage 7)
+
+`python -m pharmadt.ml.train_demand` trains and scores the forecasters.
+**Beating seasonal-naive is the bar**; MASE is scaled so seasonal-naive reads
+exactly 1.000.
+
+| Model | sMAPE | MASE | Beats the bar |
+|---|---|---|---|
+| naive | 26.43 | 0.877 | — |
+| seasonal-naive | 30.06 | 1.000 | — |
+| moving average | 21.43 | 0.694 | yes |
+| **LSTM** | **13.19** | **0.416** | **yes** |
+| Prophet | 18.48 | 0.687 | yes |
+| Ensemble | 16.23 | 0.614 | yes |
+
+MAPE is reported but is **undefined at zero demand**, so it is computed over
+non-zero actuals only and the excluded percentage is printed alongside. sMAPE
+and MASE are defined everywhere and are what the conclusions rest on.
+
+### The bullwhip bug
+
+Adding the Demand Agent initially made things *worse*: **+68% inventory** and
+700× the wastage. Measured cause — the forecast/history ratio was 1.00 at
+retail nodes but **2.26 (peaking at 4.00) upstream**.
+
+Upstream "demand" is not consumer demand. It is the order flow the Inventory
+Agent itself generates, which arrives in lumpy bursts; a moving average lands on
+a recent burst, doubles the estimate, and that feeds back into the policy that
+produced it. Classic bullwhip amplification, built by accident. Scoping the
+forecaster to consumer-facing nodes removes it.
+
+| Variant | Stockout | Units short | Avg inventory |
+|---|---|---|---|
+| baseline (s, S) | 0.00252 | 1,042 | 117,724 |
+| inventory only | 0.00003 | 12 | 140,517 |
+| **+ demand** | **0.00001** | **2** | **136,892** |
+
+Better service *and* less inventory than inventory-alone — the forecast lets the
+reorder point hold a thinner buffer.
+
 ## Provenance ledger
 
 A 365-day run anchors **13,614 custody events**, verified end to end in ~1.1s.
