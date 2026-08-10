@@ -199,6 +199,11 @@ def _fulfil_orders(world: World, node: TwinNode, day: int) -> None:
     queue = world.pending_orders[node.node_id]
     if not queue:
         return
+    # A crisis scenario can take a node offline (Stage 13). Orders queue rather
+    # than vanish, so the backlog clears when the disruption lifts -- which is
+    # what makes time-to-recover a meaningful measurement.
+    if node.node_id in world.disabled_nodes:
+        return
 
     remaining_queue: list[Order] = []
     for order in queue:
@@ -382,7 +387,8 @@ def coldchain_process(
         yield env.timeout(1)
         day = int(env.now)
 
-        breached = world.rng.random() < settings.coldchain_excursion_prob_per_day
+        risk = settings.coldchain_excursion_prob_per_day * world.coldchain_risk_multiplier
+        breached = world.rng.random() < min(1.0, risk)
         temp_c = settings.cold_excursion_temp_c if breached else settings.cold_setpoint_c
         shipment.temp_log.append({"sim_day": day, "temp_c": temp_c})
 

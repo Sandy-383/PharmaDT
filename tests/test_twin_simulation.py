@@ -155,16 +155,26 @@ def test_event_rows_are_emitted_in_chronological_order(finished_world) -> None:
 
 @pytest.mark.slow
 def test_full_year_over_twelve_nodes_runs_well_inside_thirty_seconds() -> None:
-    started = time.perf_counter()
-    world = run_simulation(build_world(), days=365)
-    elapsed = time.perf_counter() - started
+    # Setup and run are timed separately, as `make sim` has always reported
+    # them. NFR-01 is a throughput requirement on the simulation loop; folding
+    # in a Postgres round trip and a Parquet read would measure how long it
+    # takes to *start* a simulation, which is a different question and one the
+    # requirement does not ask.
+    setup_started = time.perf_counter()
+    world = build_world()
+    setup_elapsed = time.perf_counter() - setup_started
+
+    run_started = time.perf_counter()
+    run_simulation(world, days=365)
+    run_elapsed = time.perf_counter() - run_started
 
     assert int(world.env.now) == 365
-    assert elapsed < 30.0, f"took {elapsed:.1f}s"
+    assert setup_elapsed + run_elapsed < 30.0, f"took {setup_elapsed + run_elapsed:.1f}s"
+    assert setup_elapsed < 10.0, f"setup took {setup_elapsed:.1f}s"
 
     # NFR-01 asks for 1000 steps/second, but a line tracer costs roughly an
     # order of magnitude. Under coverage this would measure the tracer rather
     # than the simulation, so the throughput claim is only asserted when the
     # interpreter is running untraced.
     if sys.gettrace() is None:
-        assert 365 / elapsed > 1000, f"{365 / elapsed:,.0f} steps/s"
+        assert 365 / run_elapsed > 1000, f"{365 / run_elapsed:,.0f} steps/s"

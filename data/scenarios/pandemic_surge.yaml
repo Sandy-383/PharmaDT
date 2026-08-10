@@ -1,0 +1,14 @@
+# Demand shock: a respiratory pandemic drives a sustained surge in dispensing.
+#
+# Magnitude of 10x follows the guide. Real COVID-era pharmacy demand spikes for
+# specific categories were closer to 3-6x, so 10x is deliberately severe -- a
+# resilience test is more useful when it is harder than the thing it models.
+# Cite the magnitude as an assumption in the report, not as an observation.
+name: pandemic_surge
+description: Demand multiplied across all pharmacies during a pandemic wave
+trigger_day: 90
+duration_days: 60
+effects:
+  - kind: demand_multiplier
+    magnitude: 10.0
+    node_types: [PHARMACY, HOSPITAL]

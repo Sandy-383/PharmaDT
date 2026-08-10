@@ -117,6 +117,12 @@ class World:
         # None, the twin runs its Stage 3 baseline policy untouched, which is
         # exactly the control arm the agents are measured against.
         self.orchestrator: Any = None
+        # ── Crisis levers (Stage 13) ──────────────────────────────────
+        # Held on the world rather than in config so a scenario is reversible
+        # and two scenarios can compose without either editing global state.
+        self.disabled_nodes: set[str] = set()
+        self.coldchain_risk_multiplier: float = 1.0
+        self.active_scenarios: list[str] = []
 
         # Stage 6 flips this off when the Inventory Agent takes over ordering.
         self.baseline_policy_enabled = True

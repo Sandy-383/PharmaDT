@@ -1,0 +1,12 @@
+# Logistics shock: flooding severs the lanes out of one regional warehouse.
+#
+# Edges are removed rather than made expensive. A washed-out road is not a
+# costly road, and pricing it merely makes the optimiser prefer another route
+# while still permitting the impossible one.
+name: route_disruption
+description: Flooding severs distribution lanes from a regional warehouse
+trigger_day: 180
+duration_days: 40
+effects:
+  - kind: remove_edges
+    from_nodes: [NODE-WH-02]

@@ -104,3 +104,89 @@ def inject_anomalies(
             shipment["forged_fingerprint"] = True
 
     return InjectionReport(labels, assigned, counterfeits)
+
+
+# ── Crisis injection (Stage 13) ───────────────────────────────────────
+
+
+def apply_scenario(world: Any, scenario: Any) -> dict[str, Any]:
+    """Apply every effect and return exactly what is needed to undo it.
+
+    The undo state is captured *before* anything changes and returned rather
+    than stored globally, so two scenarios overlapping in time each hold their
+    own record and neither can restore the other's values by accident.
+    """
+    undo: dict[str, Any] = {"demand": {}, "nodes": [], "coldchain": None, "edges": []}
+
+    for effect in scenario.effects:
+        if effect.kind == "demand_multiplier":
+            for node in _matching(world, effect):
+                for drug_id, profile in node.demand_profiles.items():
+                    undo["demand"][(node.node_id, drug_id)] = profile.mean
+                    profile.mean *= effect.magnitude
+
+        elif effect.kind == "disable_node":
+            for node in _matching(world, effect):
+                if node.node_id not in world.disabled_nodes:
+                    world.disabled_nodes.add(node.node_id)
+                    undo["nodes"].append(node.node_id)
+
+        elif effect.kind == "coldchain_risk":
+            undo["coldchain"] = world.coldchain_risk_multiplier
+            world.coldchain_risk_multiplier *= effect.magnitude
+
+        elif effect.kind == "remove_edges":
+            for source in effect.from_nodes:
+                if source not in world.graph:
+                    continue
+                for target in list(world.graph.successors(source)):
+                    undo["edges"].append(
+                        (source, target, dict(world.graph[source][target]))
+                    )
+                    world.graph.remove_edge(source, target)
+
+    world.active_scenarios.append(scenario.name)
+    return undo
+
+
+def revert_scenario(world: Any, scenario: Any, undo: dict[str, Any]) -> None:
+    """Put back everything :func:`apply_scenario` changed."""
+    for (node_id, drug_id), mean in undo["demand"].items():
+        node = world.nodes.get(node_id)
+        if node and drug_id in node.demand_profiles:
+            node.demand_profiles[drug_id].mean = mean
+
+    for node_id in undo["nodes"]:
+        world.disabled_nodes.discard(node_id)
+
+    if undo["coldchain"] is not None:
+        world.coldchain_risk_multiplier = undo["coldchain"]
+
+    for source, target, data in undo["edges"]:
+        world.graph.add_edge(source, target, **data)
+
+    if scenario.name in world.active_scenarios:
+        world.active_scenarios.remove(scenario.name)
+
+
+def crisis_process(world: Any, scenario: Any):
+    """SimPy process: apply at the trigger day, revert when the window closes."""
+    yield world.env.timeout(scenario.trigger_day)
+    undo = apply_scenario(world, scenario)
+
+    yield world.env.timeout(scenario.duration_days)
+    revert_scenario(world, scenario, undo)
+
+
+def _matching(world: Any, effect: Any) -> list[Any]:
+    """Nodes an effect applies to, by explicit id or by tier."""
+    if effect.node_ids:
+        return [world.nodes[n] for n in sorted(effect.node_ids) if n in world.nodes]
+    if effect.node_types:
+        wanted = {t.upper() for t in effect.node_types}
+        return [
+            world.nodes[n]
+            for n in sorted(world.nodes)
+            if str(world.nodes[n].node_type) in wanted
+        ]
+    return [world.nodes[n] for n in sorted(world.nodes)]

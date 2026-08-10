@@ -1,0 +1,11 @@
+# Environmental shock: a heatwave raises refrigeration failure rates sharply.
+#
+# Multiplier rather than absolute rate, so the scenario composes with whatever
+# baseline excursion probability the twin is configured with.
+name: coldchain_failure
+description: Heatwave multiplies cold-chain excursion risk on shipments in transit
+trigger_day: 150
+duration_days: 45
+effects:
+  - kind: coldchain_risk
+    magnitude: 15.0

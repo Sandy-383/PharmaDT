@@ -1,0 +1,12 @@
+# Supply shock: the sole manufacturer halts, so nothing new enters the network.
+#
+# The single-manufacturer topology makes this the harshest possible version of
+# the scenario -- there is no second source. That is itself a finding worth
+# reporting about the network design rather than only about the disruption.
+name: factory_shutdown
+description: Manufacturer output halts; the network runs on stock already held
+trigger_day: 120
+duration_days: 30
+effects:
+  - kind: disable_node
+    node_types: [MANUFACTURER]

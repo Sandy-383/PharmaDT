@@ -490,6 +490,41 @@ only fields are weight arrays, a sample count and scalar metrics; a test
 inspects every array crossing the boundary and confirms none matches the
 training data.
 
+## Crisis scenarios (Stage 13)
+
+`python -m pharmadt.crisis.experiment` runs four YAML-defined disruptions
+(FR-09) twice each on the same seed — once on the fixed-threshold baseline,
+once with the agent stack. This is what makes "resilient" in the title a
+measurement.
+
+| Scenario | Peak stockout | Unmet units | Recovery |
+|---|---|---|---|
+| | base → agents | base → agents | base → agents |
+| cold-chain failure | 0.045 → **0.000** | 383 → **0** | 3d → 0d |
+| factory shutdown | 0.032 → **0.000** | 737 → **0** | 48d → **0d** |
+| pandemic surge | 0.910 → **0.543** | 120,285 → **46,415** | 60d → 60d |
+| route disruption | 0.040 → **0.000** | 446 → **0** | 0d → 0d |
+
+**Total unmet demand across all four: 121,851 → 46,415 (61.9% reduction).**
+
+The agents absorb three of the four disruptions completely. **The pandemic surge
+they do not** — peak stockout stays at 54%, because no inventory policy can
+absorb 10× demand for 60 days when the manufacturer's output is finite. That
+limit is worth stating plainly: the agents manage scarcity, they do not create
+supply.
+
+Recovery curves are written to `experiments/recovery_curves.png`.
+
+Every effect is **reversible**, which is what makes recovery measurable at all —
+a disruption that never lifted would only ever report "never recovered", and two
+scenarios could not share a run without corrupting each other's state. Each
+scenario holds its own undo record, so overlapping windows revert correctly in
+any order.
+
+Recovery requires the stockout rate to fall back **and stay down** for 14 days.
+Taking the first crossing would report a single quiet day in the middle of a
+shortage as a recovery.
+
 ## ★ Stage 10.5 — Integration Gate
 
 `make gate` stands up the whole autonomous system and checks the guide's seven
