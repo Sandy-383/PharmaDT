@@ -1,0 +1,558 @@
+<title>PharmaDT — Viva Briefing</title>
+<style>
+  /* ── Tokens: complete light palette on bare :root ─────────────── */
+  :root {
+    --ground:      #f7f8fa;
+    --surface:     #ffffff;
+    --surface-alt: #eef1f5;
+    --ink:         #171c23;
+    --ink-soft:    #4d5765;
+    --ink-faint:   #77808e;
+    --rule:        #d9dee6;
+    --rule-soft:   #e6eaf0;
+    --accent:      #0b6e68;
+    --accent-soft: #e3f1ef;
+    --accent-ink:  #08514d;
+    --warn:        #9a5b0b;
+    --warn-soft:   #fbf1e0;
+    --shadow:      0 1px 2px rgba(23,28,35,.06), 0 8px 24px rgba(23,28,35,.05);
+
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #12161b;
+      --surface:     #191f26;
+      --surface-alt: #1f262f;
+      --ink:         #e6eaf0;
+      --ink-soft:    #a8b2bf;
+      --ink-faint:   #7b8593;
+      --rule:        #2b333d;
+      --rule-soft:   #232a33;
+      --accent:      #4fb3aa;
+      --accent-soft: #14302e;
+      --accent-ink:  #7fcfc7;
+      --warn:        #d99a4e;
+      --warn-soft:   #2e2417;
+      --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:      #12161b;
+    --surface:     #191f26;
+    --surface-alt: #1f262f;
+    --ink:         #e6eaf0;
+    --ink-soft:    #a8b2bf;
+    --ink-faint:   #7b8593;
+    --rule:        #2b333d;
+    --rule-soft:   #232a33;
+    --accent:      #4fb3aa;
+    --accent-soft: #14302e;
+    --accent-ink:  #7fcfc7;
+    --warn:        #d99a4e;
+    --warn-soft:   #2e2417;
+    --shadow:      0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16.5px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.25rem 6rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 74ch; margin: 0 auto; }
+  .wide { max-width: 104ch; margin-inline: auto; }
+
+  /* ── Masthead ─────────────────────────────────────────────────── */
+  header.masthead {
+    max-width: 104ch; margin: 0 auto; padding: 4.5rem 0 2rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 .9rem;
+  }
+  h1 {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(2.1rem, 5vw, 3.1rem);
+    line-height: 1.1; letter-spacing: -.015em; margin: 0 0 .8rem; text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.08rem; color: var(--ink-soft); margin: 0 0 1.6rem; max-width: 62ch;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.6rem;
+    font-family: var(--mono); font-size: .78rem; color: var(--ink-faint);
+    padding-bottom: 1.4rem;
+  }
+  .meta b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ── Sections ─────────────────────────────────────────────────── */
+  section { padding-top: 3.4rem; }
+  h2 {
+    font-family: var(--serif); font-weight: 600; font-size: 1.72rem;
+    letter-spacing: -.01em; margin: 0 0 .3rem; text-wrap: balance;
+    display: flex; align-items: baseline; gap: .7rem;
+  }
+  h2 .num {
+    font-family: var(--mono); font-size: .8rem; color: var(--accent);
+    letter-spacing: .08em; flex: none;
+  }
+  .lede { color: var(--ink-soft); margin: 0 0 1.6rem; max-width: 64ch; }
+  h3 {
+    font-family: var(--sans); font-weight: 650; font-size: 1.02rem;
+    margin: 2rem 0 .5rem; letter-spacing: -.005em;
+  }
+  p { margin: 0 0 1rem; }
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  strong { font-weight: 650; }
+  code {
+    font-family: var(--mono); font-size: .86em; background: var(--surface-alt);
+    padding: .12em .38em; border-radius: 3px; color: var(--ink);
+  }
+
+  /* ── Tables ───────────────────────────────────────────────────── */
+  .scroll { overflow-x: auto; margin: 0 0 1.4rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td {
+    text-align: left; padding: .58rem .8rem; border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
+    border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono);
+                   font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  tr.total td { border-top: 1px solid var(--rule); font-weight: 650; }
+
+  /* ── Q&A: the actual use case ─────────────────────────────────── */
+  .qa {
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--surface);
+    padding: 1.15rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .qa .q {
+    font-family: var(--serif); font-size: 1.06rem; font-weight: 600;
+    margin: 0 0 .55rem; color: var(--ink);
+  }
+  .qa .q::before {
+    content: "Q"; font-family: var(--mono); font-size: .7rem; font-weight: 500;
+    color: var(--accent); letter-spacing: .1em; margin-right: .6rem;
+    vertical-align: .18em;
+  }
+  .qa p:last-child { margin-bottom: 0; }
+  .qa .a { color: var(--ink-soft); font-size: .95rem; }
+  .qa .a strong { color: var(--ink); }
+
+  /* ── Callout: things to volunteer before being asked ──────────── */
+  .volunteer {
+    border-left: 3px solid var(--warn); background: var(--warn-soft);
+    padding: .95rem 1.15rem; margin: 0 0 1rem; border-radius: 0 5px 5px 0;
+  }
+  .volunteer .tag {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--warn); display: block; margin-bottom: .35rem;
+  }
+  .volunteer p { margin: 0; font-size: .95rem; color: var(--ink-soft); }
+  .volunteer p + p { margin-top: .6rem; }
+
+  /* ── Owner chips ──────────────────────────────────────────────── */
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: .7rem;
+    letter-spacing: .06em; padding: .12rem .5rem; border-radius: 3px;
+    background: var(--accent-soft); color: var(--accent-ink); white-space: nowrap;
+  }
+
+  pre {
+    font-family: var(--mono); font-size: .82rem; line-height: 1.6;
+    background: var(--surface-alt); color: var(--ink); padding: 1rem 1.15rem;
+    border-radius: 5px; overflow-x: auto; margin: 0 0 1.2rem;
+    border: 1px solid var(--rule-soft);
+  }
+  pre .c { color: var(--ink-faint); }
+
+  ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; }
+  li { margin-bottom: .45rem; }
+  li::marker { color: var(--accent); }
+
+  hr { border: none; border-top: 1px solid var(--rule); margin: 3rem 0 0; }
+
+  footer {
+    max-width: 104ch; margin: 3rem auto 0; padding-top: 1.5rem;
+    border-top: 1px solid var(--rule); font-size: .85rem; color: var(--ink-faint);
+  }
+</style>
+
+<header class="masthead">
+  <p class="eyebrow">Defence brief · internal</p>
+  <h1>PharmaDT: what to say, and what to say first</h1>
+  <p class="standfirst">
+    Every decision in this project that an examiner can reasonably challenge, with
+    the measurement behind it. Three people are examined individually on one
+    codebase — this is how you divide it and how you answer.
+  </p>
+  <div class="meta">
+    <span><b>520</b> tests</span>
+    <span><b>84%</b> coverage</span>
+    <span><b>14/15</b> stages</span>
+    <span><b>v2.0-final</b></span>
+    <span>S Sanjana · Sandeep N · Sai Shreekar G</span>
+  </div>
+</header>
+
+<div class="wide">
+
+<section>
+  <h2><span class="num">01</span> Split the codebase before you revise it</h2>
+  <p class="lede">
+    Follow the implementation guide's own owner assignments. Each of you should be
+    able to answer anything in your column without hesitation, and give a one-sentence
+    summary of the other two.
+  </p>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>Owner</th><th>Stages</th><th>Must be able to defend</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="chip">Owner A</span></td>
+          <td>1, 3, 8, 13</td>
+          <td>Domain model and DB constraints · the SimPy twin and why demand is
+              negative-binomial · the Vickrey auction · crisis scenarios and reversibility</td>
+        </tr>
+        <tr>
+          <td><span class="chip">Owner B</span></td>
+          <td>5, 6, 9</td>
+          <td>Agent framework and why <code>act()</code> cannot be overridden ·
+              echelon lead time · OR-Tools CVRP and the CVRPLIB gap</td>
+        </tr>
+        <tr>
+          <td><span class="chip">Owner C</span></td>
+          <td>2, 4, 7, 10, 11</td>
+          <td>Datasets and the Rossmann validity threat · the provenance ledger ·
+              LSTM/Prophet forecasting · anomaly detection · federated learning</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    <strong>All three</strong> own Stage 0, the Stage 10.5 integration gate, and Stage 15's
+    experiment matrix. Those are the questions most likely to be asked of whoever is
+    speaking at the time.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">02</span> The ninety-second answer</h2>
+  <p class="lede">If you are asked "what did you build?", this is the shape of the reply.</p>
+  <p>
+    A pharmaceutical supply chain simulated as a digital twin — twelve nodes, five drugs,
+    365 days — with five autonomous agents managing inventory, demand forecasting,
+    expiry redistribution, vehicle routing, and anomaly detection. Every physical handoff
+    is written to a cryptographic provenance ledger: hash-chained, ECDSA-signed,
+    append-only enforced by database triggers. Demand forecasting is federated, so raw
+    data never leaves a client.
+  </p>
+  <p>
+    The system reduces stockouts by <strong>88.7%</strong> and wastage by
+    <strong>35.9%</strong> against a fixed-threshold baseline, measured over ten random
+    seeds. Under four crisis scenarios it cuts unmet demand by <strong>61.9%</strong>.
+    The ledger raises counterfeit detection recall from <strong>0.619 to 0.976</strong>,
+    because forged batch identity is invisible to the machine-learning models by
+    construction.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">03</span> Every number, and where it comes from</h2>
+  <p class="lede">
+    If a number is quoted in your report, it should appear here with the command that
+    regenerates it. Anything not on this list, do not claim.
+  </p>
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Claim</th><th class="num">Measured</th><th>Baseline compared against</th>
+          <th>Regenerate with</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Stockout reduction</td><td class="num">88.7%</td>
+            <td>Fixed-threshold (s, S), 10 seeds</td><td><code>make evaluate</code></td></tr>
+        <tr><td>Wastage reduction</td><td class="num">35.9%</td>
+            <td>Same, 119 → 76 units</td><td><code>make evaluate</code></td></tr>
+        <tr><td>Forecast quality</td><td class="num">MASE 0.416</td>
+            <td>Seasonal-naive = 1.000</td><td><code>python -m pharmadt.ml.train_demand</code></td></tr>
+        <tr><td>Routing optimality gap</td><td class="num">2.25%</td>
+            <td>CVRPLIB published optima</td><td><code>make routing-benchmark</code></td></tr>
+        <tr><td>Counterfeit recall, ML only</td><td class="num">0.619</td>
+            <td>42 injected anomalies</td><td><code>make anomaly-eval</code></td></tr>
+        <tr><td>Counterfeit recall, ML + ledger</td><td class="num">0.976</td>
+            <td>Same</td><td><code>make anomaly-eval</code></td></tr>
+        <tr><td>Federated accuracy cost</td><td class="num">+12.0%</td>
+            <td>Centralised sMAPE 15.46</td><td><code>make federated</code></td></tr>
+        <tr><td>Crisis unmet demand</td><td class="num">−61.9%</td>
+            <td>Baseline across 4 scenarios</td><td><code>make crisis</code></td></tr>
+        <tr class="total"><td>Integration gate</td><td class="num">6/6</td>
+            <td>Guide's Stage 10.5 conditions</td><td><code>make gate</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">04</span> Questions you will be asked</h2>
+  <p class="lede">
+    Ordered by how likely they are. The answers are short on purpose — say the short
+    version, then stop and let them follow up.
+  </p>
+
+  <div class="qa">
+    <p class="q">Your title says blockchain. This is a Postgres table.</p>
+    <p class="a">
+      It is a permissioned hash-chained ledger, and the substitution is deliberate.
+      In a single-consortium simulated supply chain there are no mutually distrusting,
+      independently operated validators, so Byzantine consensus is over-provisioned for
+      the threat model. We keep the properties that matter — tamper-evidence via SHA-256
+      chaining, non-repudiation via per-node ECDSA P-256 signatures, write authorisation
+      via a public-key allow-list, immutability via database triggers — and drop only
+      distributed consensus. Access goes through an abstract <code>ProvenanceLedger</code>
+      interface, so a Hyperledger Fabric backend would need no change to the agent layer.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Prove the ledger is actually tamper-evident.</p>
+    <p class="a">
+      <code>make tamper-demo</code>. It edits a record <strong>mid-chain</strong>, not at
+      the tip — editing the last record breaks only its own hash, whereas seq 13,614 of
+      26,737 must also orphan everything after it. <code>verify_chain()</code> returns
+      False and names the exact seq, then the demo restores the record and re-verifies.
+      Note it first has to <code>DISABLE TRIGGER</code> to make the edit at all: the
+      triggers <em>prevent</em>, the chain <em>detects</em>, and they are independent controls.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Why is your anomaly detection accuracy only 91%?</p>
+    <p class="a">
+      Because accuracy is the wrong metric and we report it only to show that.
+      Anomalies are 5% of shipments, so a detector that flags <strong>nothing</strong>
+      scores 95% accuracy and catches zero counterfeits. We report precision, recall, F1
+      and ROC-AUC. The number that matters is recall rising from 0.619 to 0.976 when the
+      ledger check joins the ML screening.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Rossmann is retail sales data. This is a pharmacy.</p>
+    <p class="a">
+      Correct, and we state it as a validity threat rather than waiting to be asked.
+      We take only the <strong>shape</strong> of each series — dispersion, weekday effect,
+      seasonality — and rescale the level to the twin's own demand parameter. The magnitude
+      does not transfer and we do not claim it does. The prescribed mitigation is validating
+      against CMS Part D drug-level utilisation; <code>data.cms.gov</code> returns HTTP 403
+      to scripted clients, so that extract is not in place and the threat is
+      <strong>open, not closed</strong>.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">The guide specifies z = 1.65 for safety stock. You used 0.84.</p>
+    <p class="a">
+      We tested 1.65 and it was dominated. Over five seeds, z = 0.84 gives the same
+      stockout reduction with an eighth of the wastage and half the extra inventory.
+      Once the risk period is specified correctly the order-up-to level already carries
+      most of the buffer, so additional safety stock mostly sits until it expires.
+      <code>make frontier</code> traces the whole service-level curve; the table is in
+      <code>config.py</code> next to the constant.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Why does your Merkle tree differ from Bitcoin's?</p>
+    <p class="a">
+      It follows RFC 6962, the Certificate Transparency construction. Bitcoin duplicates
+      the final leaf when a level has an odd node count, which lets distinct leaf sets
+      produce the same root — CVE-2012-2459. RFC 6962 splits at the largest power of two
+      and domain-separates leaves (0x00) from internal nodes (0x01). There is a test that
+      the collision case is not collidable.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Differential privacy destroyed your model. Isn't that a failure?</p>
+    <p class="a">
+      It is a real result with a structural cause. Five clients all participate every
+      round, so the sampling rate is 1.0 and there is <strong>no privacy amplification by
+      subsampling</strong>. Noise calibrated for that regime swamps a 52,000-parameter
+      model. A deployment with hundreds of pharmacies and partial participation sits
+      elsewhere on the curve. We report the cliff and explain it rather than presenting
+      it as inherent.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">Why is there no reinforcement learning? Your proposal mentioned MADDPG.</p>
+    <p class="a">
+      It was cut on the implementation guide's own risk assessment, which rates it highest
+      risk and states that the Stage 6–10 heuristics ship the project. The prescribed
+      trigger is to freeze it and report the omission rather than submit a rushed negative
+      result. Every agent it would have replaced is working and measured.
+    </p>
+  </div>
+
+  <div class="qa">
+    <p class="q">How do you know the agents actually help, rather than just being present?</p>
+    <p class="a">
+      Every stage was measured against a control before it was believed. The ablation
+      matrix adds one component per row over ten seeds with standard deviations, so each
+      line shows what that component bought. Twice this caught an agent that was
+      <strong>worse</strong> than the baseline — see the next section.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">05</span> The three bugs — your strongest material</h2>
+  <p class="lede">
+    Three times an agent was measurably worse than the naive baseline it was meant to beat,
+    and each was caught only because the measurement existed before the belief. If you get
+    one open-ended "what did you learn?" question, answer with this.
+  </p>
+
+  <h3>Stage 6 — the reorder point was 363% worse than doing nothing clever</h3>
+  <p>
+    We used the last hop's transit time as the lead time. For a one-day leg that gave a
+    reorder point of ~56 units against the baseline's 120, so the agent reordered
+    <em>later</em> than the policy it was replacing. The fix is conceptual, not a tuned
+    constant: in a multi-tier chain an upstream tier only reorders when its own position
+    dips, so a pharmacy's stock is exposed for the <strong>cumulative echelon lead time</strong>
+    (3 transit days through manufacturer → warehouse → distributor → pharmacy), not its
+    final leg. Adding the one-day review interval gives a risk period of 4 — which is
+    exactly where an independent sweep first reaches zero stockouts. Theory and measurement
+    agreeing separately is what makes it defensible rather than curve-fitting.
+  </p>
+
+  <h3>Stage 7 — we accidentally built a bullwhip amplifier</h3>
+  <p>
+    Adding the Demand Agent raised inventory 68% and multiplied wastage 700×. The measured
+    cause: forecast-to-history ratio was 1.00 at pharmacies but 2.26 (peaking at 4.00)
+    upstream. Upstream "demand" is not consumer demand — it is the order flow the Inventory
+    Agent itself generates, arriving in lumpy bursts. A moving average lands on a burst,
+    doubles the estimate, and feeds it back into the policy that produced it. Scoping the
+    forecaster to consumer-facing nodes removes the loop.
+  </p>
+
+  <h3>Stage 8 — redistribution that relocated waste instead of preventing it</h3>
+  <p>
+    The first version reduced wastage by 4%, not 88%. Three corrections, each from a
+    measurement: candidate buyers must include downstream nodes (all the wastage sat at
+    nodes with no same-tier peers); the action horizon must be longer than the FR-04
+    <em>detection</em> threshold, because at 30 days the receiving node cannot sell it
+    either; and buyers must net off stock they already hold, or every node claims it can
+    absorb the whole lot.
+  </p>
+</section>
+
+<section>
+  <h2><span class="num">06</span> Say these before you are asked</h2>
+  <p class="lede">
+    Volunteering a limitation is far stronger than conceding one. Each of these is
+    already in the README.
+  </p>
+
+  <div class="volunteer">
+    <span class="tag">Limitation</span>
+    <p>
+      <strong>The agents do not absorb the pandemic surge.</strong> Peak stockout stays at
+      54% against 91% for the baseline. No inventory policy can meet 10× demand for 60 days
+      against finite manufacturing output. The agents manage scarcity; they do not create
+      supply. The other three scenarios are absorbed completely.
+    </p>
+  </div>
+
+  <div class="volunteer">
+    <span class="tag">Open threat to validity</span>
+    <p>
+      <strong>CMS validation is not done.</strong> Rossmann's retail origin is mitigated by
+      taking only temporal shape, but the drug-level cross-check the guide prescribes has
+      not been run because the data source blocks scripted access. The loader is written and
+      will pick the file up if it is placed in <code>data/raw/cms/</code>.
+    </p>
+  </div>
+
+  <div class="volunteer">
+    <span class="tag">Topology finding, not a defect</span>
+    <p>
+      <strong>A single-customer distributor branch is a redistribution dead end.</strong>
+      <code>NODE-DC-03 → NODE-PH-05</code> has nowhere lateral to send near-expiry stock.
+      This surfaced from the Stage 8 diagnosis and is a network-design recommendation, not
+      a bug. Similarly, the single manufacturer makes the factory-shutdown scenario the
+      harshest possible version of itself.
+    </p>
+  </div>
+
+  <div class="volunteer">
+    <span class="tag">Scope</span>
+    <p>
+      <strong>Stage 14, the dashboard, is not built.</strong> It is presentation over an API
+      that does not exist yet. Every number claimed is reproducible from the command line
+      without it — which is the more important property.
+    </p>
+    <p>
+      <strong>The route and anomaly rows in the ablation matrix are identical to the expiry
+      row</strong> on simulation KPIs. That is correct: the Route Agent's plan is advisory
+      because shipment timing comes from the network's transit days, and the Anomaly Agent
+      detects without altering stock flow. Their value is in the delivery-cost column and
+      the detection metrics.
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">07</span> Run it in front of them</h2>
+  <p class="lede">
+    Rehearse this sequence until it is muscle memory. If a demo fails live, the numbers
+    stop being believable.
+  </p>
+<pre><span class="c"># One-time setup</span>
+make db-up &amp;&amp; make migrate &amp;&amp; make seed &amp;&amp; make keys &amp;&amp; make data
+
+<span class="c"># The four things worth showing, in this order</span>
+make gate          <span class="c"># 6/6 integration-gate conditions, one run</span>
+make tamper-demo   <span class="c"># the ledger catches a mid-chain edit and names the seq</span>
+make evaluate      <span class="c"># the experiment matrix, 10 seeds, ~5 min</span>
+make crisis        <span class="c"># four disruptions, baseline vs agents</span>
+
+<span class="c"># If asked to prove the tests</span>
+make cov           <span class="c"># 520 tests, 84%</span></pre>
+  <p>
+    <code>make gate</code> and <code>make tamper-demo</code> are the two to lead with —
+    they take under a minute each and demonstrate the project's central claim directly.
+    <code>make evaluate</code> takes about five minutes, so run it beforehand and show the
+    saved output if time is short.
+  </p>
+</section>
+
+<hr>
+
+<footer>
+  Generated from the PharmaDT repository at tag <code>v2.0-final</code>. Every figure on
+  this page is reproducible with the command listed beside it. If a number here disagrees
+  with your report, the repository is correct.
+</footer>
+
+</div>
