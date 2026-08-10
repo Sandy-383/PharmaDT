@@ -382,6 +382,24 @@ def build_world(seed: int | None = None) -> World:
     return world
 
 
+def attach_agents(world: World, *agents: Any, disable_baseline: bool = True) -> Any:
+    """Attach agents to a world and stand the baseline policy down.
+
+    The twin's fixed-threshold (s, S) review and the Inventory Agent both order
+    stock. Leaving both running would double every order and make the
+    comparison meaningless — the agent would look like it caused the surplus it
+    was actually competing with.
+    """
+    from pharmadt.agents.base import AgentOrchestrator
+
+    orchestrator = AgentOrchestrator(world=world)
+    orchestrator.register(*agents)
+    world.orchestrator = orchestrator
+    if disable_baseline:
+        world.baseline_policy_enabled = False
+    return orchestrator
+
+
 def _monitor_process(world: World):
     """Sample total inventory daily. Instrumentation, not domain behaviour."""
     while True:

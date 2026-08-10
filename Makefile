@@ -7,7 +7,7 @@
 # without it make considers the target already satisfied and silently does
 # nothing at all.
 .PHONY: help install db-up db-down db-logs migrate migration seed reseed \
-        data eda keys sim-anchor verify-chain tamper-demo \
+        data eda ablation frontier keys sim-anchor verify-chain tamper-demo \
         test cov sim api lint fmt clean
 
 help:
@@ -65,6 +65,12 @@ reseed:
 
 data:
 	python -m pharmadt.ml.preprocessing --all
+
+ablation:
+	python -m pharmadt.ablation --seeds 42 43 44
+
+frontier:
+	python -m pharmadt.ablation --frontier --seeds 42 43 44
 
 eda:
 	python -m jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda_datasets.ipynb

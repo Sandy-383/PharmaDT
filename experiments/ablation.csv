@@ -1,0 +1,7 @@
+variant,seed,days,stockout_rate,service_level,units_short,wastage_units,average_inventory,shipments_delivered,events,agent_decisions
+baseline,42,365,0.00197,0.99803,814,0,118874.62,1154,14562,0
+baseline,43,365,0.002481,0.997519,1028,0,117696.66,1162,14584,0
+baseline,44,365,0.0031,0.9969,1285,0,116600.3,1141,14542,0
+inventory,42,365,7.5e-05,0.999925,31,0,137447.8,839,13779,873
+inventory,43,365,0.0,1.0,0,0,142634.3,841,13771,887
+inventory,44,365,1.4e-05,0.999986,6,16,141467.41,852,13795,877
