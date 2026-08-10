@@ -26,8 +26,20 @@ source = ["pharmadt"]
 omit = ["*/__init__.py"]
 
 [tool.coverage.report]
-# NFR-07 requires 80%. Raised to 80 at Stage 15; 60% is the Stage 10.5 gate.
+# NFR-07 requires 80%.
 show_missing = true
+exclude_also = [
+    # Argparse entry points. These parse flags and print; the functions they
+    # call are exercised directly by tests/test_harness_smoke.py, which runs
+    # every harness end to end at a small size. Counting argument parsing as
+    # untested behaviour would push toward writing tests for argparse rather
+    # than for the project.
+    'if __name__ == "__main__":',
+    "def main\\(\\) -> None:",
+    # Defensive branches that only fire on an unreachable state.
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
 
 [tool.ruff]
 line-length = 100

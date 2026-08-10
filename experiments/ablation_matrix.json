@@ -1,0 +1,212 @@
+{
+  "baseline (no agents)": {
+    "summary": {
+      "stockout_pct": {
+        "mean": 0.2572,
+        "std": 0.04329893506516965,
+        "n": 10
+      },
+      "wastage_units": {
+        "mean": 119.0,
+        "std": 295.51311307622206,
+        "n": 10
+      },
+      "forecast_mape": {
+        "mean": NaN,
+        "std": 0.0,
+        "n": 0
+      },
+      "delivery_km": {
+        "mean": NaN,
+        "std": 0.0,
+        "n": 0
+      },
+      "average_inventory": {
+        "mean": 116215.70800000001,
+        "std": 2064.2457730867873,
+        "n": 10
+      }
+    },
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51
+    ],
+    "seconds": 2.5
+  },
+  "+ inventory & demand": {
+    "summary": {
+      "stockout_pct": {
+        "mean": 0.00963,
+        "std": 0.013286087125678166,
+        "n": 10
+      },
+      "wastage_units": {
+        "mean": 668.9,
+        "std": 902.4850198818323,
+        "n": 10
+      },
+      "forecast_mape": {
+        "mean": 5.381131606393206,
+        "std": 0.7485365884974594,
+        "n": 10
+      },
+      "delivery_km": {
+        "mean": NaN,
+        "std": 0.0,
+        "n": 0
+      },
+      "average_inventory": {
+        "mean": 139215.325,
+        "std": 3918.439813747451,
+        "n": 10
+      }
+    },
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51
+    ],
+    "seconds": 8.6
+  },
+  "+ expiry (redistribution)": {
+    "summary": {
+      "stockout_pct": {
+        "mean": 0.02914,
+        "std": 0.012202932252354576,
+        "n": 10
+      },
+      "wastage_units": {
+        "mean": 76.3,
+        "std": 114.80035811016542,
+        "n": 10
+      },
+      "forecast_mape": {
+        "mean": 5.42881490681815,
+        "std": 0.9723964893379957,
+        "n": 10
+      },
+      "delivery_km": {
+        "mean": NaN,
+        "std": 0.0,
+        "n": 0
+      },
+      "average_inventory": {
+        "mean": 139150.99,
+        "std": 2273.8297350261014,
+        "n": 10
+      }
+    },
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51
+    ],
+    "seconds": 10.3
+  },
+  "+ route optimisation": {
+    "summary": {
+      "stockout_pct": {
+        "mean": 0.02914,
+        "std": 0.012202932252354576,
+        "n": 10
+      },
+      "wastage_units": {
+        "mean": 76.3,
+        "std": 114.80035811016542,
+        "n": 10
+      },
+      "forecast_mape": {
+        "mean": 5.42881490681815,
+        "std": 0.9723964893379957,
+        "n": 10
+      },
+      "delivery_km": {
+        "mean": 198514.06390000033,
+        "std": 3821.913736045062,
+        "n": 10
+      },
+      "average_inventory": {
+        "mean": 139150.99,
+        "std": 2273.8297350261014,
+        "n": 10
+      }
+    },
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51
+    ],
+    "seconds": 130.2
+  },
+  "+ anomaly & ledger (full)": {
+    "summary": {
+      "stockout_pct": {
+        "mean": 0.02914,
+        "std": 0.012202932252354576,
+        "n": 10
+      },
+      "wastage_units": {
+        "mean": 76.3,
+        "std": 114.80035811016542,
+        "n": 10
+      },
+      "forecast_mape": {
+        "mean": 5.42881490681815,
+        "std": 0.9723964893379957,
+        "n": 10
+      },
+      "delivery_km": {
+        "mean": 198514.06390000033,
+        "std": 3821.913736045062,
+        "n": 10
+      },
+      "average_inventory": {
+        "mean": 139150.99,
+        "std": 2273.8297350261014,
+        "n": 10
+      }
+    },
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51
+    ],
+    "seconds": 129.2
+  }
+}

@@ -1,0 +1,28 @@
+
+Experiment matrix: 10 seeds x 365 days
+
+  baseline (no agents)         stockout 0.2572% +/- 0.0433   wastage 119 +/- 296   (2.5s)
+  + inventory & demand         stockout 0.0096% +/- 0.0133   wastage 669 +/- 902   (8.6s)
+  + expiry (redistribution)    stockout 0.0291% +/- 0.0122   wastage 76 +/- 115   (10.3s)
+  + route optimisation         stockout 0.0291% +/- 0.0122   wastage 76 +/- 115   (130.2s)
+  + anomaly & ledger (full)    stockout 0.0291% +/- 0.0122   wastage 76 +/- 115   (129.2s)
+
+======================================================================================================================
+configuration                          stockout %               wastage                MAPE %           delivery km         avg inventory
+-----------------------------------------------------------------------------------------------------------------------------------------
+baseline (no agents)             0.2572 +/- 0.0433         119 +/-    296                    --                    --     116,216 +/-  2,064
++ inventory & demand             0.0096 +/- 0.0133         669 +/-    902      5.3811 +/- 0.7485                    --     139,215 +/-  3,918
++ expiry (redistribution)        0.0291 +/- 0.0122          76 +/-    115      5.4288 +/- 0.9724                    --     139,151 +/-  2,274
++ route optimisation             0.0291 +/- 0.0122          76 +/-    115      5.4288 +/- 0.9724     198,514 +/-  3,822     139,151 +/-  2,274
++ anomaly & ledger (full)        0.0291 +/- 0.0122          76 +/-    115      5.4288 +/- 0.9724     198,514 +/-  3,822     139,151 +/-  2,274
+======================================================================================================================
+
+Abstract claims, checked against measurement:
+
+  * Wastage reduction: 119 -> 76 units = 35.9%  [MEETS the abstract's 30-40% claim]
+  * Forecast MAPE (in-simulation, full system): 5.43%. The 20-25% improvement claim is evidenced by Stage 7's held-out comparison (LSTM sMAPE 13.19 vs seasonal-naive 30.06 = 56% better), not by this column.
+  * Stockout reduction: 0.2572% -> 0.0291% = 88.7% reduction (mean over all seeds)
+
+  10 seeds, mean +/- standard deviation. Single-run numbers are not defensible.
+  completed in 4.7 min
+  Wrote experiments\ablation_matrix.json

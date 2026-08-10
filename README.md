@@ -525,6 +525,44 @@ Recovery requires the stockout rate to fall back **and stay down** for 14 days.
 Taking the first crossing would report a single quiet day in the middle of a
 shortage as a recovery.
 
+## ★ Experiment matrix (Stage 15)
+
+`make evaluate` — **10 seeds × 365 days, mean ± standard deviation**. Each row
+adds one component to the row above, so every line answers "what did this buy?"
+
+| Configuration | Stockout % | Wastage | MAPE % | Delivery km | Avg inventory |
+|---|---|---|---|---|---|
+| baseline (no agents) | 0.2572 ±0.0433 | 119 ±296 | — | — | 116,216 |
+| + inventory & demand | 0.0096 ±0.0133 | 669 ±902 | 5.38 | — | 139,215 |
+| + expiry (redistribution) | 0.0291 ±0.0122 | **76 ±115** | 5.43 | — | 139,151 |
+| + route optimisation | 0.0291 | 76 | 5.43 | 198,514 ±3,822 | 139,151 |
+| + anomaly & ledger (full) | 0.0291 | 76 | 5.43 | 198,514 | 139,151 |
+
+### Abstract claims, checked against measurement
+
+- **Wastage 119 → 76 units = 35.9% reduction — meets the 30–40% claim.**
+- **Stockout 0.2572% → 0.0291% = 88.7% reduction.**
+- Forecast: the 20–25% improvement claim is evidenced by Stage 7's held-out
+  comparison (LSTM sMAPE 13.19 vs seasonal-naive 30.06, **56% better**), not by
+  the in-simulation MAPE column.
+
+### Three things the table says that a summary would hide
+
+**The Inventory Agent makes wastage worse before the Expiry Agent fixes it**
+(119 → 669 → 76). Holding more stock to eliminate stockouts means more stock
+reaches expiry. The two agents are genuinely coupled, and reading only the first
+and last rows would miss it.
+
+**The spread is large** (±296, ±902 on wastage). That is exactly why the guide
+insists on ≥10 seeds: any single run of this system could support almost any
+wastage claim.
+
+**The route and anomaly rows are identical to the expiry row** on simulation
+KPIs. That is correct, not a bug: the Route Agent's plan is advisory — shipment
+timing comes from the network's transit days — and the Anomaly Agent detects
+without altering stock flow. Their value is in the delivery-cost column and in
+the detection metrics respectively, not in stockouts.
+
 ## ★ Stage 10.5 — Integration Gate
 
 `make gate` stands up the whole autonomous system and checks the guide's seven
