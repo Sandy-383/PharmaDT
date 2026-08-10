@@ -1,0 +1,110 @@
+{
+  "shipments": 842,
+  "injected": 42,
+  "injected_pct": 4.99,
+  "features": [
+    "quantity",
+    "quantity_z",
+    "transit_days",
+    "transit_deviation",
+    "excursion_count",
+    "excursion_severity",
+    "route_frequency",
+    "is_known_route",
+    "distance_km",
+    "day_of_week",
+    "cold_chain",
+    "quantity_per_km"
+  ],
+  "models": {
+    "isolation_forest": {
+      "precision": 0.2857,
+      "recall": 0.381,
+      "f1": 0.3265,
+      "roc_auc": 0.6806,
+      "accuracy": 0.9216,
+      "tp": 16,
+      "fp": 40,
+      "tn": 760,
+      "fn": 26
+    },
+    "autoencoder": {
+      "precision": 0.3939,
+      "recall": 0.619,
+      "f1": 0.4815,
+      "roc_auc": 0.7929,
+      "accuracy": 0.9335,
+      "tp": 26,
+      "fp": 40,
+      "tn": 760,
+      "fn": 16
+    },
+    "ensemble_either": {
+      "precision": 0.2653,
+      "recall": 0.619,
+      "f1": 0.3714,
+      "roc_auc": 0.7498,
+      "accuracy": 0.8955,
+      "tp": 26,
+      "fp": 72,
+      "tn": 728,
+      "fn": 16
+    },
+    "ensemble_both": {
+      "precision": 0.6667,
+      "recall": 0.381,
+      "f1": 0.4848,
+      "roc_auc": 0.7498,
+      "accuracy": 0.9596,
+      "tp": 16,
+      "fp": 8,
+      "tn": 792,
+      "fn": 26
+    },
+    "ml_plus_ledger": {
+      "precision": 0.3628,
+      "recall": 0.9762,
+      "f1": 0.529,
+      "roc_auc": null,
+      "accuracy": 0.9133,
+      "tp": 41,
+      "fp": 72,
+      "tn": 728,
+      "fn": 1
+    }
+  },
+  "by_kind": {
+    "QUANTITY": {
+      "injected": 9,
+      "ml_detected": 8,
+      "ml_recall": 0.8889
+    },
+    "TRANSIT": {
+      "injected": 8,
+      "ml_detected": 8,
+      "ml_recall": 1.0
+    },
+    "COLD_CHAIN": {
+      "injected": 10,
+      "ml_detected": 10,
+      "ml_recall": 1.0
+    },
+    "COUNTERFEIT": {
+      "injected": 15,
+      "ml_detected": 0,
+      "ml_recall": 0.0
+    }
+  },
+  "counterfeit_batches": [
+    "BATCH-SIM-000007",
+    "BATCH-0011",
+    "BATCH-SIM-000009",
+    "BATCH-SIM-000003",
+    "BATCH-SIM-000002",
+    "BATCH-SIM-000010",
+    "BATCH-SIM-000010",
+    "BATCH-0001",
+    "BATCH-SIM-000004",
+    "BATCH-0018"
+  ]
+}
