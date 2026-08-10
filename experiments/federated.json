@@ -1,0 +1,135 @@
+{
+  "centralised": {
+    "MAPE": 17.5887,
+    "sMAPE": 15.463,
+    "MASE": 0.5012,
+    "RMSE": 1485.2896,
+    "MAE": 1057.5204,
+    "zero_actuals_pct": 0.0,
+    "n": 2842
+  },
+  "federated_iid": {
+    "MAPE": 19.0874,
+    "sMAPE": 16.8968,
+    "MASE": 0.5453,
+    "RMSE": 1578.3547,
+    "MAE": 1150.4831,
+    "zero_actuals_pct": 0.0,
+    "n": 2842,
+    "skew": {
+      "n_clients": 5,
+      "sizes": [
+        1135,
+        1134,
+        1134,
+        1134,
+        1134
+      ],
+      "smallest": 1134,
+      "largest": 1135,
+      "gini": 0.0001,
+      "series_per_client": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  },
+  "federated_noniid": {
+    "MAPE": 19.8705,
+    "sMAPE": 17.3143,
+    "MASE": 0.5605,
+    "RMSE": 1597.4414,
+    "MAE": 1182.6947,
+    "zero_actuals_pct": 0.0,
+    "n": 2842,
+    "skew": {
+      "n_clients": 5,
+      "sizes": [
+        1085,
+        1120,
+        1304,
+        809,
+        1353
+      ],
+      "smallest": 809,
+      "largest": 1353,
+      "gini": 0.0922,
+      "series_per_client": [
+        32,
+        37,
+        39,
+        32,
+        40
+      ]
+    }
+  },
+  "fedprox_noniid": {
+    "MAPE": 19.8619,
+    "sMAPE": 17.3283,
+    "MASE": 0.5607,
+    "RMSE": 1597.2602,
+    "MAE": 1182.9706,
+    "zero_actuals_pct": 0.0,
+    "n": 2842
+  },
+  "federated_dp_eps1": {
+    "MAPE": 3369.1663,
+    "sMAPE": 192.6994,
+    "MASE": 102.8199,
+    "RMSE": 433767.9588,
+    "MAE": 216940.2221,
+    "zero_actuals_pct": 0.0,
+    "n": 2842,
+    "privacy": {
+      "epsilon": 1.0062,
+      "delta": 1e-05,
+      "rounds": 30,
+      "noise_multiplier": 22.0328125,
+      "clip_norm": 0.984777262878802
+    }
+  },
+  "federated_dp_eps5": {
+    "MAPE": 789.8066,
+    "sMAPE": 179.1129,
+    "MASE": 23.8828,
+    "RMSE": 95430.2811,
+    "MAE": 50390.4069,
+    "zero_actuals_pct": 0.0,
+    "n": 2842,
+    "privacy": {
+      "epsilon": 4.9829,
+      "delta": 1e-05,
+      "rounds": 30,
+      "noise_multiplier": 5.233447265625,
+      "clip_norm": 0.984777262878802
+    }
+  },
+  "federated_dp_eps10": {
+    "MAPE": 419.5931,
+    "sMAPE": 171.7616,
+    "MASE": 12.541,
+    "RMSE": 48006.3659,
+    "MAE": 26460.3218,
+    "zero_actuals_pct": 0.0,
+    "n": 2842,
+    "privacy": {
+      "epsilon": 10.0386,
+      "delta": 1e-05,
+      "rounds": 30,
+      "noise_multiplier": 2.8915283203125,
+      "clip_norm": 0.984777262878802
+    }
+  },
+  "_config": {
+    "stores": 40,
+    "clients": 5,
+    "rounds": 30,
+    "local_epochs": 1,
+    "alpha": 0.5,
+    "train_windows": 5671,
+    "test_windows": 203
+  }
+}

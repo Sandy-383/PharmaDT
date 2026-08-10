@@ -448,6 +448,48 @@ record hash covers content while ECDSA draws a random nonce per signature.
 | NFR-08 immutable audit trail | Ledger history | `verify_chain()` + DB triggers |
 | Anti-counterfeit | Chaincode hash check | SHA-256 batch fingerprint |
 
+## Federated learning (Stage 11)
+
+`python -m pharmadt.federated.experiment` — 5 clients, 30 rounds, every variant
+scored on the **same held-out test set** no client trains on.
+
+| Variant | sMAPE | MASE | ε |
+|---|---|---|---|
+| centralised | 15.46 | 0.501 | ∞ |
+| federated IID | 16.90 | 0.545 | ∞ |
+| federated non-IID (Dirichlet α=0.5) | 17.31 | 0.560 | ∞ |
+| FedProx non-IID (μ=0.01) | 17.33 | 0.561 | ∞ |
+| federated + DP | 172–193 | 12.5–103 | 1–10 |
+
+**Federation costs 12% sMAPE against pooling the data** — the price of never
+moving it. Heterogeneity costs only a further 2.5%, so `Dirichlet(0.5)` skew is
+mild at this client count.
+
+**FedProx gives no benefit here** (17.33 vs 17.31), and that is reported rather
+than dropped. The guide offers it as a fallback for when non-IID divergence hurts
+badly; at a 2.5% heterogeneity cost there is nothing for its proximal term to
+fix. A fallback that was not needed is a finding about the split, not a failure.
+
+### Differential privacy is brutal at this scale
+
+DP destroys utility at every ε tested — sMAPE 17 → 172 even at ε=10. That is a
+real result, not a bug, and the cause is structural: with **5 clients all
+participating every round**, `sample_rate = 1.0`, so there is **no privacy
+amplification by subsampling**. Noise calibrated for that regime swamps a
+52k-parameter model. A deployment with hundreds of pharmacies and partial
+participation per round would sit in a very different place on this curve.
+
+Two corrections were needed before the numbers meant anything: noise is
+calibrated to the *sum* of clipped updates, so averaging must divide it by the
+client count (an earlier version applied N× too much), and the clip norm is set
+adaptively from the median observed update norm (0.62 in practice) rather than
+guessed — a blind threshold either never binds or flattens every client.
+
+**NFR-03 is checked structurally.** `ClientUpdate` is a closed dataclass whose
+only fields are weight arrays, a sample count and scalar metrics; a test
+inspects every array crossing the boundary and confirms none matches the
+training data.
+
 ## ★ Stage 10.5 — Integration Gate
 
 `make gate` stands up the whole autonomous system and checks the guide's seven
