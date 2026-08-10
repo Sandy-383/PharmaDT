@@ -1,0 +1,58 @@
+[
+  {
+    "instance": "X-n101-k25",
+    "n": 101,
+    "vehicles": 25,
+    "cost": null,
+    "optimum": 27591.0,
+    "gap_pct": null,
+    "seconds": 30.01,
+    "served": 0,
+    "expected_stops": 100,
+    "status": "NO SOLUTION",
+    "feasible": false,
+    "violations": []
+  },
+  {
+    "instance": "X-n106-k14",
+    "n": 106,
+    "vehicles": 14,
+    "cost": 26906,
+    "optimum": 26362.0,
+    "gap_pct": 2.06,
+    "seconds": 30.0,
+    "served": 105,
+    "expected_stops": 105,
+    "status": "OK",
+    "feasible": true,
+    "violations": []
+  },
+  {
+    "instance": "X-n110-k13",
+    "n": 110,
+    "vehicles": 13,
+    "cost": 15260,
+    "optimum": 14971.0,
+    "gap_pct": 1.93,
+    "seconds": 30.0,
+    "served": 109,
+    "expected_stops": 109,
+    "status": "OK",
+    "feasible": true,
+    "violations": []
+  },
+  {
+    "instance": "X-n115-k10",
+    "n": 115,
+    "vehicles": 10,
+    "cost": 13099,
+    "optimum": 12747.0,
+    "gap_pct": 2.76,
+    "seconds": 30.0,
+    "served": 114,
+    "expected_stops": 114,
+    "status": "OK",
+    "feasible": true,
+    "violations": []
+  }
+]
