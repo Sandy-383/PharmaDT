@@ -329,8 +329,14 @@ def test_dummy_agent_subscribes_receives_and_writes_a_decision_row(
     written = persist_decisions(orchestrator.collect_decisions(), session_factory=factory)
     assert written == 1
 
+    # Scoped to the row this test just wrote. A bare agent_name filter also
+    # matches whatever a real run left behind — `make gate` commits thousands
+    # of ExpiryAgent decisions — so the query has to identify its own row.
     row = db_session.scalars(
-        select(AgentDecision).where(AgentDecision.agent_name == "ExpiryAgent")
+        select(AgentDecision)
+        .where(AgentDecision.agent_name == "ExpiryAgent")
+        .order_by(AgentDecision.decision_id.desc())
+        .limit(1)
     ).one()
     assert row.sim_day == 12
     assert row.action["type"] == "QUARANTINE"

@@ -7,7 +7,7 @@
 # without it make considers the target already satisfied and silently does
 # nothing at all.
 .PHONY: help install db-up db-down db-logs migrate migration seed reseed \
-        data eda ablation frontier routing-benchmark anomaly-eval keys sim-anchor verify-chain tamper-demo \
+        data eda ablation frontier routing-benchmark anomaly-eval gate keys sim-anchor verify-chain tamper-demo \
         test cov sim api lint fmt clean
 
 help:
@@ -71,6 +71,9 @@ ablation:
 
 frontier:
 	python -m pharmadt.ablation --frontier --seeds 42 43 44
+
+gate:
+	python -m pharmadt.gate
 
 anomaly-eval:
 	python -m pharmadt.ml.train_anomaly

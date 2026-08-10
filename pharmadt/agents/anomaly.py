@@ -107,8 +107,14 @@ class AnomalyAgent(BaseAgent):
         forest: Any = None,
         autoencoder: Any = None,
         rule: str = "either",
+        world: Any = None,
         **kwargs: Any,
     ) -> None:
+        # Optional handle on the twin so the agent can read each day's completed
+        # shipments directly. The ledger is only written in bulk after the run
+        # (NFR-01), so subscribing to ledger.event alone would leave this agent
+        # with nothing to screen while the simulation is actually running.
+        self.world = world
         self.ledger = ledger
         self.forest = forest
         self.autoencoder = autoencoder
@@ -132,7 +138,38 @@ class AnomalyAgent(BaseAgent):
     # ── Observe ───────────────────────────────────────────────────────
 
     def observe(self, world_state: Mapping[str, Any]) -> dict[str, Any]:
-        return {"sim_day": world_state.get("sim_day", 0), "shipments": list(self.recent)}
+        sim_day = world_state.get("sim_day", 0)
+        shipments = list(self.recent)
+        if self.world is not None:
+            shipments.extend(self._shipments_received_on(sim_day))
+        return {"sim_day": sim_day, "shipments": shipments}
+
+    def _shipments_received_on(self, sim_day: int) -> list[dict[str, Any]]:
+        """Deliveries that completed today, as screenable records."""
+        records: list[dict[str, Any]] = []
+        for event in reversed(self.world.events):
+            if event.sim_day < sim_day:
+                break  # the log is append-ordered, so nothing older matters
+            if str(event.event_type) != "SHIPMENT_RECEIVED":
+                continue
+            edge = self.world.graph.get_edge_data(event.from_node, event.to_node) or {}
+            records.append(
+                {
+                    "batch_id": event.batch_id,
+                    "drug_id": event.payload.get("drug_id"),
+                    "from_node": event.from_node,
+                    "to_node": event.to_node,
+                    "quantity": event.payload.get("quantity", 0),
+                    "sim_day": event.sim_day,
+                    "transit_days": 1.0,
+                    "excursion_count": 1 if event.payload.get("cold_chain_breached") else 0,
+                    "excursion_severity": 5.0 if event.payload.get("cold_chain_breached") else 0.0,
+                    "distance_km": float(edge.get("distance_km", 1.0)),
+                    "is_known_route": bool(edge),
+                    "cold_chain": bool(event.payload.get("cold_chain_breached")),
+                }
+            )
+        return records
 
     # ── Decide ────────────────────────────────────────────────────────
 

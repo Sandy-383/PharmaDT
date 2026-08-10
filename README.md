@@ -448,6 +448,30 @@ record hash covers content while ECDSA draws a random nonce per signature.
 | NFR-08 immutable audit trail | Ledger history | `verify_chain()` + DB triggers |
 | Anti-counterfeit | Chaincode hash check | SHA-256 batch fingerprint |
 
+## ★ Stage 10.5 — Integration Gate
+
+`make gate` stands up the whole autonomous system and checks the guide's seven
+conditions in **one run**. Everything printed is measured by that run.
+
+| # | Condition | Result |
+|---|---|---|
+| 1 | 365 days over ≥12 nodes | 12 nodes, 13,861 events, 12.8s |
+| 2 | All five agents act every day | 365/365 days each |
+| 3 | Every handoff signed and chained | 13,123 / 13,123 anchored |
+| 4 | `verify_chain()` true; false under tampering | VALID over 26,737 → BROKEN at seq 13,614 → VALID |
+| 5 | KPIs computed | stockout 0.00036, wastage 0, forecast MAPE 4.11%, 197,517 km |
+| 6 | Every decision persisted | 4,413 rows across all five agents |
+| 7 | pytest passes, coverage ≥60% | 442 tests, 67% |
+
+Check 7 is `make cov` rather than something the gate runs on itself — a gate
+that executes its own test suite and reports its own pass is not evidence.
+
+The tamper step edits a record **mid-chain**, not at the tip. An edit to the
+last record breaks only its own hash; one in the middle must also orphan every
+record after it, which is the stronger claim.
+
+Tagged `v1.0-integrated`.
+
 ## Status
 
 Stages 0, 1, 2, 3, 4, and 5 complete — 322 tests, lint clean.
