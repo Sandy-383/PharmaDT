@@ -18,6 +18,12 @@ pydantic==2.8.2
 pydantic-settings==2.4.0
 fastapi==0.112.0
 uvicorn[standard]==0.30.5
+# OAuth2PasswordRequestForm parses multipart form data; FastAPI raises at
+# import time without it, so the API will not even start.
+python-multipart==0.0.32
+# Backs fastapi.testclient. A test dependency, but the API routes are only
+# testable at all with it installed.
+httpx==0.28.1
 
 # ── Cryptographic provenance ledger (Stage 4) ─────────────────────────
 # DEVIATION: guide pins 43.0.0, but flwr 1.10.0 requires

@@ -109,6 +109,12 @@ class Settings(BaseSettings):
     # ── Expiry (Stage 3 wastage, Stage 8 alerting) ────────────────────
     expiry_alert_days: int = 30  # FR-04
 
+    # ── API (Stage 14) ────────────────────────────────────────────────
+    # Signs bearer tokens. SecretStr so an accidental repr of settings cannot
+    # print it. The default is a development value and the API says so on
+    # startup; a deployment sets API_SECRET_KEY in the environment.
+    api_secret_key: SecretStr = SecretStr("dev-only-not-a-production-secret")
+
     # ── Dataset acquisition (Stage 2) ─────────────────────────────────
     # Kaggle personal access token, used as a Bearer credential. SecretStr so
     # it cannot be printed by an accidental repr of the settings object.

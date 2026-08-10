@@ -47,3 +47,14 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+# B008 forbids function calls in argument defaults, which is exactly how
+# FastAPI declares dependencies and query parameters. These three are the
+# documented pattern and are evaluated once at import, not per request, so the
+# mutable-default hazard B008 exists to catch does not apply.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+]

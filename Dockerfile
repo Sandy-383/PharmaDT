@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
 COPY pyproject.toml README.md ./
+COPY alembic.ini ./
+COPY alembic/ ./alembic/
+COPY data/scenarios/ ./data/scenarios/
 COPY pharmadt/ ./pharmadt/
 
 EXPOSE 8000

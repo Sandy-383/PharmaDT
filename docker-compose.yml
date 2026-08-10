@@ -23,5 +23,26 @@ services:
       timeout: 5s
       retries: 20
 
+  api:
+    build: .
+    container_name: pharmadt-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Inside the compose network the database is reachable by service name,
+      # not on localhost — that is the one setting that differs from a local run.
+      DATABASE_URL: postgresql+psycopg2://pharmadt:pharmadt@db:5432/pharmadt
+      API_SECRET_KEY: ${API_SECRET_KEY:-dev-only-not-a-production-secret}
+    ports:
+      - "8000:8000"
+    # The schema has to exist before the API serves anything, and a fresh
+    # volume has no tables. Migrating on start makes `docker compose up` work
+    # on a clean checkout, which is the Stage 15 packaging requirement.
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m pharmadt.core.seed || true &&
+             uvicorn pharmadt.api.main:app --host 0.0.0.0 --port 8000"
+
 volumes:
   pgdata:

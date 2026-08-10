@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PharmaDT — Control Room</title>
+<style>
+  :root{
+    --ground:#0e1216; --panel:#161c23; --panel-2:#1d242d; --rule:#28313c;
+    --ink:#e7ecf3; --ink-soft:#9aa5b4; --ink-faint:#6c7686;
+    --accent:#4fb3aa; --accent-dim:#1b3b39;
+    --ok:#4caf7d; --warn:#d99a4e; --bad:#e0575b;
+    --mono:ui-monospace,'SF Mono','Cascadia Mono',Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px}
+  header{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;
+    padding:.9rem 1.4rem;border-bottom:1px solid var(--rule);background:var(--panel)}
+  .brand{font-weight:700;letter-spacing:-.02em;font-size:1.05rem}
+  .brand span{color:var(--accent)}
+  .status{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);
+    display:flex;gap:1.1rem;flex-wrap:wrap}
+  .status b{color:var(--ink);font-weight:500}
+  .grid{display:grid;gap:1rem;padding:1rem 1.4rem 3rem;
+    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));max-width:1700px;margin:0 auto}
+  .panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;
+    padding:1rem 1.1rem;display:flex;flex-direction:column;min-height:0}
+  .panel h2{margin:0 0 .15rem;font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--accent);font-family:var(--mono);font-weight:500}
+  .panel .hint{margin:0 0 .85rem;font-size:.78rem;color:var(--ink-faint)}
+  .span2{grid-column:span 2}
+  @media(max-width:760px){.span2{grid-column:span 1}}
+
+  button{font-family:var(--sans);font-size:.83rem;font-weight:600;cursor:pointer;
+    background:var(--accent);color:#06211f;border:none;padding:.5rem .9rem;border-radius:5px}
+  button:hover{filter:brightness(1.1)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+  select,input{font-family:var(--sans);font-size:.83rem;background:var(--panel-2);
+    color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:.45rem .6rem}
+  label{display:block;font-size:.74rem;color:var(--ink-faint);margin:0 0 .25rem;
+    letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono)}
+  .row{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.7rem}
+  .row>div{flex:1;min-width:120px}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+  .kpi{background:var(--panel-2);border-radius:6px;padding:.7rem .8rem}
+  .kpi .v{font-family:var(--mono);font-size:1.3rem;font-variant-numeric:tabular-nums}
+  .kpi .l{font-size:.7rem;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase}
+
+  .badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);
+    font-size:.9rem;font-weight:600;padding:.55rem .85rem;border-radius:6px;letter-spacing:.03em}
+  .badge.ok{background:rgba(76,175,125,.14);color:var(--ok);border:1px solid rgba(76,175,125,.35)}
+  .badge.bad{background:rgba(224,87,91,.14);color:var(--bad);border:1px solid rgba(224,87,91,.4)}
+  .badge.idle{background:var(--panel-2);color:var(--ink-faint);border:1px solid var(--rule)}
+  .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+
+  .scroll{overflow:auto;flex:1;min-height:150px;max-height:300px;
+    border:1px solid var(--rule);border-radius:6px;background:var(--panel-2)}
+  table{width:100%;border-collapse:collapse;font-size:.78rem}
+  th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:.45rem .6rem;
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-faint);border-bottom:1px solid var(--rule);font-weight:500}
+  td{padding:.4rem .6rem;border-bottom:1px solid rgba(40,49,60,.5);vertical-align:top}
+  td.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+
+  .map{position:relative;background:var(--panel-2);border:1px solid var(--rule);
+    border-radius:6px;height:290px;overflow:hidden}
+  .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;
+    align-items:center;gap:.2rem}
+  .node .pin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(0,0,0,.45)}
+  .node .lbl{font-family:var(--mono);font-size:.6rem;color:var(--ink-faint);white-space:nowrap}
+  .legend{display:flex;gap:1rem;font-size:.72rem;color:var(--ink-faint);margin-top:.5rem;
+    font-family:var(--mono);flex-wrap:wrap}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.3rem}
+
+  .note{font-size:.76rem;color:var(--ink-faint);margin:.6rem 0 0;line-height:1.5}
+  .err{color:var(--bad);font-size:.78rem;margin-top:.5rem;font-family:var(--mono)}
+  .trace{font-family:var(--mono);font-size:.72rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Pharma<span>DT</span> · Control Room</div>
+  <div class="status">
+    <span>state <b id="s-status">idle</b></span>
+    <span>day <b id="s-day">—</b></span>
+    <span>events <b id="s-events">0</b></span>
+    <span>signed in <b id="s-user">no</b></span>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- Verification Panel — the highest-impact demo element -->
+  <section class="panel">
+    <h2>Chain integrity</h2>
+    <p class="hint">Recomputes every hash and signature in the provenance ledger.</p>
+    <div id="chain-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
+    <p class="note" id="chain-detail">Press verify to walk the chain.</p>
+    <div class="row" style="margin-top:.8rem;margin-bottom:0">
+      <button id="btn-verify">Verify chain</button>
+    </div>
+  </section>
+
+  <!-- Provenance trace -->
+  <section class="panel">
+    <h2>Batch provenance</h2>
+    <p class="hint">Manufacturer-to-patient custody trail for one batch.</p>
+    <div class="row">
+      <div style="flex:2"><label for="batch">Batch id</label>
+        <input id="batch" value="BATCH-0001" style="width:100%"></div>
+      <button id="btn-trace">Trace</button>
+    </div>
+    <div class="scroll"><table id="trace-table"><thead><tr>
+      <th>seq</th><th>day</th><th>event</th><th>from</th><th>to</th><th>signer</th>
+    </tr></thead><tbody><tr><td colspan="6" style="color:var(--ink-faint)">
+      No batch traced yet.</td></tr></tbody></table></div>
+  </section>
+
+  <!-- KPI cards -->
+  <section class="panel">
+    <h2>Key indicators</h2>
+    <p class="hint">From the run currently loaded.</p>
+    <div class="kpis" id="kpis">
+      <div class="kpi"><div class="v" id="k-service">—</div><div class="l">service level</div></div>
+      <div class="kpi"><div class="v" id="k-stockout">—</div><div class="l">stockout rate</div></div>
+      <div class="kpi"><div class="v" id="k-waste">—</div><div class="l">wastage units</div></div>
+      <div class="kpi"><div class="v" id="k-excursion">—</div><div class="l">excursions</div></div>
+    </div>
+  </section>
+
+  <!-- Crisis controls -->
+  <section class="panel">
+    <h2>What-if scenarios</h2>
+    <p class="hint">Run the network under a disruption and watch it recover.</p>
+    <div class="row">
+      <div><label for="user">User</label><input id="user" value="operator" style="width:100%"></div>
+      <div><label for="pass">Password</label><input id="pass" type="password" value="pharmadt" style="width:100%"></div>
+      <button id="btn-login" class="ghost">Sign in</button>
+    </div>
+    <div class="row">
+      <div style="flex:2"><label for="scenario">Scenario</label>
+        <select id="scenario" style="width:100%"></select></div>
+      <div><label for="days">Days</label><input id="days" type="number" value="365" style="width:100%"></div>
+    </div>
+    <div class="row" style="margin-bottom:0">
+      <button id="btn-crisis" disabled>Run with disruption</button>
+      <button id="btn-normal" class="ghost" disabled>Run undisrupted</button>
+    </div>
+    <p class="err" id="crisis-err"></p>
+    <p class="note" id="scenario-desc"></p>
+  </section>
+
+  <!-- Network map -->
+  <section class="panel span2">
+    <h2>Network status</h2>
+    <p class="hint">Twelve nodes across Karnataka, positioned by real coordinates and coloured by stock health.</p>
+    <div class="map" id="map"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>healthy</span>
+      <span><i style="background:var(--warn)"></i>low stock</span>
+      <span><i style="background:var(--bad)"></i>critical</span>
+      <span><i style="background:var(--ink-faint)"></i>offline (disrupted)</span>
+    </div>
+  </section>
+
+  <!-- Agent decision log -->
+  <section class="panel span2">
+    <h2>Agent decision log</h2>
+    <p class="hint">Every decision with the reasoning behind it — this is the NFR-08 audit trail.</p>
+    <div class="scroll" style="max-height:340px"><table id="log-table"><thead><tr>
+      <th>day</th><th>agent</th><th>action</th><th>justification</th>
+    </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
+      Run a simulation to populate the log.</td></tr></tbody></table></div>
+  </section>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let token = null;
+
+const api = async (path, opts = {}) => {
+  const headers = Object.assign({}, opts.headers || {});
+  if (token) headers["Authorization"] = "Bearer " + token;
+  const res = await fetch(path, Object.assign({}, opts, { headers }));
+  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  return res.json();
+};
+
+// ── Sign in ──────────────────────────────────────────────────────────
+$("btn-login").onclick = async () => {
+  $("crisis-err").textContent = "";
+  try {
+    const body = new URLSearchParams({ username: $("user").value, password: $("pass").value });
+    const data = await api("/auth/token", { method: "POST", body });
+    token = data.access_token;
+    $("s-user").textContent = data.role;
+    $("btn-crisis").disabled = false;
+    $("btn-normal").disabled = false;
+    $("btn-login").textContent = "Signed in";
+  } catch (e) { $("crisis-err").textContent = e.message; }
+};
+
+// ── Chain verification — the badge that flips red on tamper ──────────
+$("btn-verify").onclick = async () => {
+  const badge = $("chain-badge");
+  badge.className = "badge idle";
+  badge.innerHTML = '<span class="dot"></span> checking…';
+  try {
+    const r = await api("/ledger/verify");
+    badge.className = "badge " + (r.valid ? "ok" : "bad");
+    badge.innerHTML = '<span class="dot"></span> ' + (r.valid ? "CHAIN INTACT" : "CHAIN BROKEN");
+    $("chain-detail").textContent = r.valid
+      ? `${r.records_checked.toLocaleString()} records verified. Tip ${r.tip.slice(0, 20)}…`
+      : `Broken at seq ${r.broken_at_seq}: ${r.reason}`;
+  } catch (e) {
+    badge.className = "badge idle";
+    badge.innerHTML = '<span class="dot"></span> unavailable';
+    $("chain-detail").textContent = e.message;
+  }
+};
+
+// ── Provenance trace ─────────────────────────────────────────────────
+$("btn-trace").onclick = async () => {
+  const body = $("trace-table").querySelector("tbody");
+  body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-faint)">Loading…</td></tr>';
+  try {
+    const r = await api("/ledger/provenance/" + encodeURIComponent($("batch").value.trim()));
+    body.innerHTML = r.trace.slice(0, 60).map((t) => `<tr>
+      <td class="mono">${t.seq}</td><td class="mono">${t.sim_day}</td>
+      <td class="trace">${t.event_type}</td><td class="trace">${t.from_node || "—"}</td>
+      <td class="trace">${t.to_node || "—"}</td><td class="trace">${t.signer_node}</td></tr>`).join("");
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="6" style="color:var(--bad)">${e.message}</td></tr>`;
+  }
+};
+
+// ── Scenarios ────────────────────────────────────────────────────────
+let scenarios = [];
+const loadScenarios = async () => {
+  try {
+    scenarios = (await api("/crisis/scenarios")).scenarios;
+    $("scenario").innerHTML = scenarios
+      .map((s) => `<option value="${s.name}">${s.name.replace(/_/g, " ")}</option>`).join("");
+    describeScenario();
+  } catch (e) { /* the picker stays empty; the error shows on run */ }
+};
+const describeScenario = () => {
+  const s = scenarios.find((x) => x.name === $("scenario").value);
+  $("scenario-desc").textContent = s
+    ? `${s.description}. Triggers on day ${s.trigger_day} for ${s.duration_days} days.` : "";
+};
+$("scenario").onchange = describeScenario;
+
+const startRun = async (withScenario) => {
+  $("crisis-err").textContent = "";
+  const days = parseInt($("days").value, 10) || 365;
+  try {
+    if (withScenario) {
+      await api(`/crisis/inject?scenario=${$("scenario").value}&days=${days}`, { method: "POST" });
+    } else {
+      await api(`/simulation/run?days=${days}&with_agents=true`, { method: "POST" });
+    }
+  } catch (e) { $("crisis-err").textContent = e.message; }
+};
+$("btn-crisis").onclick = () => startRun(true);
+$("btn-normal").onclick = () => startRun(false);
+
+// ── Map ──────────────────────────────────────────────────────────────
+const COLOUR = { healthy: "var(--ok)", low: "var(--warn)", critical: "var(--bad)" };
+const drawMap = (nodes) => {
+  if (!nodes.length) return;
+  const lats = nodes.map((n) => n.lat), lons = nodes.map((n) => n.lon);
+  const [y0, y1, x0, x1] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
+  const pad = 12;
+  $("map").innerHTML = nodes.map((n) => {
+    // Latitude increases northward, screen y increases downward, so invert.
+    const x = pad + ((n.lon - x0) / (x1 - x0 || 1)) * (100 - 2 * pad);
+    const y = pad + ((y1 - n.lat) / (y1 - y0 || 1)) * (100 - 2 * pad);
+    const colour = n.offline ? "var(--ink-faint)" : COLOUR[n.health];
+    const size = n.node_type.includes("MANUFACTURER") ? 18
+               : n.node_type.includes("WAREHOUSE") ? 15 : 11;
+    return `<div class="node" style="left:${x}%;top:${y}%" title="${n.node_id}: ${n.stock.toLocaleString()} units, ${(n.utilisation*100).toFixed(0)}% full">
+      <div class="pin" style="background:${colour};width:${size}px;height:${size}px"></div>
+      <div class="lbl">${n.node_id.replace("NODE-", "")}</div></div>`;
+  }).join("");
+};
+
+// ── Live polling ─────────────────────────────────────────────────────
+const refresh = async () => {
+  try {
+    const s = await api("/simulation/state");
+    $("s-status").textContent = s.status;
+    $("s-day").textContent = s.current_day || "—";
+    $("s-events").textContent = (s.event_count || 0).toLocaleString();
+    drawMap(s.nodes || []);
+
+    if (s.status === "complete" || s.status === "failed") {
+      const k = await api("/kpi").catch(() => null);
+      if (k) {
+        $("k-service").textContent = (k.service_level * 100).toFixed(2) + "%";
+        $("k-stockout").textContent = (k.stockout_rate * 100).toFixed(3) + "%";
+        $("k-waste").textContent = k.wastage_units.toLocaleString();
+        $("k-excursion").textContent = k.cold_chain_excursions;
+      }
+      const d = await api("/agents/decisions?limit=40").catch(() => null);
+      if (d && d.decisions.length) {
+        $("log-table").querySelector("tbody").innerHTML = d.decisions.map((r) => `<tr>
+          <td class="mono">${r.sim_day}</td><td>${r.agent_name}</td>
+          <td class="mono">${(r.action && r.action.type) || "—"}</td>
+          <td style="color:var(--ink-soft)">${r.justification || ""}</td></tr>`).join("");
+      }
+    }
+  } catch (e) { /* the API may still be starting; the next tick retries */ }
+};
+
+// The WebSocket keeps the day counter moving during a run; polling fills in
+// the aggregates, which only become meaningful once the run finishes.
+const connect = () => {
+  const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/events");
+  ws.onmessage = (m) => {
+    const d = JSON.parse(m.data);
+    if (d.type === "events" && d.day) $("s-day").textContent = d.day;
+  };
+  ws.onclose = () => setTimeout(connect, 3000);
+};
+
+loadScenarios();
+refresh();
+$("btn-verify").click();
+setInterval(refresh, 1500);
+connect();
+</script>
+</body>
+</html>
