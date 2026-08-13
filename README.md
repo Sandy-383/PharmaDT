@@ -221,11 +221,35 @@ dispensed. The pipeline therefore takes only the *shape* of each series —
 variability, weekday effect, seasonality — and rescales the level to
 `base_daily_demand`. The magnitude does not transfer and is not claimed to.
 
-The prescribed mitigation is validating against CMS Medicare Part D drug-level
-utilisation. `data.cms.gov` returns HTTP 403 to scripted clients, so that
-extract must be downloaded by hand into `data/raw/cms/`, where the loader picks
-it up. **Until then this threat is open, not closed**, and the report should say
-so rather than imply otherwise.
+### CMS validation — what it does and does not close
+
+`data.cms.gov` returns HTTP 403 to scripted clients and geo-restricts some
+traffic, so the same CMS release is retrieved from a Kaggle mirror. The report
+cites CMS as the source and the mirror as the retrieval route.
+
+Four of the five synthetic drugs appear in real Part D dispensing:
+
+| Drug | CMS generic | 2019 claims | Relative volume |
+|---|---|---|---|
+| DRUG-003 | Metformin | 33,657,154 | 1.75 |
+| DRUG-002 | Insulin Glargine | 26,568,607 | 1.38 |
+| DRUG-001 | Amoxicillin | 13,168,613 | 0.69 |
+| DRUG-005 | Morphine Sulfate | 3,463,323 | 0.18 |
+| DRUG-004 | Influenza Vaccine | — | — |
+
+**Closed:** the five drugs are real products with known dispensing volumes, not
+invented placeholders. DRUG-004 returning nothing is a fact about the programme,
+not a missing match — **vaccines are a Part B benefit, not Part D.**
+
+**Still open:** real demand spans roughly **tenfold** across these drugs; the
+twin spans about twofold. Rescaling the twin's demand mix by these weights was
+tried and then reverted. It is a substantive model change rather than a
+validation — it moves every KPI and would require re-tuning the inventory policy
+around a tenfold spread, which this project has not done. The weights are
+reported in `cms_drug_weights.parquet` and carried as a `cms_weight` column on
+the demand profiles, but they are never multiplied into the demand level.
+Recording the gap is honest; quietly rescaling into an untuned regime would not
+be.
 
 `notebooks/01_eda_datasets.ipynb` documents seasonality, weekday effects, and
 missingness, and is committed with its figures so it can be read without running

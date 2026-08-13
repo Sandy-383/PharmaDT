@@ -81,7 +81,7 @@
       50,
       51
     ],
-    "seconds": 8.6
+    "seconds": 7.2
   },
   "+ expiry (redistribution)": {
     "summary": {
@@ -123,9 +123,9 @@
       50,
       51
     ],
-    "seconds": 10.3
+    "seconds": 7.3
   },
-  "+ route optimisation": {
+  "+ anomaly & ledger": {
     "summary": {
       "stockout_pct": {
         "mean": 0.02914,
@@ -143,9 +143,9 @@
         "n": 10
       },
       "delivery_km": {
-        "mean": 198514.06390000033,
-        "std": 3821.913736045062,
-        "n": 10
+        "mean": NaN,
+        "std": 0.0,
+        "n": 0
       },
       "average_inventory": {
         "mean": 139150.99,
@@ -165,48 +165,6 @@
       50,
       51
     ],
-    "seconds": 130.2
-  },
-  "+ anomaly & ledger (full)": {
-    "summary": {
-      "stockout_pct": {
-        "mean": 0.02914,
-        "std": 0.012202932252354576,
-        "n": 10
-      },
-      "wastage_units": {
-        "mean": 76.3,
-        "std": 114.80035811016542,
-        "n": 10
-      },
-      "forecast_mape": {
-        "mean": 5.42881490681815,
-        "std": 0.9723964893379957,
-        "n": 10
-      },
-      "delivery_km": {
-        "mean": 198514.06390000033,
-        "std": 3821.913736045062,
-        "n": 10
-      },
-      "average_inventory": {
-        "mean": 139150.99,
-        "std": 2273.8297350261014,
-        "n": 10
-      }
-    },
-    "seeds": [
-      42,
-      43,
-      44,
-      45,
-      46,
-      47,
-      48,
-      49,
-      50,
-      51
-    ],
-    "seconds": 129.2
+    "seconds": 7.5
   }
 }

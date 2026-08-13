@@ -18,8 +18,10 @@ Supply chain  Kaggle public dataset. Token only.
 openFDA       Public, no auth, but intermittently 502s — hence the retry.
 CVRPLIB       Served from the PyVRP instance mirror; the canonical
               puc-rio host 404s on the documented instance paths.
-CMS Part D    Blocked (HTTP 403) to non-browser clients from here, so it
-              is read from a manually downloaded file if one is present.
+CMS Part D    data.cms.gov returns 403 to scripted clients and geo-restricts
+              some traffic, so the same CMS release is retrieved from a
+              Kaggle mirror. The report cites CMS as the source and the
+              mirror as the retrieval route.
 USAID         No stable public endpoint was found. Cold-chain excursion
               rates stay at the literature default in config.py, and the
               report records that as a limitation rather than pretending
@@ -265,6 +267,24 @@ def fit_demand_profiles(node_ids: Iterable[str] | None = None,
                 drug_ids = list(session.scalars(select(Drug.drug_id).order_by(Drug.drug_id)))
 
     node_ids, drug_ids = list(node_ids), list(drug_ids)
+
+    # CMS relative dispensing volumes are attached for *validation*, not
+    # applied to the demand level.
+    #
+    # They belong in the report as evidence that the five synthetic drugs are
+    # real products with known volumes, and as a stated limitation: real demand
+    # spans roughly tenfold across them while this twin spans about twofold.
+    # Multiplying the means by these weights was tried and is a substantive
+    # model change, not a validation — it shifts every KPI, and re-tuning the
+    # inventory policy around a tenfold spread is work this project has not
+    # done. Recording the gap is honest; quietly rescaling into an untuned
+    # regime would not be.
+    try:
+        weights = cms_drug_weights().set_index("drug_id")["weight"].to_dict()
+    except DatasetUnavailable:
+        logger.warning("CMS weights unavailable; validation column omitted")
+        weights = {}
+
     sales = load_rossmann()
     # Fit on training data only. Touching val or test here would leak straight
     # into the simulation the models are later scored on.
@@ -285,12 +305,15 @@ def fit_demand_profiles(node_ids: Iterable[str] | None = None,
         # Level comes from config and is perturbed per series so the network
         # has uneven pressure; without that, redistribution has nothing to do.
         scale = float(rng.uniform(0.6, 1.4))
+        cms_weight = float(weights.get(drug_id, 1.0))
         rows.append(
             {
                 "node_id": node_id,
                 "drug_id": drug_id,
                 "source_store_id": int(chosen[index]),
                 "mean": round(settings.base_daily_demand * scale, 4),
+                # Reported alongside, never multiplied in — see above.
+                "cms_weight": round(cms_weight, 4),
                 **fitted,
                 "observations": len(series),
             }
@@ -531,31 +554,143 @@ def preprocess_supply_chain() -> Path:
 # ── 6. CMS Medicare Part D ────────────────────────────────────────────
 
 
+#: Kaggle mirror of the CMS Part D drug spending/utilisation extract.
+#: data.cms.gov answers scripted clients with 403 and geo-restricts some
+#: traffic, so the primary portal cannot be automated from here. The mirror
+#: carries the same CMS release; the report cites CMS as the source and this
+#: as the retrieval route.
+CMS_KAGGLE_REF = "fabiovillagran/medicare-part-d-drug-spendingutilization-201519"
+
+#: Columns that identify the utilisation table among the several CSVs shipped
+#: in the archive. Selecting by content rather than by filename: the archive
+#: also contains a data dictionary and a drug-uses table, and picking the
+#: first file alphabetically would load the dictionary.
+CMS_REQUIRED = {"generic_name", "year", "total_claims"}
+
+
+def download_cms() -> Path:
+    destination = RAW / "cms"
+    if destination.exists() and any(destination.glob("*.csv")):
+        return destination
+    return _download_zip(
+        f"{KAGGLE_API}/datasets/download/{CMS_KAGGLE_REF}",
+        destination,
+        headers=_kaggle_headers(),
+    )
+
+
+def _normalise(frame: pd.DataFrame) -> pd.DataFrame:
+    frame.columns = [
+        c.strip().lower().replace("\n", " ").replace("  ", " ").replace(" ", "_")
+        for c in frame.columns
+    ]
+    return frame
+
+
 def load_cms() -> pd.DataFrame:
-    """Drug-level utilisation, from a manually downloaded CSV.
+    """Drug-level utilisation by year: claims, dosage units, beneficiaries.
 
-    data.cms.gov answers non-browser clients with a 403, so this cannot be
-    automated from here. Drop any Part D "by Geography and Drug" CSV into
-    ``data/raw/cms/`` and it will be picked up.
-
-    This is the counterweight to Rossmann's validity threat: retail takings are
+    This is the counterweight to Rossmann's validity threat. Retail takings are
     not drug demand, and CMS is where that claim gets checked against real
     dispensing volumes.
     """
     source = RAW / "cms"
-    files = sorted(source.glob("*.csv")) if source.exists() else []
+    files = sorted(source.rglob("*.csv")) if source.exists() else []
     if not files:
         raise DatasetUnavailable(
-            "No CMS extract found. data.cms.gov blocks scripted access (403); "
-            f"download a Part D utilisation CSV by hand into {source}/."
+            f"No CMS extract in {source}/. Run `make data`, or download a Part D "
+            "utilisation CSV by hand if the Kaggle mirror is unavailable."
         )
 
-    frame = pd.read_csv(files[0], low_memory=False)
-    frame.columns = [c.strip().lower().replace(" ", "_") for c in frame.columns]
-    return frame
+    for path in files:
+        frame = _normalise(pd.read_csv(path, low_memory=False))
+        if not set(frame.columns) >= CMS_REQUIRED:
+            continue
+
+        # CMS ships these as thousands-separated strings, so they arrive as
+        # object dtype and every arithmetic comparison against them silently
+        # becomes a string comparison.
+        for column in (
+            "total_claims", "total_dosage_units", "total_beneficiaries", "total_spending"
+        ):
+            if column in frame.columns:
+                frame[column] = pd.to_numeric(
+                    frame[column].astype(str).str.replace(r"[,$]", "", regex=True),
+                    errors="coerce",
+                )
+
+        frame["year"] = pd.to_numeric(frame["year"], errors="coerce").astype("Int64")
+        frame["generic_name"] = frame["generic_name"].astype(str).str.strip()
+        return frame.dropna(subset=["generic_name", "year"])
+
+    raise DatasetUnavailable(
+        f"None of the {len(files)} CSV(s) in {source}/ carry drug-level "
+        f"utilisation columns {sorted(CMS_REQUIRED)}."
+    )
+
+
+
+
+# ── CMS validation of the Rossmann-derived demand mix ─────────────────
+
+#: Our synthetic drugs mapped to the generic names CMS reports them under.
+#: Influenza Vaccine is deliberately absent: vaccines are reimbursed under
+#: Medicare Part B, not Part D, so a zero here is a fact about the programme
+#: rather than a missing match, and silently mapping it to something else
+#: would fabricate a validation that did not happen.
+CMS_DRUG_MAP: dict[str, str] = {
+    "DRUG-001": "Amoxicillin",
+    "DRUG-002": "Insulin Glargine",
+    "DRUG-003": "Metformin",
+    "DRUG-005": "Morphine Sulfate",
+}
+CMS_UNMAPPED_NOTE = {
+    "DRUG-004": "Influenza Vaccine is a Part B benefit; Part D records no claims.",
+}
+
+
+def cms_drug_weights() -> pd.DataFrame:
+    """Relative dispensing volume per drug, from real Part D claims.
+
+    Normalised to mean 1.0 so the weights rescale the *mix* between drugs
+    without touching the overall demand level, which comes from the twin's own
+    ``base_daily_demand``. Drugs CMS does not cover keep a weight of 1.0 rather
+    than being dropped — an unmatched drug is not a zero-demand drug.
+    """
+    frame = load_cms()
+    latest = frame[frame["year"] == frame["year"].max()]
+
+    rows = []
+    for drug_id, generic in CMS_DRUG_MAP.items():
+        matched = latest[
+            latest["generic_name"].str.contains(generic.split()[0], case=False, na=False)
+        ]
+        rows.append(
+            {
+                "drug_id": drug_id,
+                "cms_generic": generic,
+                "cms_rows": len(matched),
+                "total_claims": float(matched["total_claims"].sum()),
+                "total_beneficiaries": float(
+                    matched.get("total_beneficiaries", pd.Series(dtype=float)).sum()
+                ),
+            }
+        )
+    for drug_id, note in CMS_UNMAPPED_NOTE.items():
+        rows.append({"drug_id": drug_id, "cms_generic": None, "cms_rows": 0,
+                     "total_claims": float("nan"), "total_beneficiaries": float("nan"),
+                     "note": note})
+
+    result = pd.DataFrame(rows)
+    matched_claims = result["total_claims"].dropna()
+    mean_claims = matched_claims.mean() if len(matched_claims) else 1.0
+    result["weight"] = (result["total_claims"] / mean_claims).fillna(1.0).round(4)
+    result["year"] = int(frame["year"].max())
+    return result.sort_values("drug_id").reset_index(drop=True)
 
 
 def preprocess_cms() -> Path:
+    _write(cms_drug_weights(), "cms_drug_weights")
     return _write(load_cms(), "cms_part_d")
 
 
@@ -567,10 +702,10 @@ DATASETS: dict[str, tuple] = {
     "openfda": (download_openfda, preprocess_openfda),
     "cvrplib": (download_cvrplib, preprocess_cvrplib),
     "supply_chain": (download_supply_chain, preprocess_supply_chain),
-    "cms": (None, preprocess_cms),
+    "cms": (download_cms, preprocess_cms),
 }
 
-#: Sources with no automated path. Their absence is reported, not fatal.
+#: Sources whose absence is reported rather than fatal.
 OPTIONAL = {"cms"}
 
 
