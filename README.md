@@ -23,7 +23,8 @@ make db-up                      # Postgres 15, waits until healthy
 make migrate                    # create the schema
 make seed                       # 12 nodes, 5 drugs, 20 batches
 
-# 3. Verify
+# 3. Verify this machine is ready
+make doctor                     # 16 checks, each failure names its fix
 make test
 make sim                        # 365 simulated days, prints baseline KPIs
 

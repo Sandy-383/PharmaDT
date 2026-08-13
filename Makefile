@@ -7,7 +7,7 @@
 # without it make considers the target already satisfied and silently does
 # nothing at all.
 .PHONY: help install db-up db-down db-logs migrate migration seed reseed \
-        data eda ablation frontier routing-benchmark anomaly-eval gate federated crisis evaluate keys sim-anchor verify-chain tamper-demo \
+        data eda ablation frontier routing-benchmark anomaly-eval gate federated crisis evaluate doctor keys sim-anchor verify-chain tamper-demo \
         test cov sim api lint fmt clean
 
 help:
@@ -29,7 +29,7 @@ help:
 	@echo "  verify-chain Verify the provenance chain end to end"
 	@echo "  tamper-demo  Demonstrate tamper-evidence (Stage 4 DoD)"
 	@echo ""
-	@echo ""
+	@echo "  doctor       Check this machine is ready, with the fix for each failure"
 	@echo "  gate         STAGE 10.5 GATE: the whole system, 6 conditions, one run"
 	@echo "  evaluate     Experiment matrix, 10 seeds, mean +/- std (Stage 15)"
 	@echo "  crisis       Four disruption scenarios, baseline vs agents"
@@ -90,6 +90,9 @@ crisis:
 
 federated:
 	python -m pharmadt.federated.experiment
+
+doctor:
+	python -m pharmadt.doctor
 
 gate:
 	python -m pharmadt.gate
