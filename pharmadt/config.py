@@ -115,6 +115,13 @@ class Settings(BaseSettings):
     # startup; a deployment sets API_SECRET_KEY in the environment.
     api_secret_key: SecretStr = SecretStr("dev-only-not-a-production-secret")
 
+    # Scale each drug's demand by its real CMS Part D dispensing volume,
+    # giving a ~10x spread across the five drugs instead of ~2x. Realistic,
+    # and materially harder: an inventory policy tuned on a narrow mix does
+    # not automatically hold when one drug moves ten times faster than another.
+    # Exposed as a flag so both regimes are reproducible and comparable.
+    calibrate_drug_mix: bool = False
+
     # ── Dataset acquisition (Stage 2) ─────────────────────────────────
     # Kaggle personal access token, used as a Bearer credential. SecretStr so
     # it cannot be printed by an accidental repr of the settings object.

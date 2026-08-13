@@ -311,8 +311,12 @@ def fit_demand_profiles(node_ids: Iterable[str] | None = None,
                 "node_id": node_id,
                 "drug_id": drug_id,
                 "source_store_id": int(chosen[index]),
-                "mean": round(settings.base_daily_demand * scale, 4),
-                # Reported alongside, never multiplied in — see above.
+                "mean": round(
+                    settings.base_daily_demand
+                    * scale
+                    * (cms_weight if settings.calibrate_drug_mix else 1.0),
+                    4,
+                ),
                 "cms_weight": round(cms_weight, 4),
                 **fitted,
                 "observations": len(series),

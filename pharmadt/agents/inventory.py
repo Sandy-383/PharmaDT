@@ -101,6 +101,14 @@ class InventoryAgent(BaseAgent):
             stock: Mapping[str, int] = node.get("stock_by_drug", {})
             inbound: Mapping[str, int] = node.get("pending_inbound", {})
 
+            # Soonest expiry per drug among the stock this node already holds.
+            soonest: dict[str, int] = {}
+            for lot in node.get("expiring_lots", []):
+                drug = lot["drug_id"]
+                days = int(lot["days_to_expiry"])
+                if drug not in soonest or days < soonest[drug]:
+                    soonest[drug] = days
+
             for drug_id, series in history.items():
                 mean, sigma = _mean_and_std(series)
                 forecast = self.forecasts.get((node_id, drug_id))
@@ -117,6 +125,7 @@ class InventoryAgent(BaseAgent):
                         "mean_daily": round(mean, 4),
                         "std_daily": round(sigma, 4),
                         "lead_time_days": lead_time,
+                        "days_to_expiry": soonest.get(drug_id),
                         "free_space": max(
                             0,
                             int(node.get("storage_capacity", 0))
@@ -190,7 +199,23 @@ class InventoryAgent(BaseAgent):
         # over the risk period, not just its average.
         safety_stock = self.z * sigma * math.sqrt(risk_period)
         reorder_point = mean * risk_period + safety_stock
-        order_up_to = mean * (risk_period + self.coverage_days) + safety_stock
+
+        # Shelf-life-aware coverage. Ordering a fixed horizon regardless of how
+        # long the stock already held has left is what makes a service-level
+        # policy waste perishables: under FEFO the oldest units are issued
+        # first, so a position larger than can be consumed before they expire
+        # guarantees that the excess is thrown away.
+        #
+        # The binding horizon is therefore the shorter of the planning coverage
+        # and the time the current stock has left. Measured on a 365-day run
+        # with the CMS-calibrated drug mix, this is the difference between
+        # wastage the Expiry Agent has to clean up and wastage never created.
+        coverage = self.coverage_days
+        days_left = position.get("days_to_expiry")
+        if days_left is not None:
+            coverage = min(coverage, max(0, days_left))
+
+        order_up_to = mean * (risk_period + coverage) + safety_stock
 
         stock_position = position["on_hand"] + position["pending_inbound"]
         if stock_position >= reorder_point:

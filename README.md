@@ -589,15 +589,36 @@ machine. The map is plotted from real coordinates rather than tiles.
 ## ★ Experiment matrix (Stage 15)
 
 `make evaluate` — **10 seeds × 365 days, mean ± standard deviation**. Each row
-adds one component to the row above, so every line answers "what did this buy?"
+adds one component to the row above.
 
-| Configuration | Stockout % | Wastage | MAPE % | Delivery km | Avg inventory |
-|---|---|---|---|---|---|
-| baseline (no agents) | 0.2572 ±0.0433 | 119 ±296 | — | — | 116,216 |
-| + inventory & demand | 0.0096 ±0.0133 | 669 ±902 | 5.38 | — | 139,215 |
-| + expiry (redistribution) | 0.0291 ±0.0122 | **76 ±115** | 5.43 | — | 139,151 |
-| + route optimisation | 0.0291 | 76 | 5.43 | 198,514 ±3,822 | 139,151 |
-| + anomaly & ledger (full) | 0.0291 | 76 | 5.43 | 198,514 | 139,151 |
+Reported under **two demand regimes**, because the drug mix is a modelling
+choice and the results should not depend on getting it lucky:
+
+| Metric | Uniform mix | **CMS-calibrated (10× spread)** |
+|---|---|---|
+| Stockout reduction vs no agents | 86.1% | **84.1%** |
+| Wastage reduction vs no-redistribution control | 89.3% | **63.2%** |
+| Forecast MAPE (in-simulation) | 5.80% | 5.74% |
+
+`CALIBRATE_DRUG_MIX=true` selects the second. Both **exceed** the abstract's
+30–40% wastage claim, and stockout reduction holds within two points across a
+tenfold change in demand heterogeneity — which is the sensitivity result worth
+reporting.
+
+### The control matters more than the number
+
+Wastage is measured against a **no-redistribution control** — the agent stack
+without the Expiry Agent — because that is the comparison the implementation
+guide names, and because it is the only unconfounded one.
+
+Comparing against the *no-agent* baseline is misleading and the harness now says
+so in its own output. That baseline wastes less only because it holds 149k units
+against 176k and **stocks out six times more often**. It wastes less because it
+runs out instead. Comparing wastage across two policies at different service
+levels measures the service level, not the redistribution.
+
+Both comparisons are printed; only the controlled one is claimed.
+
 
 ### Abstract claims, checked against measurement
 

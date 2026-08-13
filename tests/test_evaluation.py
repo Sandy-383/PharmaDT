@@ -88,37 +88,48 @@ def test_every_configuration_gets_a_row() -> None:
 # ── Claim validation ──────────────────────────────────────────────────
 
 
-def test_a_measured_wastage_reduction_is_checked_against_the_claim() -> None:
-    findings = validate_abstract(
-        matrix(("baseline", [row(wastage=1000.0)]), ("full", [row(wastage=650.0)]))
+def three_arms(control_waste: float, full_waste: float, baseline_waste: float = 100.0):
+    """Baseline, the no-redistribution control, and the full system."""
+    return matrix(
+        ("baseline (no agents)", [row(wastage=baseline_waste)]),
+        ("+ inventory & demand", [row(wastage=control_waste)]),
+        ("+ expiry (redistribution)", [row(wastage=full_waste)]),
     )
+
+
+def test_wastage_is_measured_against_the_no_redistribution_control() -> None:
+    """The guide names this control explicitly, and it is the unconfounded one."""
+    findings = validate_abstract(three_arms(control_waste=1000.0, full_waste=650.0))
     text = " ".join(findings)
+    assert "no-redistribution control" in text
     assert "35.0%" in text
     assert "MEETS" in text
 
 
 def test_exceeding_the_claim_is_labelled_as_exceeding() -> None:
-    findings = validate_abstract(
-        matrix(("baseline", [row(wastage=1000.0)]), ("full", [row(wastage=100.0)]))
-    )
+    findings = validate_abstract(three_arms(control_waste=1000.0, full_waste=100.0))
     assert "EXCEEDS" in " ".join(findings)
 
 
 def test_falling_short_is_stated_plainly() -> None:
     """The guide's instruction: update the abstract to the measured value."""
-    findings = validate_abstract(
-        matrix(("baseline", [row(wastage=1000.0)]), ("full", [row(wastage=950.0)]))
-    )
+    findings = validate_abstract(three_arms(control_waste=1000.0, full_waste=950.0))
     assert "FALLS SHORT OF" in " ".join(findings)
 
 
-def test_a_baseline_with_no_wastage_says_so_instead_of_dividing_by_zero() -> None:
+def test_the_confounded_comparison_is_reported_and_labelled_as_confounded() -> None:
+    """The no-agent baseline wastes less because it stocks out instead.
+
+    Reported for completeness rather than omitted, but never presented as the
+    headline — comparing wastage across two different service levels measures
+    the service level.
+    """
     findings = validate_abstract(
-        matrix(("baseline", [row(wastage=0.0)]), ("full", [row(wastage=0.0)]))
+        three_arms(control_waste=1000.0, full_waste=650.0, baseline_waste=50.0)
     )
     text = " ".join(findings)
-    assert "no headroom" in text
-    assert "Stage 8" in text
+    assert "confounded" in text
+    assert "runs out instead" in text
 
 
 def test_the_stockout_reduction_is_always_reported() -> None:

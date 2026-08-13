@@ -219,24 +219,45 @@ def validate_abstract(matrix: dict[str, Any]) -> list[str]:
     full = matrix[names[-1]]["summary"]
     findings: list[str] = []
 
-    # Claim 1: 30-40% wastage reduction.
-    base_waste = baseline["wastage_units"]["mean"]
+    # Claim 1: 30-40% wastage reduction, against the control the guide names —
+    # a *no-redistribution* baseline, meaning the agent stack without the
+    # Expiry Agent, not the no-agent baseline.
+    #
+    # The control matters more than it looks. The no-agent baseline wastes
+    # little because it holds less stock and stocks out far more often;
+    # comparing wastage across two policies running at different service levels
+    # measures the service level, not the redistribution. Both comparisons are
+    # printed so neither is hidden.
+    no_redistribution = next(
+        (matrix[n]["summary"] for n in names if "inventory" in n.lower()), None
+    )
     full_waste = full["wastage_units"]["mean"]
+
+    if no_redistribution is not None:
+        control_waste = no_redistribution["wastage_units"]["mean"]
+        if control_waste > 0:
+            change = (control_waste - full_waste) / control_waste * 100
+            verdict = "MEETS" if 30 <= change <= 40 else (
+                "EXCEEDS" if change > 40 else "FALLS SHORT OF"
+            )
+            findings.append(
+                f"Wastage vs the no-redistribution control (the guide's stated "
+                f"comparison): {control_waste:,.0f} -> {full_waste:,.0f} units "
+                f"= {change:.1f}%  [{verdict} the abstract's 30-40% claim]"
+            )
+
+    base_waste = baseline["wastage_units"]["mean"]
     if base_waste > 0:
-        change = (base_waste - full_waste) / base_waste * 100
-        verdict = "MEETS" if 30 <= change <= 40 else (
-            "EXCEEDS" if change > 40 else "FALLS SHORT OF"
-        )
+        raw = (base_waste - full_waste) / base_waste * 100
         findings.append(
-            f"Wastage reduction: {base_waste:,.0f} -> {full_waste:,.0f} units "
-            f"= {change:.1f}%  [{verdict} the abstract's 30-40% claim]"
-        )
-    else:
-        findings.append(
-            "Wastage reduction: the baseline wastes ~0 units at these settings, "
-            "so there is no headroom to reduce. The 88.8% reduction reported in "
-            "Stage 8 was measured on seeds where wastage is material; the "
-            "abstract should cite that experiment, not this row."
+            f"Wastage vs the no-agent baseline: {base_waste:,.0f} -> "
+            f"{full_waste:,.0f} units = {raw:+.1f}%. This comparison is "
+            "confounded and is reported only for completeness: the no-agent "
+            "baseline holds "
+            f"{baseline['average_inventory']['mean']:,.0f} units against "
+            f"{full['average_inventory']['mean']:,.0f} and stocks out "
+            f"{baseline['stockout_pct']['mean'] / max(full['stockout_pct']['mean'], 1e-9):.0f}x "
+            "more often. It wastes less because it runs out instead."
         )
 
     # Claim 2: 20-25% forecast improvement.
