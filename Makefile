@@ -7,7 +7,7 @@
 # without it make considers the target already satisfied and silently does
 # nothing at all.
 .PHONY: help install db-up db-down db-logs migrate migration seed reseed \
-        data eda ablation frontier routing-benchmark anomaly-eval gate federated crisis evaluate doctor keys sim-anchor verify-chain tamper-demo \
+        data eda ablation frontier routing-benchmark anomaly-eval gate federated crisis evaluate doctor demo-reset keys sim-anchor verify-chain tamper-demo \
         test cov sim api lint fmt clean
 
 help:
@@ -30,6 +30,7 @@ help:
 	@echo "  tamper-demo  Demonstrate tamper-evidence (Stage 4 DoD)"
 	@echo ""
 	@echo "  doctor       Check this machine is ready, with the fix for each failure"
+	@echo "  demo-reset   Rebuild a clean world so the live demo runs fast"
 	@echo "  gate         STAGE 10.5 GATE: the whole system, 6 conditions, one run"
 	@echo "  evaluate     Experiment matrix, 10 seeds, mean +/- std (Stage 15)"
 	@echo "  crisis       Four disruption scenarios, baseline vs agents"
@@ -93,6 +94,22 @@ federated:
 
 doctor:
 	python -m pharmadt.doctor
+
+# Rebuild a clean world before a live demo. The ledger is append-only, so a
+# machine that has run the simulation many times accumulates every record ever
+# written -- and verify_chain walks all of them. After ~80k records the gate
+# takes a minute, which is a long silence in front of an audience.
+#
+# Recipes are spelled out rather than delegated with $(MAKE): on Windows that
+# expands to "C:/Program Files (x86)/GnuWin32/bin/make", and the spaces and
+# parentheses break the shell before anything runs.
+demo-reset:
+	docker compose down -v
+	docker compose up -d --wait db
+	alembic upgrade head
+	python -m pharmadt.core.seed
+	python -m pharmadt.ledger.keyring
+	python -m pharmadt.twin.simulation --anchor
 
 gate:
 	python -m pharmadt.gate

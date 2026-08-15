@@ -3,12 +3,12 @@
     "number": "1",
     "name": "Simulation runs the full horizon over >= 12 nodes",
     "passed": true,
-    "detail": "365 days over 12 nodes in 12.2s, 13,861 events emitted",
+    "detail": "365 days over 12 nodes in 12.5s, 13,815 events emitted",
     "metrics": {
       "days": 365,
       "nodes": 12,
-      "events": 13861,
-      "seconds": 12.180266000001211
+      "events": 13815,
+      "seconds": 12.544462200021371
     }
   },
   {
@@ -30,11 +30,11 @@
     "number": "3",
     "name": "Every physical handoff produces a signed, chained record",
     "passed": true,
-    "detail": "13,123 of 13,123 custody events anchored (chain height 76,630); kinds: BATCH_CREATED, COLD_CHAIN_EXCURSION, DISPENSED, REDISTRIBUTION, SHIPMENT_DISPATCHED, SHIPMENT_RECEIVED",
+    "detail": "13,081 of 13,081 custody events anchored (chain height 48,529); kinds: BATCH_CREATED, COLD_CHAIN_EXCURSION, DISPENSED, REDISTRIBUTION, SHIPMENT_DISPATCHED, SHIPMENT_RECEIVED",
     "metrics": {
-      "anchorable": 13123,
-      "anchored": 13123,
-      "chain_height": 76630,
+      "anchorable": 13081,
+      "anchored": 13081,
+      "chain_height": 48529,
       "event_kinds": [
         "BATCH_CREATED",
         "COLD_CHAIN_EXCURSION",
@@ -58,11 +58,11 @@
     "number": "4",
     "name": "verify_chain() true, and false under tampering",
     "passed": true,
-    "detail": "clean: VALID over 76,630 records | tampered seq 41072: BROKEN at 41072 | restored: VALID",
+    "detail": "clean: VALID over 48,529 records | tampered seq 24265: BROKEN at 24265 | restored: VALID",
     "metrics": {
-      "records_checked": 76630,
-      "tampered_seq": 41072,
-      "detected_at_seq": 41072,
+      "records_checked": 48529,
+      "tampered_seq": 24265,
+      "detected_at_seq": 24265,
       "reason": "record_hash does not match its contents; the record was edited",
       "restored": true
     }
@@ -71,39 +71,39 @@
     "number": "5",
     "name": "KPIs computed and printed",
     "passed": true,
-    "detail": "stockout 0.00036 | wastage 0 | forecast MAPE 4.11% | delivery 197,517 km",
+    "detail": "stockout 0.00036 | wastage 0 | forecast MAPE 4.65% | delivery 199,034 km",
     "metrics": {
       "sim_days": 365,
       "nodes": 12,
-      "events": 13861,
-      "units_demanded": 414628,
-      "units_fulfilled": 414479,
+      "events": 13815,
+      "units_demanded": 412244,
+      "units_fulfilled": 412095,
       "units_short": 149,
-      "stockout_rate": 0.000359,
+      "stockout_rate": 0.000361,
       "stockout_day_rate": 0.000365,
-      "service_level": 0.999641,
+      "service_level": 0.999639,
       "wastage_units": 0,
-      "cold_chain_excursions": 9,
-      "shipments_delivered": 842,
-      "average_inventory": 140915.95,
-      "delivery_distance_km": 197517.1,
+      "cold_chain_excursions": 7,
+      "shipments_delivered": 832,
+      "average_inventory": 140071.13,
+      "delivery_distance_km": 199034.1,
       "counterfeit_alerts": 0,
-      "forecast_mape": 4.11
+      "forecast_mape": 4.65
     }
   },
   {
     "number": "6",
     "name": "Every agent decision persisted in agent_decisions",
     "passed": true,
-    "detail": "4,413 decisions written; rows per agent: AnomalyAgent=1,780, DemandAgent=10,195, ExpiryAgent=1,877, InventoryAgent=3,893, RouteAgent=3,368",
+    "detail": "4,392 decisions written; rows per agent: AnomalyAgent=970, DemandAgent=5,672, ExpiryAgent=1,014, InventoryAgent=2,122, RouteAgent=1,900",
     "metrics": {
-      "written": 4413,
+      "written": 4392,
       "by_agent": {
-        "AnomalyAgent": 1780,
-        "DemandAgent": 10195,
-        "ExpiryAgent": 1877,
-        "InventoryAgent": 3893,
-        "RouteAgent": 3368
+        "AnomalyAgent": 970,
+        "DemandAgent": 5672,
+        "ExpiryAgent": 1014,
+        "InventoryAgent": 2122,
+        "RouteAgent": 1900
       }
     }
   }
