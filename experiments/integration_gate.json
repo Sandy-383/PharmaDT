@@ -3,12 +3,12 @@
     "number": "1",
     "name": "Simulation runs the full horizon over >= 12 nodes",
     "passed": true,
-    "detail": "365 days over 12 nodes in 12.5s, 13,815 events emitted",
+    "detail": "365 days over 12 nodes in 12.6s, 13,815 events emitted",
     "metrics": {
       "days": 365,
       "nodes": 12,
       "events": 13815,
-      "seconds": 12.544462200021371
+      "seconds": 12.64028380002128
     }
   },
   {
@@ -30,11 +30,11 @@
     "number": "3",
     "name": "Every physical handoff produces a signed, chained record",
     "passed": true,
-    "detail": "13,081 of 13,081 custody events anchored (chain height 48,529); kinds: BATCH_CREATED, COLD_CHAIN_EXCURSION, DISPENSED, REDISTRIBUTION, SHIPMENT_DISPATCHED, SHIPMENT_RECEIVED",
+    "detail": "13,081 of 13,081 custody events anchored (chain height 61,610); kinds: BATCH_CREATED, COLD_CHAIN_EXCURSION, DISPENSED, REDISTRIBUTION, SHIPMENT_DISPATCHED, SHIPMENT_RECEIVED",
     "metrics": {
       "anchorable": 13081,
       "anchored": 13081,
-      "chain_height": 48529,
+      "chain_height": 61610,
       "event_kinds": [
         "BATCH_CREATED",
         "COLD_CHAIN_EXCURSION",
@@ -58,11 +58,11 @@
     "number": "4",
     "name": "verify_chain() true, and false under tampering",
     "passed": true,
-    "detail": "clean: VALID over 48,529 records | tampered seq 24265: BROKEN at 24265 | restored: VALID",
+    "detail": "clean: VALID over 61,610 records | tampered seq 30806: BROKEN at 30806 | restored: VALID",
     "metrics": {
-      "records_checked": 48529,
-      "tampered_seq": 24265,
-      "detected_at_seq": 24265,
+      "records_checked": 61610,
+      "tampered_seq": 30806,
+      "detected_at_seq": 30806,
       "reason": "record_hash does not match its contents; the record was edited",
       "restored": true
     }
@@ -95,15 +95,15 @@
     "number": "6",
     "name": "Every agent decision persisted in agent_decisions",
     "passed": true,
-    "detail": "4,392 decisions written; rows per agent: AnomalyAgent=970, DemandAgent=5,672, ExpiryAgent=1,014, InventoryAgent=2,122, RouteAgent=1,900",
+    "detail": "4,392 decisions written; rows per agent: AnomalyAgent=1,335, DemandAgent=7,828, ExpiryAgent=1,390, InventoryAgent=2,918, RouteAgent=2,599",
     "metrics": {
       "written": 4392,
       "by_agent": {
-        "AnomalyAgent": 970,
-        "DemandAgent": 5672,
-        "ExpiryAgent": 1014,
-        "InventoryAgent": 2122,
-        "RouteAgent": 1900
+        "AnomalyAgent": 1335,
+        "DemandAgent": 7828,
+        "ExpiryAgent": 1390,
+        "InventoryAgent": 2918,
+        "RouteAgent": 2599
       }
     }
   }
