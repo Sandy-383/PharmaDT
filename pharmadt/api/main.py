@@ -140,6 +140,24 @@ async def provenance(batch_id: str) -> dict[str, Any]:
     return {"batch_id": batch_id, "records": len(trace), "trace": trace}
 
 
+@app.post("/ledger/tamper-demo", tags=["ledger"])
+async def tamper_demo(
+    seq: int | None = Query(None, description="record to edit; default is mid-chain"),
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    """Edit a record, show the chain catching it, and restore it.
+
+    Behind a token because it writes to the ledger, even though it puts back
+    exactly what it took. Read-only verification stays open to everyone.
+    """
+    from pharmadt.ledger.demo import tamper_and_restore
+
+    try:
+        return await asyncio.to_thread(tamper_and_restore, seq)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
+
+
 # ── Crisis ────────────────────────────────────────────────────────────
 
 
@@ -186,6 +204,60 @@ async def inject_crisis(
         "trigger_day": loaded.trigger_day,
         "duration_days": loaded.duration_days,
     }
+
+
+# ── System readiness ──────────────────────────────────────────────────
+
+
+@app.get("/system/doctor", tags=["ops"])
+async def system_doctor() -> dict[str, Any]:
+    """The readiness checks, with the fix beside each failure.
+
+    The same checks ``make doctor`` runs. Surfaced here because the commonest
+    demo failure is environmental — a stopped container, an unseeded database —
+    and the browser is where someone notices the symptom.
+    """
+    from pharmadt.doctor import run_checks
+
+    checks = await asyncio.to_thread(run_checks)
+    rows = [
+        {
+            "name": c.name,
+            "passed": c.passed,
+            "detail": c.detail,
+            "fix": c.fix,
+            "optional": c.optional,
+        }
+        for c in checks
+    ]
+    failed = [r for r in rows if not r["passed"] and not r["optional"]]
+    return {
+        "ready": not failed,
+        "passed": sum(r["passed"] for r in rows),
+        "total": len(rows),
+        "checks": rows,
+    }
+
+
+# ── Experiment results ────────────────────────────────────────────────
+
+
+@app.get("/results", tags=["results"])
+async def all_results() -> dict[str, Any]:
+    """Every experiment's measured results, in one normalised shape."""
+    from pharmadt.api.results import load_all
+
+    return {"results": [a.as_dict() for a in await asyncio.to_thread(load_all)]}
+
+
+@app.get("/results/{key}", tags=["results"])
+async def one_result(key: str) -> dict[str, Any]:
+    from pharmadt.api.results import load
+
+    artifact = await asyncio.to_thread(load, key)
+    if artifact is None:
+        raise HTTPException(status_code=404, detail=f"No results named {key!r}.")
+    return artifact.as_dict()
 
 
 # ── Live events ───────────────────────────────────────────────────────

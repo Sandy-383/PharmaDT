@@ -114,6 +114,83 @@ def _show_inclusion_proof(ledger: HashChainLedger, seq: int) -> None:
     print(f"\n  verify_inclusion -> {ledger.verify_record_inclusion(seq)}")
 
 
+def _set_payload(seq: int, payload: dict) -> None:
+    """Overwrite one record's payload, stepping around the append-only trigger.
+
+    Disabling the trigger is part of the demonstration rather than a workaround:
+    an attacker must first defeat a database-level control, and even then the
+    hash chain still catches the edit.
+    """
+    with session_scope() as session:
+        session.execute(text("ALTER TABLE provenance_records DISABLE TRIGGER no_update"))
+        try:
+            session.execute(
+                text("UPDATE provenance_records SET payload = CAST(:p AS jsonb) "
+                     "WHERE seq = :s"),
+                {"p": json.dumps(payload), "s": seq},
+            )
+        finally:
+            session.execute(
+                text("ALTER TABLE provenance_records ENABLE TRIGGER no_update")
+            )
+
+
+def tamper_and_restore(seq: int | None = None) -> dict:
+    """Edit one record, prove the chain catches it, then put it back.
+
+    Returns the three verification states so a caller that is not a terminal —
+    the dashboard — can show the same story the console demo tells.
+
+    The restore runs in a ``finally``: leaving a deliberately corrupted record
+    behind because verification raised would turn a demonstration into damage.
+    """
+    ledger = HashChainLedger()
+    height = ledger.height()
+    if height == 0:
+        raise ValueError("The ledger is empty. Run `make sim-anchor` first.")
+
+    # Mid-chain, not the tip. Editing the newest record proves only that the
+    # last hash was recomputed; editing a middle one proves every link after it
+    # was checked as well.
+    target = seq if seq is not None else max(1, height // 2)
+
+    with session_scope() as session:
+        original = session.scalar(
+            select(ProvenanceRecord.payload).where(ProvenanceRecord.seq == target)
+        )
+    if original is None:
+        raise ValueError(f"No provenance record at seq {target}.")
+
+    def state() -> dict:
+        result = ledger.verify_chain_detailed()
+        return {
+            "valid": result.valid,
+            "records_checked": result.records_checked,
+            "broken_at_seq": result.broken_at_seq,
+            "reason": result.reason,
+        }
+
+    before = state()
+    forged = {**original, "quantity": 999_999}
+    try:
+        _set_payload(target, forged)
+        during = state()
+    finally:
+        _set_payload(target, original)
+    after = state()
+
+    return {
+        "seq": target,
+        "height": height,
+        "original": original,
+        "forged": forged,
+        "before": before,
+        "during": during,
+        "after": after,
+        "restored": after["valid"],
+    }
+
+
 def _tamper(ledger: HashChainLedger, seq: int) -> None:
     _heading(5, f"Tampering with record {seq}")
 

@@ -15,39 +15,63 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px}
-  header{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;
-    padding:.9rem 1.4rem;border-bottom:1px solid var(--rule);background:var(--panel)}
-  .brand{font-weight:700;letter-spacing:-.02em;font-size:1.05rem}
+
+  /* ── Header ─────────────────────────────────────────────────────── */
+  header{position:sticky;top:0;z-index:20;background:var(--panel);
+    border-bottom:1px solid var(--rule)}
+  .bar{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;padding:.75rem 1.4rem}
+  .brand{font-weight:700;letter-spacing:-.02em;font-size:1.05rem;white-space:nowrap}
   .brand span{color:var(--accent)}
-  .status{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);
+  .status{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);
     display:flex;gap:1.1rem;flex-wrap:wrap}
   .status b{color:var(--ink);font-weight:500}
-  .grid{display:grid;gap:1rem;padding:1rem 1.4rem 3rem;
-    grid-template-columns:repeat(auto-fit,minmax(340px,1fr));max-width:1700px;margin:0 auto}
+  .spacer{flex:1}
+  .signin{display:flex;gap:.4rem;align-items:center}
+  .signin input{width:110px}
+
+  nav{display:flex;gap:.25rem;padding:0 1.4rem;overflow-x:auto}
+  nav button{background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-faint);
+    font-family:var(--sans);font-size:.85rem;font-weight:600;padding:.6rem .9rem;cursor:pointer;
+    white-space:nowrap;border-radius:0}
+  nav button:hover{color:var(--ink);background:none;filter:none}
+  nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+  /* ── Layout ─────────────────────────────────────────────────────── */
+  main{max-width:1700px;margin:0 auto;padding:1.1rem 1.4rem 4rem}
+  .tab{display:none}
+  .tab.on{display:block}
+  .grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
   .panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;
     padding:1rem 1.1rem;display:flex;flex-direction:column;min-height:0}
   .panel h2{margin:0 0 .15rem;font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;
     color:var(--accent);font-family:var(--mono);font-weight:500}
-  .panel .hint{margin:0 0 .85rem;font-size:.78rem;color:var(--ink-faint)}
+  .panel .hint{margin:0 0 .85rem;font-size:.78rem;color:var(--ink-faint);line-height:1.5}
   .span2{grid-column:span 2}
-  @media(max-width:760px){.span2{grid-column:span 1}}
+  .span3{grid-column:1/-1}
+  @media(max-width:760px){.span2,.span3{grid-column:span 1}}
 
+  /* ── Controls ───────────────────────────────────────────────────── */
   button{font-family:var(--sans);font-size:.83rem;font-weight:600;cursor:pointer;
     background:var(--accent);color:#06211f;border:none;padding:.5rem .9rem;border-radius:5px}
   button:hover{filter:brightness(1.1)}
-  button:disabled{opacity:.45;cursor:not-allowed}
+  button:disabled{opacity:.4;cursor:not-allowed}
   button.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+  button.danger{background:var(--bad);color:#2a0507}
   select,input{font-family:var(--sans);font-size:.83rem;background:var(--panel-2);
     color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:.45rem .6rem}
-  label{display:block;font-size:.74rem;color:var(--ink-faint);margin:0 0 .25rem;
+  label{display:block;font-size:.72rem;color:var(--ink-faint);margin:0 0 .25rem;
     letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono)}
   .row{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.7rem}
-  .row>div{flex:1;min-width:120px}
+  .row>div{flex:1;min-width:110px}
 
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+  /* ── Readouts ───────────────────────────────────────────────────── */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem}
   .kpi{background:var(--panel-2);border-radius:6px;padding:.7rem .8rem}
-  .kpi .v{font-family:var(--mono);font-size:1.3rem;font-variant-numeric:tabular-nums}
-  .kpi .l{font-size:.7rem;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase}
+  .kpi .v{font-family:var(--mono);font-size:1.35rem;font-variant-numeric:tabular-nums;
+    color:var(--accent)}
+  .kpi .l{font-size:.68rem;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase;
+    margin-top:.15rem}
+  .kpi .n{font-size:.72rem;color:var(--ink-faint);margin-top:.35rem;line-height:1.45}
 
   .badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);
     font-size:.9rem;font-weight:600;padding:.55rem .85rem;border-radius:6px;letter-spacing:.03em}
@@ -56,18 +80,23 @@
   .badge.idle{background:var(--panel-2);color:var(--ink-faint);border:1px solid var(--rule)}
   .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
 
-  .scroll{overflow:auto;flex:1;min-height:150px;max-height:300px;
+  .scroll{overflow:auto;flex:1;min-height:140px;max-height:340px;
     border:1px solid var(--rule);border-radius:6px;background:var(--panel-2)}
   table{width:100%;border-collapse:collapse;font-size:.78rem}
   th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:.45rem .6rem;
-    font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-faint);border-bottom:1px solid var(--rule);font-weight:500}
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-faint);border-bottom:1px solid var(--rule);font-weight:500;z-index:1}
   td{padding:.4rem .6rem;border-bottom:1px solid rgba(40,49,60,.5);vertical-align:top}
-  td.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.mono,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  td.nowrap{white-space:nowrap}
   tr:last-child td{border-bottom:none}
+  .pass{color:var(--ok);font-weight:600}
+  .fail{color:var(--bad);font-weight:600}
+  .warnc{color:var(--warn);font-weight:600}
 
+  /* ── Map ────────────────────────────────────────────────────────── */
   .map{position:relative;background:var(--panel-2);border:1px solid var(--rule);
-    border-radius:6px;height:290px;overflow:hidden}
+    border-radius:6px;height:300px;overflow:hidden}
   .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;
     align-items:center;gap:.2rem}
   .node .pin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(0,0,0,.45)}
@@ -76,112 +105,327 @@
     font-family:var(--mono);flex-wrap:wrap}
   .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.3rem}
 
-  .note{font-size:.76rem;color:var(--ink-faint);margin:.6rem 0 0;line-height:1.5}
+  /* ── Results tab ────────────────────────────────────────────────── */
+  .split{display:grid;grid-template-columns:250px 1fr;gap:1rem}
+  @media(max-width:860px){.split{grid-template-columns:1fr}}
+  .rlist{display:flex;flex-direction:column;gap:.35rem}
+  .rlist button{text-align:left;background:var(--panel);border:1px solid var(--rule);
+    color:var(--ink-soft);padding:.6rem .75rem;border-radius:6px;font-weight:600;font-size:.82rem}
+  .rlist button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+  .rlist button small{display:block;font-weight:400;color:var(--ink-faint);
+    font-size:.7rem;margin-top:.2rem;line-height:1.4}
+  .rlist button.on small{color:var(--ink-soft)}
+  .missing{color:var(--warn)}
+
+  /* ── Tamper demo ────────────────────────────────────────────────── */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem;
+    margin-top:.4rem}
+  .step{background:var(--panel-2);border:1px solid var(--rule);border-radius:6px;padding:.75rem .85rem}
+  .step .n{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-faint)}
+  .step .r{font-family:var(--mono);font-size:.95rem;font-weight:600;margin:.35rem 0}
+  .step .d{font-size:.73rem;color:var(--ink-faint);line-height:1.45}
+
+  .note{font-size:.78rem;color:var(--ink-faint);margin:.7rem 0 0;line-height:1.6;white-space:pre-line}
   .err{color:var(--bad);font-size:.78rem;margin-top:.5rem;font-family:var(--mono)}
-  .trace{font-family:var(--mono);font-size:.72rem}
+  .lead{font-size:.86rem;color:var(--ink-soft);line-height:1.65;margin:0 0 1rem;max-width:78ch}
+  code{font-family:var(--mono);background:var(--panel-2);padding:.12rem .35rem;
+    border-radius:3px;font-size:.85em;color:var(--accent)}
+  h3{font-size:.9rem;margin:1.2rem 0 .5rem;color:var(--ink)}
+  .guide p{font-size:.82rem;color:var(--ink-soft);line-height:1.7;max-width:80ch}
+  .guide ul{font-size:.82rem;color:var(--ink-soft);line-height:1.75;max-width:80ch;
+    padding-left:1.1rem}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand">Pharma<span>DT</span> · Control Room</div>
-  <div class="status">
-    <span>state <b id="s-status">idle</b></span>
-    <span>day <b id="s-day">—</b></span>
-    <span>events <b id="s-events">0</b></span>
-    <span>signed in <b id="s-user">no</b></span>
-  </div>
-</header>
-
-<div class="grid">
-
-  <!-- Verification Panel — the highest-impact demo element -->
-  <section class="panel">
-    <h2>Chain integrity</h2>
-    <p class="hint">Recomputes every hash and signature in the provenance ledger.</p>
-    <div id="chain-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
-    <p class="note" id="chain-detail">Press verify to walk the chain.</p>
-    <div class="row" style="margin-top:.8rem;margin-bottom:0">
-      <button id="btn-verify">Verify chain</button>
+  <div class="bar">
+    <div class="brand">Pharma<span>DT</span> · Control Room</div>
+    <div class="status">
+      <span>state <b id="s-status">idle</b></span>
+      <span>day <b id="s-day">—</b></span>
+      <span>events <b id="s-events">0</b></span>
+      <span>ledger <b id="s-ledger">—</b></span>
     </div>
-  </section>
-
-  <!-- Provenance trace -->
-  <section class="panel">
-    <h2>Batch provenance</h2>
-    <p class="hint">Manufacturer-to-patient custody trail for one batch.</p>
-    <div class="row">
-      <div style="flex:2"><label for="batch">Batch id</label>
-        <input id="batch" value="BATCH-0001" style="width:100%"></div>
-      <button id="btn-trace">Trace</button>
-    </div>
-    <div class="scroll"><table id="trace-table"><thead><tr>
-      <th>seq</th><th>day</th><th>event</th><th>from</th><th>to</th><th>signer</th>
-    </tr></thead><tbody><tr><td colspan="6" style="color:var(--ink-faint)">
-      No batch traced yet.</td></tr></tbody></table></div>
-  </section>
-
-  <!-- KPI cards -->
-  <section class="panel">
-    <h2>Key indicators</h2>
-    <p class="hint">From the run currently loaded.</p>
-    <div class="kpis" id="kpis">
-      <div class="kpi"><div class="v" id="k-service">—</div><div class="l">service level</div></div>
-      <div class="kpi"><div class="v" id="k-stockout">—</div><div class="l">stockout rate</div></div>
-      <div class="kpi"><div class="v" id="k-waste">—</div><div class="l">wastage units</div></div>
-      <div class="kpi"><div class="v" id="k-excursion">—</div><div class="l">excursions</div></div>
-    </div>
-  </section>
-
-  <!-- Crisis controls -->
-  <section class="panel">
-    <h2>What-if scenarios</h2>
-    <p class="hint">Run the network under a disruption and watch it recover.</p>
-    <div class="row">
-      <div><label for="user">User</label><input id="user" value="operator" style="width:100%"></div>
-      <div><label for="pass">Password</label><input id="pass" type="password" value="pharmadt" style="width:100%"></div>
+    <div class="spacer"></div>
+    <div class="signin">
+      <input id="user" value="operator" title="username" aria-label="username">
+      <input id="pass" type="password" value="pharmadt" title="password" aria-label="password">
       <button id="btn-login" class="ghost">Sign in</button>
     </div>
-    <div class="row">
-      <div style="flex:2"><label for="scenario">Scenario</label>
-        <select id="scenario" style="width:100%"></select></div>
-      <div><label for="days">Days</label><input id="days" type="number" value="365" style="width:100%"></div>
-    </div>
-    <div class="row" style="margin-bottom:0">
-      <button id="btn-crisis" disabled>Run with disruption</button>
-      <button id="btn-normal" class="ghost" disabled>Run undisrupted</button>
-    </div>
-    <p class="err" id="crisis-err"></p>
-    <p class="note" id="scenario-desc"></p>
-  </section>
+  </div>
+  <nav>
+    <button data-tab="overview" class="on">Overview</button>
+    <button data-tab="live">Live run</button>
+    <button data-tab="integrity">Integrity</button>
+    <button data-tab="results">Results</button>
+    <button data-tab="guide">Reading the numbers</button>
+  </nav>
+</header>
 
-  <!-- Network map -->
-  <section class="panel span2">
-    <h2>Network status</h2>
-    <p class="hint">Twelve nodes across Karnataka, positioned by real coordinates and coloured by stock health.</p>
-    <div class="map" id="map"></div>
-    <div class="legend">
-      <span><i style="background:var(--ok)"></i>healthy</span>
-      <span><i style="background:var(--warn)"></i>low stock</span>
-      <span><i style="background:var(--bad)"></i>critical</span>
-      <span><i style="background:var(--ink-faint)"></i>offline (disrupted)</span>
-    </div>
-  </section>
+<main>
 
-  <!-- Agent decision log -->
-  <section class="panel span2">
-    <h2>Agent decision log</h2>
-    <p class="hint">Every decision with the reasoning behind it — this is the NFR-08 audit trail.</p>
-    <div class="scroll" style="max-height:340px"><table id="log-table"><thead><tr>
-      <th>day</th><th>agent</th><th>action</th><th>justification</th>
-    </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
-      Run a simulation to populate the log.</td></tr></tbody></table></div>
-  </section>
+<!-- ═══ OVERVIEW ═══════════════════════════════════════════════════ -->
+<section class="tab on" id="tab-overview">
+  <p class="lead">
+    A digital twin of a twelve-node pharmaceutical supply chain, five autonomous agents that
+    run it, and a cryptographic ledger that makes every custody handoff tamper-evident.
+    This page is the whole system: check the machine is ready below, drive a simulation
+    under <b>Live run</b>, prove the ledger under <b>Integrity</b>, and read every measured
+    result under <b>Results</b>.
+  </p>
 
-</div>
+  <div class="grid">
+    <section class="panel span2">
+      <h2>Machine readiness</h2>
+      <p class="hint">The same checks <code>make doctor</code> runs. Anything failing here
+        explains a dashboard that loads but shows no data — the commonest demo failure is a
+        stopped container, not a bug.</p>
+      <div id="doctor-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
+      <div class="scroll" style="margin-top:.8rem;max-height:300px">
+        <table id="doctor-table"><thead><tr>
+          <th>check</th><th>result</th><th>detail</th><th>fix</th>
+        </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
+          Checking…</td></tr></tbody></table>
+      </div>
+      <div class="row" style="margin:.8rem 0 0"><button id="btn-doctor">Re-check</button></div>
+    </section>
+
+    <section class="panel">
+      <h2>Headline results</h2>
+      <p class="hint">Measured, not targeted. Every figure here is reproducible from the
+        command shown beside it under Results.</p>
+      <div class="kpis" id="headline-kpis">
+        <div class="kpi"><div class="v">—</div><div class="l">loading</div></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ═══ LIVE RUN ═══════════════════════════════════════════════════ -->
+<section class="tab" id="tab-live">
+  <p class="lead">
+    Start a run and watch the network respond. Choose <b>undisrupted</b> for the normal
+    world, or pick a disruption to see the agents absorb a shock and recover.
+    Signing in is required to start a run — reading is open to anyone.
+  </p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>What-if scenarios</h2>
+      <p class="hint">Run the network normally, or under a disruption, and compare the two.
+        A 365-day run takes roughly twelve seconds.</p>
+      <div class="row">
+        <div style="flex:2"><label for="scenario">Disruption</label>
+          <select id="scenario" style="width:100%"></select></div>
+        <div><label for="days">Days</label>
+          <input id="days" type="number" value="365" style="width:100%"></div>
+      </div>
+      <div class="row" style="margin-bottom:0">
+        <button id="btn-normal" disabled>Run undisrupted</button>
+        <button id="btn-crisis" class="ghost" disabled>Run with disruption</button>
+      </div>
+      <p class="err" id="crisis-err"></p>
+      <p class="note" id="scenario-desc"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Key indicators</h2>
+      <p class="hint">From the run currently loaded. These populate when it finishes.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="v" id="k-service">—</div><div class="l">service level</div></div>
+        <div class="kpi"><div class="v" id="k-stockout">—</div><div class="l">stockout rate</div></div>
+        <div class="kpi"><div class="v" id="k-waste">—</div><div class="l">wastage units</div></div>
+        <div class="kpi"><div class="v" id="k-excursion">—</div><div class="l">cold-chain excursions</div></div>
+      </div>
+    </section>
+
+    <section class="panel span2">
+      <h2>Network status</h2>
+      <p class="hint">Twelve nodes across Karnataka, positioned by real coordinates and
+        coloured by stock health. Hover a node for its stock level.</p>
+      <div class="map" id="map"></div>
+      <div class="legend">
+        <span><i style="background:var(--ok)"></i>healthy</span>
+        <span><i style="background:var(--warn)"></i>low stock</span>
+        <span><i style="background:var(--bad)"></i>critical</span>
+        <span><i style="background:var(--ink-faint)"></i>offline (disrupted)</span>
+      </div>
+    </section>
+
+    <section class="panel span2">
+      <h2>Agent decision log</h2>
+      <p class="hint">Every decision with the reasoning behind it. This is the audit trail
+        NFR-08 requires: no agent acts without recording why.</p>
+      <div class="scroll" style="max-height:360px"><table id="log-table"><thead><tr>
+        <th>day</th><th>agent</th><th>action</th><th>justification</th>
+      </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
+        Run a simulation to populate the log.</td></tr></tbody></table></div>
+    </section>
+  </div>
+</section>
+
+<!-- ═══ INTEGRITY ══════════════════════════════════════════════════ -->
+<section class="tab" id="tab-integrity">
+  <p class="lead">
+    Every custody handoff is hash-chained and signed. Verification recomputes the whole
+    chain from scratch, so a single altered byte anywhere in it is caught and located.
+  </p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Chain integrity</h2>
+      <p class="hint">Recomputes every hash and every ECDSA signature in the ledger.</p>
+      <div id="chain-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
+      <p class="note" id="chain-detail">Press verify to walk the chain.</p>
+      <div class="row" style="margin:.8rem 0 0"><button id="btn-verify">Verify chain</button></div>
+    </section>
+
+    <section class="panel span2">
+      <h2>Tamper demonstration</h2>
+      <p class="hint">Edits one record in the middle of the chain, verifies, then restores it.
+        Mid-chain rather than at the tip on purpose: editing the newest record would prove
+        only that the last hash was recomputed.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1 · before</div>
+          <div class="r" id="t1r">—</div><div class="d" id="t1d">Chain as it stands.</div></div>
+        <div class="step"><div class="n">2 · after the edit</div>
+          <div class="r" id="t2r">—</div><div class="d" id="t2d">Should break, and name the record.</div></div>
+        <div class="step"><div class="n">3 · after restore</div>
+          <div class="r" id="t3r">—</div><div class="d" id="t3d">Put back exactly as found.</div></div>
+      </div>
+      <div class="row" style="margin:.9rem 0 0">
+        <button id="btn-tamper" class="danger" disabled>Run tamper demonstration</button>
+      </div>
+      <p class="err" id="tamper-err"></p>
+      <p class="note" id="tamper-note">Sign in to run this — it writes to the ledger, though it
+restores exactly what it changed. Read-only verification stays open to everyone.</p>
+    </section>
+
+    <section class="panel span3">
+      <h2>Batch provenance</h2>
+      <p class="hint">The manufacturer-to-patient custody trail for a single batch — who held
+        it, when, and which node signed for it.</p>
+      <div class="row">
+        <div style="max-width:220px"><label for="batch">Batch id</label>
+          <input id="batch" value="BATCH-0001" style="width:100%"></div>
+        <button id="btn-trace">Trace</button>
+      </div>
+      <div class="scroll"><table id="trace-table"><thead><tr>
+        <th>seq</th><th>day</th><th>event</th><th>from</th><th>to</th><th>signer</th>
+      </tr></thead><tbody><tr><td colspan="6" style="color:var(--ink-faint)">
+        No batch traced yet.</td></tr></tbody></table></div>
+    </section>
+  </div>
+</section>
+
+<!-- ═══ RESULTS ════════════════════════════════════════════════════ -->
+<section class="tab" id="tab-results">
+  <p class="lead">
+    Every experiment the project ran, with the command that reproduces it. Nothing here is
+    recomputed on load — these are the artifacts written to <code>experiments/</code> by the
+    runs themselves.
+  </p>
+  <div class="split">
+    <div class="rlist" id="rlist"></div>
+    <section class="panel" id="rpanel">
+      <h2 id="r-title">—</h2>
+      <p class="hint" id="r-question"></p>
+      <div class="kpis" id="r-headline"></div>
+      <div class="scroll" style="margin-top:.9rem;max-height:460px">
+        <table id="r-table"><thead></thead><tbody></tbody></table>
+      </div>
+      <p class="note" id="r-footnote"></p>
+    </section>
+  </div>
+</section>
+
+<!-- ═══ GUIDE ══════════════════════════════════════════════════════ -->
+<section class="tab guide" id="tab-guide">
+  <p class="lead">What each number means, and which ones are honest to quote.</p>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Service level and stockout</h2>
+      <p>Stockout rate is the fraction of demand that could not be met from stock on hand.
+        Service level is its complement. These are the headline operational metrics, and the
+        agents' clearest win: stockout falls by about 86% against a no-agent baseline,
+        averaged over ten seeds.</p>
+      <p>They are reported together because either alone is easy to game — you can drive
+        stockout to zero by holding unlimited inventory, which is why average inventory sits
+        in the same table.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Wastage, and the control that matters</h2>
+      <p>Wastage is units expired before use. The reduction is measured against a
+        <b>no-redistribution control</b> — the full agent stack with the Expiry Agent removed
+        — not against the no-agent baseline.</p>
+      <p>That distinction is the single most important methodological point in the project.
+        The no-agent baseline wastes very little, but only because it holds less stock and
+        stocks out far more often. Comparing wastage across two policies running at different
+        service levels measures the service level, not the redistribution. Both comparisons
+        are printed; only the controlled one is the claim.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Forecast error: sMAPE, not MAPE</h2>
+      <p>MAPE is undefined when actual demand is zero, which at a pharmacy happens
+        constantly. sMAPE and MASE are reported alongside it for that reason. MASE is scaled
+        so that 1.00 is exactly the seasonal-naive baseline — below 1.00 beats it.</p>
+      <p>Read the shared protocol before the broad sweep. On identical windows, a moving
+        average and the ensemble both edge out the LSTM; the LSTM's larger margin on the
+        broad sweep comes from different windows against a weaker baseline. The defensible
+        claim is that it beats the seasonal baseline comfortably — not that it beats every
+        classical method.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Detection: why accuracy is absent</h2>
+      <p>Anomalies are about 5% of shipments. A detector that flags nothing scores 95%
+        accuracy and catches no counterfeits, so accuracy is the trap here. Precision,
+        recall, F1 and ROC-AUC are the columns that carry information.</p>
+      <p>One injected anomaly type — counterfeit — deliberately changes nothing observable
+        about the shipment. It is undetectable from shipment features alone and is caught by
+        the ledger's fingerprint check instead. That is the argument for pairing ML with
+        cryptographic provenance rather than relying on either alone.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Privacy: the rows that look bad</h2>
+      <p>The differential-privacy regimes at &epsilon;&nbsp;=&nbsp;1 destroy the forecast, and
+        those rows are shown rather than dropped. At this dataset size that is the real
+        privacy/utility trade-off, and the honest finding is that meaningful privacy costs
+        meaningful accuracy here.</p>
+      <p>Noise is calibrated to the clipped update and divided by the client count, because
+        it is applied to the <i>mean</i> rather than the sum — an earlier version added noise
+        N times too large.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Commands behind each view</h2>
+      <ul>
+        <li><code>make doctor</code> — the readiness table on Overview</li>
+        <li><code>make api</code> — this dashboard</li>
+        <li><code>make sim</code> — a run without the API</li>
+        <li><code>make tamper-demo</code> — the Integrity demonstration, in a terminal</li>
+        <li><code>make gate</code> — the six integration conditions</li>
+        <li><code>make evaluate</code> — the experiment matrix, ten seeds</li>
+        <li><code>make crisis</code>, <code>make federated</code>,
+            <code>make anomaly-eval</code>, <code>make routing-benchmark</code></li>
+        <li><code>make demo-reset</code> — rebuild a clean world before a live demo</li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+</main>
 
 <script>
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 let token = null;
 
 const api = async (path, opts = {}) => {
@@ -192,22 +436,66 @@ const api = async (path, opts = {}) => {
   return res.json();
 };
 
+// ── Tabs ─────────────────────────────────────────────────────────────
+document.querySelectorAll("nav button").forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll("nav button").forEach((x) => x.classList.remove("on"));
+    document.querySelectorAll(".tab").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    $("tab-" + b.dataset.tab).classList.add("on");
+  };
+});
+
 // ── Sign in ──────────────────────────────────────────────────────────
+// One sign-in for the whole page. Every write action enables together, so
+// nobody hunts for a login buried inside the panel they happen to want.
+const setSignedIn = (role) => {
+  ["btn-crisis", "btn-normal", "btn-tamper"].forEach((id) => ($(id).disabled = false));
+  $("btn-login").textContent = "Signed in · " + role;
+  $("btn-login").disabled = true;
+  $("tamper-note").textContent =
+    "This writes to the ledger, then restores exactly what it changed.";
+};
 $("btn-login").onclick = async () => {
-  $("crisis-err").textContent = "";
   try {
     const body = new URLSearchParams({ username: $("user").value, password: $("pass").value });
     const data = await api("/auth/token", { method: "POST", body });
     token = data.access_token;
-    $("s-user").textContent = data.role;
-    $("btn-crisis").disabled = false;
-    $("btn-normal").disabled = false;
-    $("btn-login").textContent = "Signed in";
-  } catch (e) { $("crisis-err").textContent = e.message; }
+    setSignedIn(data.role);
+  } catch (e) {
+    $("crisis-err").textContent = e.message;
+    $("tamper-err").textContent = e.message;
+  }
 };
 
-// ── Chain verification — the badge that flips red on tamper ──────────
-$("btn-verify").onclick = async () => {
+// ── Readiness ────────────────────────────────────────────────────────
+const loadDoctor = async () => {
+  const badge = $("doctor-badge");
+  badge.className = "badge idle";
+  badge.innerHTML = '<span class="dot"></span> checking…';
+  try {
+    const r = await api("/system/doctor");
+    badge.className = "badge " + (r.ready ? "ok" : "bad");
+    badge.innerHTML = '<span class="dot"></span> ' +
+      (r.ready ? `READY · ${r.passed}/${r.total} checks passed`
+               : `${r.total - r.passed} check(s) need attention`);
+    $("doctor-table").querySelector("tbody").innerHTML = r.checks.map((c) => `<tr>
+      <td class="nowrap">${esc(c.name)}</td>
+      <td class="${c.passed ? "pass" : c.optional ? "warnc" : "fail"} nowrap">${
+        c.passed ? "ok" : c.optional ? "warn" : "FAIL"}</td>
+      <td class="mono" style="color:var(--ink-soft)">${esc(c.detail)}</td>
+      <td class="mono" style="color:var(--ink-faint)">${c.passed ? "" : esc(c.fix)}</td></tr>`).join("");
+  } catch (e) {
+    badge.className = "badge bad";
+    badge.innerHTML = '<span class="dot"></span> unavailable';
+    $("doctor-table").querySelector("tbody").innerHTML =
+      `<tr><td colspan="4" style="color:var(--bad)">${esc(e.message)}</td></tr>`;
+  }
+};
+$("btn-doctor").onclick = loadDoctor;
+
+// ── Chain verification ───────────────────────────────────────────────
+const verifyChain = async () => {
   const badge = $("chain-badge");
   badge.className = "badge idle";
   badge.innerHTML = '<span class="dot"></span> checking…';
@@ -218,10 +506,44 @@ $("btn-verify").onclick = async () => {
     $("chain-detail").textContent = r.valid
       ? `${r.records_checked.toLocaleString()} records verified. Tip ${r.tip.slice(0, 20)}…`
       : `Broken at seq ${r.broken_at_seq}: ${r.reason}`;
+    $("s-ledger").textContent = r.height.toLocaleString();
   } catch (e) {
     badge.className = "badge idle";
     badge.innerHTML = '<span class="dot"></span> unavailable';
     $("chain-detail").textContent = e.message;
+  }
+};
+$("btn-verify").onclick = verifyChain;
+
+// ── Tamper demonstration ─────────────────────────────────────────────
+const showStep = (n, state, detail) => {
+  const r = $("t" + n + "r");
+  r.textContent = state.valid ? "VALID" : "BROKEN";
+  r.style.color = state.valid ? "var(--ok)" : "var(--bad)";
+  $("t" + n + "d").textContent = detail;
+};
+$("btn-tamper").onclick = async () => {
+  $("tamper-err").textContent = "";
+  $("btn-tamper").disabled = true;
+  $("btn-tamper").textContent = "Running…";
+  try {
+    const r = await api("/ledger/tamper-demo", { method: "POST" });
+    showStep(1, r.before, `${r.before.records_checked.toLocaleString()} records verified.`);
+    showStep(2, r.during, r.during.valid
+      ? "The edit was NOT caught — the chain is not doing its job."
+      : `Caught at seq ${r.during.broken_at_seq}. ${r.during.reason}`);
+    showStep(3, r.after, `Record ${r.seq} restored; chain verifies over ` +
+      `${r.after.records_checked.toLocaleString()} records again.`);
+    $("tamper-note").textContent =
+      `Quantity on record ${r.seq} was changed to 999,999 and put back. The database's ` +
+      `append-only trigger had to be disabled first — and the hash chain still caught the ` +
+      `edit the trigger could not prevent, naming the exact record out of ${r.height.toLocaleString()}.`;
+    verifyChain();
+  } catch (e) {
+    $("tamper-err").textContent = e.message;
+  } finally {
+    $("btn-tamper").disabled = false;
+    $("btn-tamper").textContent = "Run tamper demonstration";
   }
 };
 
@@ -231,12 +553,13 @@ $("btn-trace").onclick = async () => {
   body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-faint)">Loading…</td></tr>';
   try {
     const r = await api("/ledger/provenance/" + encodeURIComponent($("batch").value.trim()));
-    body.innerHTML = r.trace.slice(0, 60).map((t) => `<tr>
+    body.innerHTML = r.trace.slice(0, 80).map((t) => `<tr>
       <td class="mono">${t.seq}</td><td class="mono">${t.sim_day}</td>
-      <td class="trace">${t.event_type}</td><td class="trace">${t.from_node || "—"}</td>
-      <td class="trace">${t.to_node || "—"}</td><td class="trace">${t.signer_node}</td></tr>`).join("");
+      <td class="mono">${esc(t.event_type)}</td><td class="mono">${esc(t.from_node || "—")}</td>
+      <td class="mono">${esc(t.to_node || "—")}</td>
+      <td class="mono">${esc(t.signer_node)}</td></tr>`).join("");
   } catch (e) {
-    body.innerHTML = `<tr><td colspan="6" style="color:var(--bad)">${e.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6" style="color:var(--bad)">${esc(e.message)}</td></tr>`;
   }
 };
 
@@ -246,7 +569,7 @@ const loadScenarios = async () => {
   try {
     scenarios = (await api("/crisis/scenarios")).scenarios;
     $("scenario").innerHTML = scenarios
-      .map((s) => `<option value="${s.name}">${s.name.replace(/_/g, " ")}</option>`).join("");
+      .map((s) => `<option value="${esc(s.name)}">${esc(s.name.replace(/_/g, " "))}</option>`).join("");
     describeScenario();
   } catch (e) { /* the picker stays empty; the error shows on run */ }
 };
@@ -262,7 +585,8 @@ const startRun = async (withScenario) => {
   const days = parseInt($("days").value, 10) || 365;
   try {
     if (withScenario) {
-      await api(`/crisis/inject?scenario=${$("scenario").value}&days=${days}`, { method: "POST" });
+      await api(`/crisis/inject?scenario=${encodeURIComponent($("scenario").value)}&days=${days}`,
+                { method: "POST" });
     } else {
       await api(`/simulation/run?days=${days}&with_agents=true`, { method: "POST" });
     }
@@ -270,6 +594,71 @@ const startRun = async (withScenario) => {
 };
 $("btn-crisis").onclick = () => startRun(true);
 $("btn-normal").onclick = () => startRun(false);
+
+// ── Results ──────────────────────────────────────────────────────────
+let results = [];
+const renderResult = (a) => {
+  $("r-title").textContent = a.title;
+  $("r-question").textContent = a.question + "   ·   reproduce with: " + a.command;
+
+  if (!a.present) {
+    $("r-headline").innerHTML =
+      `<div class="kpi"><div class="v missing">not run</div>
+       <div class="l">no artifact</div>
+       <div class="n">${esc(a.footnote || "Run " + a.command + " to produce " + a.file + ".")}</div></div>`;
+    $("r-table").querySelector("thead").innerHTML = "";
+    $("r-table").querySelector("tbody").innerHTML = "";
+    $("r-footnote").textContent = "";
+    return;
+  }
+
+  $("r-headline").innerHTML = a.headline.map((h) => `<div class="kpi">
+    <div class="v">${esc(h.value)}</div><div class="l">${esc(h.label)}</div>
+    <div class="n">${esc(h.note)}</div></div>`).join("")
+    || '<div class="kpi"><div class="v">—</div><div class="l">no summary</div></div>';
+
+  $("r-table").querySelector("thead").innerHTML =
+    "<tr>" + a.columns.map((c) => `<th>${esc(c)}</th>`).join("") + "</tr>";
+  $("r-table").querySelector("tbody").innerHTML = a.rows.map((row) => "<tr>" +
+    row.map((cell, i) => {
+      const text = esc(cell);
+      const cls = text === "PASS" ? "pass" : text === "FAIL" ? "fail"
+                : i === 0 ? "" : "mono";
+      return `<td class="${cls}">${text}</td>`;
+    }).join("") + "</tr>").join("");
+
+  $("r-footnote").textContent = a.footnote +
+    (a.generated ? `\n\nArtifact: ${a.file}, generated ${a.generated}.` : "");
+};
+
+const selectResult = (key) => {
+  document.querySelectorAll("#rlist button").forEach((b) =>
+    b.classList.toggle("on", b.dataset.key === key));
+  renderResult(results.find((r) => r.key === key));
+};
+
+const loadResults = async () => {
+  try {
+    results = (await api("/results")).results;
+    $("rlist").innerHTML = results.map((r) => `<button data-key="${esc(r.key)}">
+      ${esc(r.title)}${r.present ? "" : ' <span class="missing">· not run</span>'}
+      <small>${esc(r.question)}</small></button>`).join("");
+    document.querySelectorAll("#rlist button").forEach((b) => {
+      b.onclick = () => selectResult(b.dataset.key);
+    });
+    if (results.length) selectResult(results[0].key);
+
+    // Overview cards: the first headline number from each experiment that ran.
+    const cards = results.filter((r) => r.present && r.headline.length)
+      .map((r) => ({ ...r.headline[0], from: r.title }));
+    $("headline-kpis").innerHTML = cards.map((h) => `<div class="kpi">
+      <div class="v">${esc(h.value)}</div><div class="l">${esc(h.label)}</div>
+      <div class="n">${esc(h.from)}</div></div>`).join("")
+      || '<div class="kpi"><div class="v">—</div><div class="l">no results yet</div></div>';
+  } catch (e) {
+    $("rlist").innerHTML = `<p class="err">${esc(e.message)}</p>`;
+  }
+};
 
 // ── Map ──────────────────────────────────────────────────────────────
 const COLOUR = { healthy: "var(--ok)", low: "var(--warn)", critical: "var(--bad)" };
@@ -285,9 +674,10 @@ const drawMap = (nodes) => {
     const colour = n.offline ? "var(--ink-faint)" : COLOUR[n.health];
     const size = n.node_type.includes("MANUFACTURER") ? 18
                : n.node_type.includes("WAREHOUSE") ? 15 : 11;
-    return `<div class="node" style="left:${x}%;top:${y}%" title="${n.node_id}: ${n.stock.toLocaleString()} units, ${(n.utilisation*100).toFixed(0)}% full">
+    return `<div class="node" style="left:${x}%;top:${y}%" title="${esc(n.node_id)}: ${
+      n.stock.toLocaleString()} units, ${(n.utilisation * 100).toFixed(0)}% full">
       <div class="pin" style="background:${colour};width:${size}px;height:${size}px"></div>
-      <div class="lbl">${n.node_id.replace("NODE-", "")}</div></div>`;
+      <div class="lbl">${esc(n.node_id.replace("NODE-", ""))}</div></div>`;
   }).join("");
 };
 
@@ -308,12 +698,12 @@ const refresh = async () => {
         $("k-waste").textContent = k.wastage_units.toLocaleString();
         $("k-excursion").textContent = k.cold_chain_excursions;
       }
-      const d = await api("/agents/decisions?limit=40").catch(() => null);
+      const d = await api("/agents/decisions?limit=60").catch(() => null);
       if (d && d.decisions.length) {
         $("log-table").querySelector("tbody").innerHTML = d.decisions.map((r) => `<tr>
-          <td class="mono">${r.sim_day}</td><td>${r.agent_name}</td>
-          <td class="mono">${(r.action && r.action.type) || "—"}</td>
-          <td style="color:var(--ink-soft)">${r.justification || ""}</td></tr>`).join("");
+          <td class="mono">${r.sim_day}</td><td>${esc(r.agent_name)}</td>
+          <td class="mono">${esc((r.action && r.action.type) || "—")}</td>
+          <td style="color:var(--ink-soft)">${esc(r.justification || "")}</td></tr>`).join("");
       }
     }
   } catch (e) { /* the API may still be starting; the next tick retries */ }
@@ -322,7 +712,8 @@ const refresh = async () => {
 // The WebSocket keeps the day counter moving during a run; polling fills in
 // the aggregates, which only become meaningful once the run finishes.
 const connect = () => {
-  const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/events");
+  const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://")
+    + location.host + "/ws/events");
   ws.onmessage = (m) => {
     const d = JSON.parse(m.data);
     if (d.type === "events" && d.day) $("s-day").textContent = d.day;
@@ -330,9 +721,11 @@ const connect = () => {
   ws.onclose = () => setTimeout(connect, 3000);
 };
 
+loadDoctor();
+loadResults();
 loadScenarios();
 refresh();
-$("btn-verify").click();
+verifyChain();
 setInterval(refresh, 1500);
 connect();
 </script>
