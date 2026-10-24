@@ -5,10 +5,15 @@ needs. The dashboard is served from ``/`` so ``docker compose up`` gives a
 working system rather than an API that something else has to be pointed at.
 
 Read endpoints are open; anything that **starts a run or injects a crisis
-requires a token**. That split is deliberate: an auditor should be able to
+requires an admin token**. That split is deliberate: an auditor should be able to
 verify the chain without credentials — the whole point of a public verification
 surface — while nobody unauthenticated should be able to perturb the world
 under someone else's demo.
+
+Two portals share this API. The **admin portal** is the control room: the
+simulation, the ledger, the experiment results, and every customer order. The
+**customer portal** places and tracks that customer's own orders and nothing
+else; a customer token is refused (403) on every admin action.
 """
 
 from __future__ import annotations
@@ -17,11 +22,27 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel, Field
 
-from pharmadt.api.security import authenticate, create_token, require_user
+from pharmadt.api import orders as order_book
+from pharmadt.api.security import (
+    authenticate,
+    create_token,
+    profile,
+    require_admin,
+    require_customer,
+    require_user,
+)
 from pharmadt.api.session import session
 
 DASHBOARD = Path(__file__).parent / "static" / "dashboard.html"
@@ -41,7 +62,11 @@ app = FastAPI(
 
 @app.post("/auth/token", tags=["auth"])
 async def issue_token(form: OAuth2PasswordRequestForm = Depends()) -> dict[str, str]:
-    """OAuth2 password flow (NFR-04). Demo credentials: operator / pharmadt."""
+    """OAuth2 password flow (NFR-04).
+
+    Demo accounts, all with password ``pharmadt``: ``admin`` (admin portal) and
+    ``customer`` or ``hospital`` (customer portal).
+    """
     user = authenticate(form.username, form.password)
     if user is None:
         # One message for both cases: distinguishing them tells an attacker
@@ -51,7 +76,15 @@ async def issue_token(form: OAuth2PasswordRequestForm = Depends()) -> dict[str, 
         "access_token": create_token(user["username"], user["role"]),
         "token_type": "bearer",
         "role": user["role"],
+        "name": user["name"],
+        "default_node": user["default_node"],
     }
+
+
+@app.get("/auth/me", tags=["auth"])
+async def who_am_i(user: dict[str, Any] = Depends(require_user)) -> dict[str, str]:
+    """The signed-in account, so a reloaded page can restore the right portal."""
+    return profile(user["sub"])
 
 
 # ── Simulation ────────────────────────────────────────────────────────
@@ -63,7 +96,7 @@ async def run_simulation_endpoint(
     seed: int = Query(42),
     with_agents: bool = Query(True),
     scenario: str | None = Query(None),
-    user: dict[str, Any] = Depends(require_user),
+    user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
     """Start a run. Returns immediately; poll /simulation/state for progress."""
     if not session.start(days, seed, with_agents, scenario):
@@ -107,6 +140,12 @@ async def agent_decisions(
     return {"count": len(rows), "decisions": rows}
 
 
+@app.get("/agents/summary", tags=["agents"])
+async def agents_summary() -> dict[str, Any]:
+    """Per-agent activity over the current run: counts, metrics, latest decisions."""
+    return {"agents": session.agent_summary()}
+
+
 # ── Ledger ────────────────────────────────────────────────────────────
 
 
@@ -143,7 +182,7 @@ async def provenance(batch_id: str) -> dict[str, Any]:
 @app.post("/ledger/tamper-demo", tags=["ledger"])
 async def tamper_demo(
     seq: int | None = Query(None, description="record to edit; default is mid-chain"),
-    user: dict[str, Any] = Depends(require_user),
+    user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
     """Edit a record, show the chain catching it, and restore it.
 
@@ -184,7 +223,7 @@ async def inject_crisis(
     scenario: str = Query(..., description="scenario name, e.g. pandemic_surge"),
     days: int = Query(365, ge=1, le=3650),
     seed: int = Query(42),
-    user: dict[str, Any] = Depends(require_user),
+    user: dict[str, Any] = Depends(require_admin),
 ) -> dict[str, Any]:
     """Run the simulation with a disruption injected (FR-09)."""
     from pharmadt.crisis.scenarios import load_scenario
@@ -204,6 +243,116 @@ async def inject_crisis(
         "trigger_day": loaded.trigger_day,
         "duration_days": loaded.duration_days,
     }
+
+
+# ── Orders (customer portal, and the admin's fulfilment queue) ──────
+
+
+class OrderRequest(BaseModel):
+    drug_id: str
+    quantity: int = Field(ge=1)
+    deliver_to: str
+    priority: str = "standard"
+    notes: str = ""
+
+
+class StatusUpdate(BaseModel):
+    status: str
+    note: str = ""
+
+
+@app.get("/catalog", tags=["orders"])
+async def order_catalog() -> dict[str, Any]:
+    """Orderable drugs and delivery points. Static fixture data, so open."""
+    return order_book.catalog()
+
+
+@app.get("/orders/quote", tags=["orders"])
+async def quote(
+    deliver_to: str = Query(...),
+    priority: str = Query("standard"),
+) -> dict[str, Any]:
+    """Supplier, route and lead time for a delivery point, before ordering."""
+    try:
+        return order_book.plan_route(deliver_to, priority)
+    except order_book.OrderError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+
+
+@app.post("/orders", tags=["orders"], status_code=201)
+async def place_order(
+    body: OrderRequest, user: dict[str, Any] = Depends(require_customer)
+) -> dict[str, Any]:
+    try:
+        return order_book.place_order(
+            user, body.drug_id, body.quantity, body.deliver_to, body.priority, body.notes
+        )
+    except order_book.OrderError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+
+
+@app.get("/orders", tags=["orders"])
+async def list_orders(
+    status: str | None = Query(None), user: dict[str, Any] = Depends(require_user)
+) -> dict[str, Any]:
+    """A customer's own orders, or every order for an admin. Newest first."""
+    rows = order_book.list_orders(user, status)
+    return {"count": len(rows), "orders": rows}
+
+
+@app.post("/orders/demo", tags=["orders"])
+async def load_demo_orders(
+    scenario: str = Query(..., description="smooth, disrupted, or clear"),
+    user: dict[str, Any] = Depends(require_admin),
+) -> dict[str, Any]:
+    """Replace the order book with a demonstration scenario."""
+    from pharmadt.api import demo_orders
+
+    if scenario not in (*demo_orders.SCENARIOS, "clear"):
+        raise HTTPException(status_code=404, detail=f"No demo scenario named {scenario!r}.")
+    return await asyncio.to_thread(demo_orders.load, scenario)
+
+
+@app.get("/orders/summary", tags=["orders"])
+async def order_summary(user: dict[str, Any] = Depends(require_admin)) -> dict[str, int]:
+    return order_book.summary()
+
+
+@app.get("/orders/{order_id}", tags=["orders"])
+async def get_order(
+    order_id: str, user: dict[str, Any] = Depends(require_user)
+) -> dict[str, Any]:
+    order = order_book.get_order(user, order_id)
+    if order is None:
+        raise HTTPException(status_code=404, detail=f"No order {order_id}.")
+    return order
+
+
+@app.post("/orders/{order_id}/status", tags=["orders"])
+async def update_order(
+    order_id: str, body: StatusUpdate, user: dict[str, Any] = Depends(require_user)
+) -> dict[str, Any]:
+    """Admins advance an order one step or cancel it; customers may cancel
+    their own before dispatch."""
+    try:
+        return order_book.update_status(user, order_id, body.status, body.note)
+    except LookupError:
+        raise HTTPException(status_code=404, detail=f"No order {order_id}.") from None
+    except order_book.OrderError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
+
+
+@app.post("/orders/{order_id}/resolve", tags=["orders"])
+async def resolve_order_issue(
+    order_id: str, user: dict[str, Any] = Depends(require_admin)
+) -> dict[str, Any]:
+    """Apply the recorded fix for a disrupted order: reroute, resupply or replace."""
+    try:
+        return order_book.resolve_issue(user, order_id)
+    except LookupError:
+        raise HTTPException(status_code=404, detail=f"No order {order_id}.") from None
+    except order_book.OrderError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
 
 
 # ── System readiness ──────────────────────────────────────────────────

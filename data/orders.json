@@ -1,0 +1,2104 @@
+[
+  {
+    "order_id": "ORD-00001",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-003",
+    "quantity": 1700,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "delivered",
+    "created_at": "2026-10-04T06:05:14+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0018",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T06:05:14+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T10:48:43+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T05:54:30+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0018."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-06T01:49:34+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00002",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-003",
+    "quantity": 1200,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-04T10:18:07+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0018",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T10:18:07+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T15:07:28+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T06:18:27+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0018."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-05T22:48:24+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00003",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-002",
+    "quantity": 300,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Weekly restock for the outpatient ward.",
+    "status": "delivered",
+    "created_at": "2026-10-04T10:23:42+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0012",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T10:23:42+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T15:46:58+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T06:00:37+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0012."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-06T01:31:06+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00004",
+    "customer": "port-health",
+    "customer_name": "Mangaluru Port Health Centre",
+    "drug_id": "DRUG-002",
+    "quantity": 90,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-04T10:37:57+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0007",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T10:37:57+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T13:10:34+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T03:02:34+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0007."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-05T22:07:59+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00005",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 1100,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Monthly restock.",
+    "status": "delivered",
+    "created_at": "2026-10-04T11:31:56+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0001",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T11:31:56+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T17:19:16+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T10:50:42+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0001."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-06T05:45:07+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00006",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-004",
+    "quantity": 200,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "Weekly restock for the outpatient ward.",
+    "status": "delivered",
+    "created_at": "2026-10-04T12:04:32+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0004",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-04T12:04:32+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-04T15:22:15+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T04:11:57+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0004."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-05T22:23:36+00:00",
+        "note": "Delivered to Shivamogga Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00007",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-005",
+    "quantity": 100,
+    "deliver_to": "NODE-PH-01",
+    "priority": "urgent",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-05T08:09:18+00:00",
+    "expected_by": "2026-10-06",
+    "promised_by": "2026-10-06",
+    "batch_id": "BATCH-0005",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-05T08:09:18+00:00",
+        "note": "Order received. Controlled substance: held for prescription check before confirmation."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-05T12:16:41+00:00",
+        "note": "Prescription verified. Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-05T14:21:05+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0005."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-06T06:39:27+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00008",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 750,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Monthly restock.",
+    "status": "delivered",
+    "created_at": "2026-10-05T08:29:41+00:00",
+    "expected_by": "2026-10-07",
+    "promised_by": "2026-10-07",
+    "batch_id": "BATCH-0016",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-05T08:29:41+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-05T12:07:42+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-06T01:03:04+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0016."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-06T20:07:22+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00009",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-002",
+    "quantity": 270,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "delivered",
+    "created_at": "2026-10-06T10:26:35+00:00",
+    "expected_by": "2026-10-08",
+    "promised_by": "2026-10-08",
+    "batch_id": "BATCH-0007",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-06T10:26:35+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-06T14:05:48+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-07T07:37:59+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0007."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-08T02:32:07+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00010",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 300,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "delivered",
+    "created_at": "2026-10-07T04:17:27+00:00",
+    "expected_by": "2026-10-09",
+    "promised_by": "2026-10-09",
+    "batch_id": "BATCH-0013",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-07T04:17:27+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-07T10:11:38+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-08T05:06:02+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0013."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-08T22:55:24+00:00",
+        "note": "Delivered to Shivamogga Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00011",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-004",
+    "quantity": 250,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Monthly restock.",
+    "status": "delivered",
+    "created_at": "2026-10-07T11:27:50+00:00",
+    "expected_by": "2026-10-09",
+    "promised_by": "2026-10-09",
+    "batch_id": "BATCH-0004",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-07T11:27:50+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-07T15:49:40+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-08T08:44:01+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0004."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-09T02:00:11+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00012",
+    "customer": "belagavi-district",
+    "customer_name": "Belagavi District Hospital",
+    "drug_id": "DRUG-004",
+    "quantity": 125,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "Please call on arrival.",
+    "status": "delivered",
+    "created_at": "2026-10-08T04:32:42+00:00",
+    "expected_by": "2026-10-09",
+    "promised_by": "2026-10-10",
+    "batch_id": "BATCH-0019",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-08T04:32:42+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-08T07:38:42+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-08T19:52:36+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0019."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-09T17:42:33+00:00",
+        "note": "Delivered to Shivamogga Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00013",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-001",
+    "quantity": 750,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Monthly restock.",
+    "status": "delivered",
+    "created_at": "2026-10-08T05:44:07+00:00",
+    "expected_by": "2026-10-09",
+    "promised_by": "2026-10-10",
+    "batch_id": "BATCH-0011",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-08T05:44:07+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-08T07:35:51+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-08T20:24:53+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0011."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-09T15:35:40+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00014",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 1400,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-08T08:21:39+00:00",
+    "expected_by": "2026-10-10",
+    "promised_by": "2026-10-10",
+    "batch_id": "BATCH-0008",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-08T08:21:39+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-08T13:37:00+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-09T02:34:33+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0008."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-09T22:14:41+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00015",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-001",
+    "quantity": 800,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Please call on arrival.",
+    "status": "delivered",
+    "created_at": "2026-10-08T08:46:24+00:00",
+    "expected_by": "2026-10-10",
+    "promised_by": "2026-10-10",
+    "batch_id": "BATCH-0006",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-08T08:46:24+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-08T12:04:46+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-09T07:39:14+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0006."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-10T01:18:18+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00016",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 800,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-09T06:27:01+00:00",
+    "expected_by": "2026-10-12",
+    "promised_by": "2026-10-11",
+    "batch_id": "BATCH-0016",
+    "supplier": "NODE-PH-02",
+    "route": [
+      "NODE-PH-02",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 17.6,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-09T06:27:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-09T09:03:34+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-09T12:01:58+00:00",
+        "note": "Back-ordered: manufacturer output halted. Bengaluru Manufacturing Plant has stopped production and Mysuru Distribution Centre has no Amoxicillin 500mg Capsule left to pick for this order."
+      },
+      {
+        "status": "resolved",
+        "at": "2026-10-10T02:01:58+00:00",
+        "note": "Surplus located at Whitefield Pharmacy; transfer approved instead of waiting for the plant to restart."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-10T02:01:58+00:00",
+        "note": "Dispatched from Whitefield Pharmacy as a lateral transfer."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-12T07:48:57+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": [
+      {
+        "kind": "supply_shortage",
+        "severity": "medium",
+        "agent": "Inventory Agent",
+        "scenario": "factory_shutdown",
+        "title": "Back-ordered: manufacturer output halted",
+        "detail": "Bengaluru Manufacturing Plant has stopped production and Mysuru Distribution Centre has no Amoxicillin 500mg Capsule left to pick for this order.",
+        "customer_text": "The manufacturer has paused production, so this item is back-ordered. We are sourcing it from a nearby pharmacy.",
+        "fix": {
+          "label": "Transfer from Whitefield Pharmacy",
+          "supplier": "NODE-PH-02",
+          "route": [
+            "NODE-PH-02",
+            "NODE-PH-01"
+          ],
+          "new_batch": "BATCH-0016",
+          "delay_days": 1,
+          "advance_to": "dispatched",
+          "advance_note": "Dispatched from Whitefield Pharmacy as a lateral transfer.",
+          "note": "Surplus located at Whitefield Pharmacy; transfer approved instead of waiting for the plant to restart."
+        },
+        "raised_at": "2026-10-09T12:01:58+00:00",
+        "resolved_at": "2026-10-10T02:01:58+00:00",
+        "resolution": "Transfer from Whitefield Pharmacy"
+      }
+    ]
+  },
+  {
+    "order_id": "ORD-00017",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 1200,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-09T12:19:30+00:00",
+    "expected_by": "2026-10-11",
+    "promised_by": "2026-10-11",
+    "batch_id": "BATCH-0011",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-09T12:19:30+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-09T16:34:37+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-10T09:20:38+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0011."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-11T04:29:52+00:00",
+        "note": "Delivered to Shivamogga Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00018",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 600,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-10T07:15:03+00:00",
+    "expected_by": "2026-10-12",
+    "promised_by": "2026-10-12",
+    "batch_id": "BATCH-0008",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-10T07:15:03+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-10T10:42:10+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-11T05:40:36+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0008."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-11T22:43:11+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00019",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 700,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "delivered",
+    "created_at": "2026-10-10T11:36:21+00:00",
+    "expected_by": "2026-10-12",
+    "promised_by": "2026-10-12",
+    "batch_id": "BATCH-0011",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-10T11:36:21+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-10T15:33:19+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-11T10:13:44+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0011."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-12T07:51:48+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00020",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 1900,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-11T03:42:03+00:00",
+    "expected_by": "2026-10-12",
+    "promised_by": "2026-10-13",
+    "batch_id": "BATCH-0018",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-11T03:42:03+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-11T07:35:38+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-11T23:46:55+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0018."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-12T21:40:11+00:00",
+        "note": "Delivered to Shivamogga Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00021",
+    "customer": "port-health",
+    "customer_name": "Mangaluru Port Health Centre",
+    "drug_id": "DRUG-003",
+    "quantity": 700,
+    "deliver_to": "NODE-PH-04",
+    "priority": "urgent",
+    "notes": "Please call on arrival.",
+    "status": "delivered",
+    "created_at": "2026-10-11T12:59:09+00:00",
+    "expected_by": "2026-10-12",
+    "promised_by": "2026-10-12",
+    "batch_id": "BATCH-0018",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-04"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 5.1,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-11T12:59:09+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-11T14:01:43+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-11T15:16:09+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0018."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-12T12:53:56+00:00",
+        "note": "Delivered to Mangaluru Port Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00022",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-002",
+    "quantity": 180,
+    "deliver_to": "NODE-PH-03",
+    "priority": "urgent",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-12T16:27:01+00:00",
+    "expected_by": "2026-10-14",
+    "promised_by": "2026-10-13",
+    "batch_id": "BATCH-0012",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-12T16:27:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-12T17:53:55+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-12T19:44:51+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0002."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-13T02:29:54+00:00",
+        "note": "Cold-chain breach in transit. The temperature logger recorded 12.9 \u00b0C for 4 hours (safe range 2\u20138 \u00b0C). Batch BATCH-0002 cannot be used."
+      },
+      {
+        "status": "resolved",
+        "at": "2026-10-13T06:29:54+00:00",
+        "note": "Batch BATCH-0002 quarantined. Replacement batch BATCH-0012 dispatched from Mysuru Distribution Centre in a refrigerated vehicle."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-14T04:57:06+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": [
+      {
+        "kind": "cold_chain_excursion",
+        "severity": "high",
+        "agent": "Anomaly Agent",
+        "scenario": "coldchain_failure",
+        "title": "Cold-chain breach in transit",
+        "detail": "The temperature logger recorded 12.9 \u00b0C for 4 hours (safe range 2\u20138 \u00b0C). Batch BATCH-0002 cannot be used.",
+        "customer_text": "This shipment got too warm in transit, so we will not deliver it. A replacement is on its way.",
+        "fix": {
+          "label": "Quarantine and ship a replacement batch",
+          "new_batch": "BATCH-0012",
+          "delay_days": 1,
+          "note": "Batch BATCH-0002 quarantined. Replacement batch BATCH-0012 dispatched from Mysuru Distribution Centre in a refrigerated vehicle."
+        },
+        "raised_at": "2026-10-13T02:29:54+00:00",
+        "resolved_at": "2026-10-13T06:29:54+00:00",
+        "resolution": "Quarantine and ship a replacement batch"
+      }
+    ]
+  },
+  {
+    "order_id": "ORD-00023",
+    "customer": "belagavi-district",
+    "customer_name": "Belagavi District Hospital",
+    "drug_id": "DRUG-001",
+    "quantity": 600,
+    "deliver_to": "NODE-PH-05",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-13T09:10:01+00:00",
+    "expected_by": "2026-10-15",
+    "promised_by": "2026-10-15",
+    "batch_id": "BATCH-0001",
+    "supplier": "NODE-DC-03",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-02",
+      "NODE-DC-03",
+      "NODE-PH-05"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 298.5,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-13T09:10:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-13T14:08:31+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-14T06:12:13+00:00",
+        "note": "Dispatched from Kalaburagi Distribution Centre. Batch BATCH-0001."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-15T00:50:00+00:00",
+        "note": "Delivered to Belagavi Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00024",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-003",
+    "quantity": 1100,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "Please call on arrival.",
+    "status": "delivered",
+    "created_at": "2026-10-14T10:04:21+00:00",
+    "expected_by": "2026-10-16",
+    "promised_by": "2026-10-16",
+    "batch_id": "BATCH-0008",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-14T10:04:21+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-14T13:51:33+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-15T08:19:05+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0008."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-16T03:16:17+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00025",
+    "customer": "port-health",
+    "customer_name": "Mangaluru Port Health Centre",
+    "drug_id": "DRUG-004",
+    "quantity": 400,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-15T04:48:25+00:00",
+    "expected_by": "2026-10-16",
+    "promised_by": "2026-10-17",
+    "batch_id": "BATCH-0019",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-15T04:48:25+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-15T10:05:12+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-15T23:11:02+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0019."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-16T20:27:15+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00026",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-003",
+    "quantity": 1200,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "",
+    "status": "delivered",
+    "created_at": "2026-10-15T08:38:42+00:00",
+    "expected_by": "2026-10-17",
+    "promised_by": "2026-10-17",
+    "batch_id": "BATCH-0013",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-15T08:38:42+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-15T14:10:53+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-16T03:25:01+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0013."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-16T21:07:13+00:00",
+        "note": "Delivered to Mysuru City Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00027",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-005",
+    "quantity": 60,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "",
+    "status": "dispatched",
+    "created_at": "2026-10-15T14:27:01+00:00",
+    "expected_by": "2026-10-17",
+    "promised_by": "2026-10-17",
+    "batch_id": "BATCH-7731",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-15T14:27:01+00:00",
+        "note": "Order received. Controlled substance: held for prescription check before confirmation."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-15T22:14:20+00:00",
+        "note": "Prescription verified. Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-16T13:22:14+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0015."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-17T10:22:14+00:00",
+        "note": "Batch failed the authenticity check. On arrival at Shivamogga Pharmacy, batch BATCH-7731 matched no fingerprint on the provenance ledger. The stock is held and must not be dispensed."
+      }
+    ],
+    "issue": {
+      "kind": "counterfeit",
+      "severity": "high",
+      "agent": "Anomaly Agent + ledger",
+      "scenario": null,
+      "title": "Batch failed the authenticity check",
+      "detail": "On arrival at Shivamogga Pharmacy, batch BATCH-7731 matched no fingerprint on the provenance ledger. The stock is held and must not be dispensed.",
+      "customer_text": "The stock delivered for this order failed our authenticity check, so it has been withheld. Verified stock is being sent.",
+      "fix": {
+        "label": "Quarantine and replace with a verified batch",
+        "new_batch": "BATCH-0010",
+        "delay_days": 2,
+        "note": "Batch BATCH-7731 quarantined and reported to the regulator. Verified batch BATCH-0010 dispatched from Mangaluru Distribution Centre."
+      },
+      "raised_at": "2026-10-17T10:22:14+00:00"
+    },
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00028",
+    "customer": "belagavi-district",
+    "customer_name": "Belagavi District Hospital",
+    "drug_id": "DRUG-001",
+    "quantity": 500,
+    "deliver_to": "NODE-PH-05",
+    "priority": "standard",
+    "notes": "",
+    "status": "dispatched",
+    "created_at": "2026-10-16T02:27:01+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0006",
+    "supplier": "NODE-DC-03",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-03",
+      "NODE-PH-05"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 298.5,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T02:27:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T08:01:53+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-16T21:34:50+00:00",
+        "note": "Dispatched from Kalaburagi Distribution Centre. Batch BATCH-0006."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-16T23:18:47+00:00",
+        "note": "Route closed by flooding. Flooding has closed the lanes out of Hubballi Regional Warehouse. This order's route runs through it and cannot move."
+      },
+      {
+        "status": "resolved",
+        "at": "2026-10-18T09:39:38.099999+00:00",
+        "note": "Rerouted via Bengaluru Central Warehouse around the flooded lanes. One extra day in transit."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": [
+      {
+        "kind": "route_blocked",
+        "severity": "high",
+        "agent": "Route Agent",
+        "scenario": "route_disruption",
+        "title": "Route closed by flooding",
+        "detail": "Flooding has closed the lanes out of Hubballi Regional Warehouse. This order's route runs through it and cannot move.",
+        "customer_text": "Your delivery is delayed: flooding has closed a road on its route. We are rerouting it.",
+        "fix": {
+          "label": "Reroute via Bengaluru Central Warehouse",
+          "route": [
+            "NODE-MFG-01",
+            "NODE-WH-01",
+            "NODE-DC-03",
+            "NODE-PH-05"
+          ],
+          "delay_days": 1,
+          "note": "Rerouted via Bengaluru Central Warehouse around the flooded lanes. One extra day in transit."
+        },
+        "raised_at": "2026-10-16T23:18:47+00:00",
+        "resolved_at": "2026-10-18T09:39:38.099999+00:00",
+        "resolution": "Reroute via Bengaluru Central Warehouse"
+      }
+    ]
+  },
+  {
+    "order_id": "ORD-00029",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-004",
+    "quantity": 75,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Weekly restock for the outpatient ward.",
+    "status": "delivered",
+    "created_at": "2026-10-16T04:43:28+00:00",
+    "expected_by": "2026-10-17",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0004",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T04:43:28+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T10:12:23+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-16T23:30:32+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0004."
+      },
+      {
+        "status": "delivered",
+        "at": "2026-10-17T17:30:07+00:00",
+        "note": "Delivered to Jayanagar Pharmacy. Signed for at the counter."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00030",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-002",
+    "quantity": 220,
+    "deliver_to": "NODE-PH-01",
+    "priority": "urgent",
+    "notes": "",
+    "status": "dispatched",
+    "created_at": "2026-10-16T12:27:01+00:00",
+    "expected_by": "2026-10-17",
+    "promised_by": "2026-10-17",
+    "batch_id": "BATCH-0007",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T12:27:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T12:53:10+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-16T15:47:53+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0007."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-16T21:52:18+00:00",
+        "note": "Cold-chain breach in transit. The temperature logger recorded 11.6 \u00b0C for 3 hours (safe range 2\u20138 \u00b0C). Batch BATCH-0007 cannot be used."
+      }
+    ],
+    "issue": {
+      "kind": "cold_chain_excursion",
+      "severity": "high",
+      "agent": "Anomaly Agent",
+      "scenario": "coldchain_failure",
+      "title": "Cold-chain breach in transit",
+      "detail": "The temperature logger recorded 11.6 \u00b0C for 3 hours (safe range 2\u20138 \u00b0C). Batch BATCH-0007 cannot be used.",
+      "customer_text": "This shipment got too warm in transit, so we will not deliver it. A replacement is on its way.",
+      "fix": {
+        "label": "Quarantine and ship a replacement batch",
+        "new_batch": "BATCH-0012",
+        "delay_days": 1,
+        "note": "Batch BATCH-0007 quarantined. Replacement batch BATCH-0012 dispatched from Mysuru Distribution Centre in a refrigerated vehicle."
+      },
+      "raised_at": "2026-10-16T21:52:18+00:00"
+    },
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00031",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-002",
+    "quantity": 100,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Monthly restock.",
+    "status": "dispatched",
+    "created_at": "2026-10-16T12:41:57+00:00",
+    "expected_by": "2026-10-18",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0017",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T12:41:57+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T15:37:57+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-17T09:24:35+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0017."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00032",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-001",
+    "quantity": 1000,
+    "deliver_to": "NODE-PH-03",
+    "priority": "standard",
+    "notes": "",
+    "status": "dispatched",
+    "created_at": "2026-10-16T15:16:41+00:00",
+    "expected_by": "2026-10-18",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0001",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T15:16:41+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T17:17:09+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-17T12:38:03+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0001."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00033",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 400,
+    "deliver_to": "NODE-PH-02",
+    "priority": "standard",
+    "notes": "Weekly restock for the outpatient ward.",
+    "status": "dispatched",
+    "created_at": "2026-10-16T16:48:06+00:00",
+    "expected_by": "2026-10-18",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0016",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-02"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 141.9,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T16:48:06+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T22:07:29+00:00",
+        "note": "Confirmed and queued for picking."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-17T15:31:57+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0016."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00034",
+    "customer": "hospital",
+    "customer_name": "Mysuru General Hospital",
+    "drug_id": "DRUG-004",
+    "quantity": 350,
+    "deliver_to": "NODE-PH-03",
+    "priority": "urgent",
+    "notes": "",
+    "status": "confirmed",
+    "created_at": "2026-10-16T20:27:01+00:00",
+    "expected_by": "2026-10-17",
+    "promised_by": "2026-10-17",
+    "batch_id": null,
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-03"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 2.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-16T20:27:01+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-16T21:15:25+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "issue",
+        "at": "2026-10-17T00:05:46+00:00",
+        "note": "Demand surge: stock rationed. Orders for Influenza Vaccine (Quadrivalent) are running at about 5x normal. Mysuru Distribution Centre can release 210 of 350 units today."
+      }
+    ],
+    "issue": {
+      "kind": "demand_surge",
+      "severity": "medium",
+      "agent": "Demand Agent",
+      "scenario": "pandemic_surge",
+      "title": "Demand surge: stock rationed",
+      "detail": "Orders for Influenza Vaccine (Quadrivalent) are running at about 5x normal. Mysuru Distribution Centre can release 210 of 350 units today.",
+      "customer_text": "Demand for this medicine is very high. We can send 210 units now and the remaining 140 within two days.",
+      "fix": {
+        "label": "Ship 210 now, 140 within 2 days",
+        "new_batch": "BATCH-0019",
+        "delay_days": 2,
+        "advance_to": "dispatched",
+        "advance_note": "Partial shipment of 210 units dispatched from Mysuru Distribution Centre.",
+        "note": "Allocation agreed: 210 units now, balance of 140 scheduled for the next replenishment."
+      },
+      "raised_at": "2026-10-17T00:05:46+00:00"
+    },
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00035",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-005",
+    "quantity": 20,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "confirmed",
+    "created_at": "2026-10-17T00:41:32+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T00:41:32+00:00",
+        "note": "Order received. Controlled substance: held for prescription check before confirmation."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T06:30:56+00:00",
+        "note": "Prescription verified. Confirmed and queued for picking."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00036",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 1000,
+    "deliver_to": "NODE-PH-06",
+    "priority": "urgent",
+    "notes": "",
+    "status": "dispatched",
+    "created_at": "2026-10-17T03:34:06+00:00",
+    "expected_by": "2026-10-18",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0018",
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T03:34:06+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T04:11:08+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-17T05:25:44+00:00",
+        "note": "Dispatched from Mangaluru Distribution Centre. Batch BATCH-0018."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00037",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 550,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "",
+    "status": "confirmed",
+    "created_at": "2026-10-17T08:10:55+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T08:10:55+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T14:02:36+00:00",
+        "note": "Confirmed and queued for picking."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00038",
+    "customer": "shivamogga-rural",
+    "customer_name": "Shivamogga Rural Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 1700,
+    "deliver_to": "NODE-PH-06",
+    "priority": "standard",
+    "notes": "",
+    "status": "confirmed",
+    "created_at": "2026-10-17T09:19:03+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-02",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-02",
+      "NODE-PH-06"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 136.7,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T09:19:03+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T12:02:05+00:00",
+        "note": "Confirmed and queued for picking."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00039",
+    "customer": "customer",
+    "customer_name": "City Care Clinic",
+    "drug_id": "DRUG-001",
+    "quantity": 1000,
+    "deliver_to": "NODE-PH-01",
+    "priority": "standard",
+    "notes": "Please call on arrival.",
+    "status": "confirmed",
+    "created_at": "2026-10-17T10:57:31+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T10:57:31+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T13:33:51+00:00",
+        "note": "Confirmed and queued for picking."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00040",
+    "customer": "whitefield-clinic",
+    "customer_name": "Whitefield Family Clinic",
+    "drug_id": "DRUG-003",
+    "quantity": 1900,
+    "deliver_to": "NODE-PH-02",
+    "priority": "standard",
+    "notes": "Deliver to the pharmacy counter before 11:00.",
+    "status": "confirmed",
+    "created_at": "2026-10-17T12:08:58+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-02"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 141.9,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T12:08:58+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T16:44:39+00:00",
+        "note": "Confirmed and queued for picking."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00041",
+    "customer": "belagavi-district",
+    "customer_name": "Belagavi District Hospital",
+    "drug_id": "DRUG-003",
+    "quantity": 1400,
+    "deliver_to": "NODE-PH-05",
+    "priority": "standard",
+    "notes": "",
+    "status": "placed",
+    "created_at": "2026-10-17T14:37:29+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-19",
+    "batch_id": null,
+    "supplier": "NODE-DC-03",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-02",
+      "NODE-DC-03",
+      "NODE-PH-05"
+    ],
+    "transit_days": 1,
+    "lead_days": 2,
+    "distance_km": 298.5,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T14:37:29+00:00",
+        "note": "Order received."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  },
+  {
+    "order_id": "ORD-00042",
+    "customer": "belagavi-district",
+    "customer_name": "Belagavi District Hospital",
+    "drug_id": "DRUG-002",
+    "quantity": 300,
+    "deliver_to": "NODE-PH-01",
+    "priority": "urgent",
+    "notes": "Weekly restock for the outpatient ward.",
+    "status": "dispatched",
+    "created_at": "2026-10-17T14:46:05+00:00",
+    "expected_by": "2026-10-19",
+    "promised_by": "2026-10-18",
+    "batch_id": "BATCH-0007",
+    "supplier": "NODE-DC-01",
+    "route": [
+      "NODE-MFG-01",
+      "NODE-WH-01",
+      "NODE-DC-01",
+      "NODE-PH-01"
+    ],
+    "transit_days": 1,
+    "lead_days": 1,
+    "distance_km": 125.0,
+    "history": [
+      {
+        "status": "placed",
+        "at": "2026-10-17T14:46:05+00:00",
+        "note": "Order received."
+      },
+      {
+        "status": "confirmed",
+        "at": "2026-10-17T16:06:45+00:00",
+        "note": "Confirmed and queued for picking. Marked urgent: picked the same day."
+      },
+      {
+        "status": "dispatched",
+        "at": "2026-10-18T04:57:08.255003+00:00",
+        "note": "Dispatched from Mysuru Distribution Centre. Batch BATCH-0007."
+      }
+    ],
+    "issue": null,
+    "resolved_issues": []
+  }
+]

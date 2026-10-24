@@ -27,12 +27,28 @@ from pharmadt.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
 
-#: Demo operators. A real deployment resolves these against the consortium's
+#: Demo accounts. A real deployment resolves these against the consortium's
 #: identity provider; only this mapping and `authenticate` would change.
+#:
+#: Two portals sit on one API. Admin roles see and drive the whole system;
+#: customers place and track their own orders and nothing else. Each customer
+#: has a default delivery point so the order form opens pre-filled.
 DEMO_USERS: dict[str, dict[str, str]] = {
-    "operator": {"password": "pharmadt", "role": "operator"},
-    "auditor": {"password": "pharmadt", "role": "auditor"},
+    "admin": {"password": "pharmadt", "role": "admin", "name": "Network administrator"},
+    "operator": {"password": "pharmadt", "role": "operator", "name": "Operations"},
+    "auditor": {"password": "pharmadt", "role": "auditor", "name": "Auditor"},
+    "customer": {
+        "password": "pharmadt", "role": "customer",
+        "name": "City Care Clinic", "default_node": "NODE-PH-01",
+    },
+    "hospital": {
+        "password": "pharmadt", "role": "customer",
+        "name": "Mysuru General Hospital", "default_node": "NODE-PH-03",
+    },
 }
+
+#: Roles allowed into the admin portal and its mutating routes.
+ADMIN_ROLES = frozenset({"admin", "operator", "auditor"})
 
 TOKEN_TTL_SECONDS = 8 * 3600
 
@@ -79,7 +95,23 @@ def authenticate(username: str, password: str) -> dict[str, str] | None:
     user = DEMO_USERS.get(username)
     if user is None or not hmac.compare_digest(user["password"], password):
         return None
-    return {"username": username, "role": user["role"]}
+    return {
+        "username": username,
+        "role": user["role"],
+        "name": user.get("name", username),
+        "default_node": user.get("default_node", ""),
+    }
+
+
+def profile(username: str) -> dict[str, str]:
+    """Display details for a signed-in user. Never includes the password."""
+    user = DEMO_USERS.get(username, {})
+    return {
+        "username": username,
+        "role": user.get("role", ""),
+        "name": user.get("name", username),
+        "default_node": user.get("default_node", ""),
+    }
 
 
 async def require_user(token: str | None = Depends(oauth2_scheme)) -> dict[str, Any]:
@@ -92,3 +124,23 @@ async def require_user(token: str | None = Depends(oauth2_scheme)) -> dict[str, 
             headers={"WWW-Authenticate": "Bearer"},
         )
     return claims
+
+
+async def require_admin(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
+    """Signed in *and* holding an admin role. Customers get 403, not 401:
+    they are authenticated, just not allowed here."""
+    if user.get("role") not in ADMIN_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This action is only available in the admin portal.",
+        )
+    return user
+
+
+async def require_customer(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
+    if user.get("role") != "customer":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only customer accounts can place orders.",
+        )
+    return user
