@@ -3,731 +3,1521 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PharmaDT — Control Room</title>
+<title>PharmaDT</title>
 <style>
   :root{
-    --ground:#0e1216; --panel:#161c23; --panel-2:#1d242d; --rule:#28313c;
-    --ink:#e7ecf3; --ink-soft:#9aa5b4; --ink-faint:#6c7686;
-    --accent:#4fb3aa; --accent-dim:#1b3b39;
-    --ok:#4caf7d; --warn:#d99a4e; --bad:#e0575b;
-    --mono:ui-monospace,'SF Mono','Cascadia Mono',Consolas,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    /* Light blue for structure and actions, light yellow for highlights. */
+    --bg:#fffdf4; --surface:#ffffff; --surface-2:#f5fafe; --border:#dfe9f1; --border-strong:#c4d6e4;
+    --text:#1b2a38; --muted:#4f6070; --faint:#869aab;
+    --primary:#1c70ad;            /* text-weight blue: links, active tab, focus */
+    --primary-fill:#a9dcf8;       /* light blue fill for buttons and progress */
+    --primary-fill-hover:#8fd0f5;
+    --primary-ink:#0e3a5c;        /* text on light blue fills */
+    --primary-hover:#155b8e; --primary-soft:#e6f4fd;
+    --yellow:#fff1b8; --yellow-soft:#fff9e0; --yellow-border:#f0dc8c; --yellow-ink:#6b5300;
+    --ok:#1f7a4d; --ok-soft:#e7f4ed; --warn:#9a5b00; --warn-soft:#fdf2df;
+    --bad:#b42318; --bad-soft:#fdecea; --info:#4b5563; --info-soft:#eef0f3;
+    --radius:8px; --shadow:0 1px 2px rgba(16,24,40,.05);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:14px}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  [hidden]{display:none!important}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
+  h1{font-size:20px} h2{font-size:15px} h3{font-size:14px}
+  p{margin:0}
+  a{color:var(--primary)}
+  .muted{color:var(--muted)} .faint{color:var(--faint)} .small{font-size:12.5px}
+  .num{font-variant-numeric:tabular-nums}
+  .id{font-family:var(--mono);font-size:12.5px}
 
-  /* ── Header ─────────────────────────────────────────────────────── */
-  header{position:sticky;top:0;z-index:20;background:var(--panel);
-    border-bottom:1px solid var(--rule)}
-  .bar{display:flex;align-items:center;gap:1.4rem;flex-wrap:wrap;padding:.75rem 1.4rem}
-  .brand{font-weight:700;letter-spacing:-.02em;font-size:1.05rem;white-space:nowrap}
-  .brand span{color:var(--accent)}
-  .status{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);
-    display:flex;gap:1.1rem;flex-wrap:wrap}
-  .status b{color:var(--ink);font-weight:500}
-  .spacer{flex:1}
-  .signin{display:flex;gap:.4rem;align-items:center}
-  .signin input{width:110px}
+  /* Buttons and fields */
+  button{font:inherit;cursor:pointer}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 14px;
+    border-radius:6px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);
+    font-weight:500;white-space:nowrap;transition:background .12s,border-color .12s}
+  .btn:hover{background:var(--surface-2);border-color:#b9c0ca}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.primary{background:var(--primary-fill);border-color:#86c6ec;color:var(--primary-ink);font-weight:600}
+  .btn.primary:hover{background:var(--primary-fill-hover)}
+  .btn.danger{color:var(--bad);border-color:#f1c4bf}
+  .btn.danger:hover{background:var(--bad-soft)}
+  .btn.sm{height:28px;padding:0 10px;font-size:13px}
+  .btn.link{border:none;background:none;color:var(--primary);padding:0;height:auto}
+  .btn.link:hover{text-decoration:underline;background:none}
+  .btn.block{width:100%}
+  label{display:block;font-size:13px;font-weight:500;margin:0 0 5px}
+  input,select,textarea{font:inherit;width:100%;height:36px;padding:0 10px;border:1px solid var(--border-strong);
+    border-radius:6px;background:var(--surface);color:var(--text)}
+  textarea{height:auto;min-height:64px;padding:8px 10px;resize:vertical}
+  input:focus,select:focus,textarea:focus,.btn:focus-visible{outline:none;border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(28,112,173,.18)}
+  .field{margin-bottom:14px}
+  .help{font-size:12.5px;color:var(--faint);margin-top:4px}
+  .error-text{font-size:13px;color:var(--bad);margin-top:8px;min-height:1px}
 
-  nav{display:flex;gap:.25rem;padding:0 1.4rem;overflow-x:auto}
-  nav button{background:none;border:none;border-bottom:2px solid transparent;color:var(--ink-faint);
-    font-family:var(--sans);font-size:.85rem;font-weight:600;padding:.6rem .9rem;cursor:pointer;
-    white-space:nowrap;border-radius:0}
-  nav button:hover{color:var(--ink);background:none;filter:none}
-  nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+  .segmented{display:inline-flex;background:var(--primary-soft);border-radius:7px;padding:3px;gap:2px}
+  .segmented button{border:none;background:none;height:30px;padding:0 14px;border-radius:5px;color:var(--muted);font-weight:500}
+  .segmented button.on{background:var(--yellow);color:var(--yellow-ink);box-shadow:0 1px 2px rgba(16,24,40,.1)}
+  .segmented.full{display:flex}.segmented.full button{flex:1}
 
-  /* ── Layout ─────────────────────────────────────────────────────── */
-  main{max-width:1700px;margin:0 auto;padding:1.1rem 1.4rem 4rem}
-  .tab{display:none}
-  .tab.on{display:block}
-  .grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
-  .panel{background:var(--panel);border:1px solid var(--rule);border-radius:8px;
-    padding:1rem 1.1rem;display:flex;flex-direction:column;min-height:0}
-  .panel h2{margin:0 0 .15rem;font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;
-    color:var(--accent);font-family:var(--mono);font-weight:500}
-  .panel .hint{margin:0 0 .85rem;font-size:.78rem;color:var(--ink-faint);line-height:1.5}
-  .span2{grid-column:span 2}
-  .span3{grid-column:1/-1}
-  @media(max-width:760px){.span2,.span3{grid-column:span 1}}
+  /* Status pills */
+  .pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;
+    font-size:12px;font-weight:500;white-space:nowrap;background:var(--info-soft);color:var(--info)}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.ok{background:var(--ok-soft);color:var(--ok)}
+  .pill.warn{background:var(--warn-soft);color:var(--warn)}
+  .pill.bad{background:var(--bad-soft);color:var(--bad)}
+  .pill.blue{background:var(--primary-soft);color:var(--primary)}
+  .pill.yellow{background:var(--yellow);color:var(--yellow-ink)}
+  .tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:4px;background:var(--info-soft);color:var(--muted)}
+  .tag.cold{background:#e8f1fb;color:#235a99}.tag.ctrl{background:var(--warn-soft);color:var(--warn)}
+  .tag.urgent{background:var(--bad-soft);color:var(--bad)}
 
-  /* ── Controls ───────────────────────────────────────────────────── */
-  button{font-family:var(--sans);font-size:.83rem;font-weight:600;cursor:pointer;
-    background:var(--accent);color:#06211f;border:none;padding:.5rem .9rem;border-radius:5px}
-  button:hover{filter:brightness(1.1)}
-  button:disabled{opacity:.4;cursor:not-allowed}
-  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
-  button.danger{background:var(--bad);color:#2a0507}
-  select,input{font-family:var(--sans);font-size:.83rem;background:var(--panel-2);
-    color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:.45rem .6rem}
-  label{display:block;font-size:.72rem;color:var(--ink-faint);margin:0 0 .25rem;
-    letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono)}
-  .row{display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.7rem}
-  .row>div{flex:1;min-width:110px}
+  /* Login */
+  .login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login{width:100%;max-width:400px}
+  .login .brandline{text-align:center;margin-bottom:22px}
+  .login .brandline h1{font-size:24px}
+  .login .brandline p{color:var(--muted);margin-top:4px}
+  .login .card{padding:24px}
+  .demo{margin-top:16px;padding:10px 12px;background:var(--yellow-soft);border:1px dashed var(--yellow-border);
+    border-radius:6px;font-size:12.5px;color:var(--muted)}
 
-  /* ── Readouts ───────────────────────────────────────────────────── */
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem}
-  .kpi{background:var(--panel-2);border-radius:6px;padding:.7rem .8rem}
-  .kpi .v{font-family:var(--mono);font-size:1.35rem;font-variant-numeric:tabular-nums;
-    color:var(--accent)}
-  .kpi .l{font-size:.68rem;color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase;
-    margin-top:.15rem}
-  .kpi .n{font-size:.72rem;color:var(--ink-faint);margin-top:.35rem;line-height:1.45}
+  /* App shell */
+  .topbar{background:var(--primary-soft);border-bottom:1px solid #cfe6f6;position:sticky;top:0;z-index:30}
+  .topbar .inner{max-width:1280px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;gap:24px}
+  .brand{font-weight:700;font-size:16px;letter-spacing:-.02em;white-space:nowrap}
+  .brand span{color:var(--primary)}
+  .brand small{font-weight:500;font-size:12px;color:var(--faint);margin-left:8px;letter-spacing:0}
+  .tabs{display:flex;gap:2px;height:100%;overflow-x:auto}
+  .tabs button{border:none;background:none;height:100%;padding:0 12px;color:var(--muted);font-weight:500;
+    border-bottom:2px solid transparent;white-space:nowrap}
+  .tabs button:hover{color:var(--text)}
+  .tabs button.on{color:var(--primary-ink);border-bottom:3px solid #f2c94c;font-weight:600}
+  .grow{flex:1}
+  .user{display:flex;align-items:center;gap:12px;white-space:nowrap}
+  .user .who{text-align:right;line-height:1.25}
+  .user .who b{display:block;font-size:13px;font-weight:600}
+  .user .who span{font-size:12px;color:var(--faint)}
+  main{max-width:1280px;margin:0 auto;padding:24px 24px 64px}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+  .page-head p{color:var(--muted);margin-top:3px}
 
-  .badge{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);
-    font-size:.9rem;font-weight:600;padding:.55rem .85rem;border-radius:6px;letter-spacing:.03em}
-  .badge.ok{background:rgba(76,175,125,.14);color:var(--ok);border:1px solid rgba(76,175,125,.35)}
-  .badge.bad{background:rgba(224,87,91,.14);color:var(--bad);border:1px solid rgba(224,87,91,.4)}
-  .badge.idle{background:var(--panel-2);color:var(--ink-faint);border:1px solid var(--rule)}
-  .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+  .card-head p{color:var(--faint);font-size:12.5px;margin-top:2px}
+  .card-body{padding:16px}
+  .grid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+  .grid > *{min-width:0}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g-side{grid-template-columns:380px minmax(0,1fr);align-items:start}
+  .g-results{grid-template-columns:260px minmax(0,1fr);align-items:start}
+  .span-all{grid-column:1/-1}
+  @media (max-width:980px){.g2,.g3,.g-side,.g-results{grid-template-columns:1fr}}
 
-  .scroll{overflow:auto;flex:1;min-height:140px;max-height:340px;
-    border:1px solid var(--rule);border-radius:6px;background:var(--panel-2)}
-  table{width:100%;border-collapse:collapse;font-size:.78rem}
-  th{position:sticky;top:0;background:var(--panel-2);text-align:left;padding:.45rem .6rem;
-    font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-faint);border-bottom:1px solid var(--rule);font-weight:500;z-index:1}
-  td{padding:.4rem .6rem;border-bottom:1px solid rgba(40,49,60,.5);vertical-align:top}
-  td.mono,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
-  td.nowrap{white-space:nowrap}
-  tr:last-child td{border-bottom:none}
-  .pass{color:var(--ok);font-weight:600}
-  .fail{color:var(--bad);font-weight:600}
-  .warnc{color:var(--warn);font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+  .stat .v{color:var(--primary-ink);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .stat .n{font-size:12px;color:var(--faint);margin-top:6px;line-height:1.4}
+  .stat.click{cursor:pointer}.stat.click:hover{border-color:var(--border-strong)}
+  .inset .stat{background:var(--surface-2);border-color:#d6e8f5}
 
-  /* ── Map ────────────────────────────────────────────────────────── */
-  .map{position:relative;background:var(--panel-2);border:1px solid var(--rule);
-    border-radius:6px;height:300px;overflow:hidden}
-  .node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;
-    align-items:center;gap:.2rem}
-  .node .pin{width:13px;height:13px;border-radius:50%;border:2px solid rgba(0,0,0,.45)}
-  .node .lbl{font-family:var(--mono);font-size:.6rem;color:var(--ink-faint);white-space:nowrap}
-  .legend{display:flex;gap:1rem;font-size:.72rem;color:var(--ink-faint);margin-top:.5rem;
-    font-family:var(--mono);flex-wrap:wrap}
-  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:.3rem}
+  /* Tables */
+  .table-wrap{overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding:9px 12px;background:var(--surface-2);
+    border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+  td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr.clickable{cursor:pointer}
+  tbody tr.clickable:hover td{background:var(--surface-2)}
+  td.right,th.right{text-align:right}
+  .empty{padding:32px 16px;text-align:center;color:var(--faint)}
+  .scroll{max-height:420px;overflow:auto}
 
-  /* ── Results tab ────────────────────────────────────────────────── */
-  .split{display:grid;grid-template-columns:250px 1fr;gap:1rem}
-  @media(max-width:860px){.split{grid-template-columns:1fr}}
-  .rlist{display:flex;flex-direction:column;gap:.35rem}
-  .rlist button{text-align:left;background:var(--panel);border:1px solid var(--rule);
-    color:var(--ink-soft);padding:.6rem .75rem;border-radius:6px;font-weight:600;font-size:.82rem}
-  .rlist button.on{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
-  .rlist button small{display:block;font-weight:400;color:var(--ink-faint);
-    font-size:.7rem;margin-top:.2rem;line-height:1.4}
-  .rlist button.on small{color:var(--ink-soft)}
-  .missing{color:var(--warn)}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .toolbar input,.toolbar select{width:auto;min-width:160px;height:32px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--border-strong);background:var(--surface);border-radius:999px;height:28px;padding:0 12px;
+    font-size:13px;color:var(--muted)}
+  .chip b{font-weight:600;color:var(--text);margin-left:4px}
+  .chip.on{background:var(--yellow);border-color:var(--yellow-border);color:var(--yellow-ink)}
+  .chip.on b{color:var(--yellow-ink)}
 
-  /* ── Tamper demo ────────────────────────────────────────────────── */
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.6rem;
-    margin-top:.4rem}
-  .step{background:var(--panel-2);border:1px solid var(--rule);border-radius:6px;padding:.75rem .85rem}
-  .step .n{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;
-    color:var(--ink-faint)}
-  .step .r{font-family:var(--mono);font-size:.95rem;font-weight:600;margin:.35rem 0}
-  .step .d{font-size:.73rem;color:var(--ink-faint);line-height:1.45}
+  /* Orders */
+  .order-list{display:flex;flex-direction:column}
+  .order-row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer}
+  .order-row:last-child{border-bottom:none}
+  .order-row:hover{background:var(--surface-2)}
+  .order-row .meta{font-size:12.5px;color:var(--muted)}
+  .progress{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;grid-column:1/-1;margin-top:6px}
+  .progress i{height:4px;border-radius:2px;background:var(--border)}
+  .progress i.done{background:#6cbcef}
+  .progress.cancelled i{background:var(--bad-soft)}
+  .quote{background:var(--yellow-soft);border:1px solid var(--yellow-border);border-radius:6px;padding:10px 12px;font-size:13px;color:var(--muted)}
+  .quote b{color:var(--text);font-weight:600}
 
-  .note{font-size:.78rem;color:var(--ink-faint);margin:.7rem 0 0;line-height:1.6;white-space:pre-line}
-  .err{color:var(--bad);font-size:.78rem;margin-top:.5rem;font-family:var(--mono)}
-  .lead{font-size:.86rem;color:var(--ink-soft);line-height:1.65;margin:0 0 1rem;max-width:78ch}
-  code{font-family:var(--mono);background:var(--panel-2);padding:.12rem .35rem;
-    border-radius:3px;font-size:.85em;color:var(--accent)}
-  h3{font-size:.9rem;margin:1.2rem 0 .5rem;color:var(--ink)}
-  .guide p{font-size:.82rem;color:var(--ink-soft);line-height:1.7;max-width:80ch}
-  .guide ul{font-size:.82rem;color:var(--ink-soft);line-height:1.75;max-width:80ch;
-    padding-left:1.1rem}
+  /* Drawer */
+  .scrim{position:fixed;inset:0;background:rgba(16,24,40,.25);z-index:40}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--surface);z-index:41;
+    border-left:1px solid var(--border);display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(16,24,40,.08)}
+  .drawer-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .drawer-body{padding:20px;overflow:auto;flex:1}
+  .drawer-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .close{border:none;background:none;font-size:22px;line-height:1;color:var(--faint);padding:2px 6px;border-radius:4px}
+  .close:hover{background:var(--info-soft);color:var(--text)}
+  .section{margin-top:22px}
+  .section h3{margin-bottom:10px}
+  dl.facts{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;margin:0}
+  dl.facts dt{color:var(--muted)} dl.facts dd{margin:0}
+
+  .stepper{display:grid;grid-template-columns:repeat(4,1fr);margin:6px 0 0}
+  .step{position:relative;text-align:center;font-size:12.5px;color:var(--faint)}
+  .step .dot{width:22px;height:22px;border-radius:50%;margin:0 auto 6px;border:2px solid var(--border-strong);background:var(--surface);
+    display:grid;place-items:center;font-size:11px;font-weight:600;position:relative;z-index:1}
+  .step::before{content:"";position:absolute;top:10px;left:-50%;right:50%;height:2px;background:var(--border)}
+  .step:first-child::before{display:none}
+  .step.done{color:var(--text)} .step.done .dot{background:var(--primary-fill);border-color:#6cbcef;color:var(--primary-ink)}
+  .step.done::before{background:#6cbcef}
+  .step.current .dot{border-color:#e2b93b;background:var(--yellow);color:var(--yellow-ink)}
+  .step time{display:block;font-size:11.5px;color:var(--faint);margin-top:1px}
+
+  .route{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px}
+  .route span{padding:3px 8px;border:1px solid #cfe6f6;border-radius:5px;background:var(--primary-soft)}
+  .route i{color:var(--faint);font-style:normal}
+  .history{list-style:none;margin:0;padding:0}
+  .history li{padding:8px 0 8px 16px;border-left:2px solid var(--border);position:relative;font-size:13px}
+  .history li::before{content:"";position:absolute;left:-5px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--border-strong)}
+  .history li:first-child::before{background:#e2b93b}
+  .history time{display:block;font-size:12px;color:var(--faint)}
+  .issue-box{border:1px solid #f1c4bf;background:var(--bad-soft);border-radius:6px;padding:12px 14px;margin-bottom:18px}
+  .issue-box h3{color:var(--bad);margin-bottom:4px}
+  .issue-box p{font-size:13px;color:var(--text);line-height:1.55}
+  .issue-box .meta{font-size:12px;color:var(--muted);margin-top:8px}
+  .fixed-list{list-style:none;margin:0;padding:0}
+  .fixed-list li{border:1px solid #bfe3cf;background:var(--ok-soft);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:8px}
+  .fixed-list li b{display:block}
+  .history li.issue::before{background:var(--bad)!important}
+  .history li.resolved::before{background:var(--ok)!important}
+  .history li.issue{color:var(--bad)}
+  .stat.alert .v{color:var(--bad)}
+  .alert-line{grid-column:1/-1;font-size:12.5px;color:var(--bad);margin-top:2px}
+  .verify{border:1px solid var(--border);border-radius:6px;padding:12px;font-size:13px}
+  .verify.ok{background:var(--ok-soft);border-color:#bfe3cf}
+  .verify.bad{background:var(--bad-soft);border-color:#f1c4bf}
+
+  /* Map */
+  .map{position:relative;height:340px;background:
+      linear-gradient(var(--surface-2),var(--surface-2));border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .map .node{position:absolute;transform:translate(-50%,-50%);border:none;background:none;padding:4px;display:flex;
+    flex-direction:column;align-items:center;gap:3px}
+  .map .pin{border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(16,24,40,.2)}
+  .map .lbl{font-size:11px;color:var(--muted);white-space:nowrap;background:rgba(255,255,255,.85);padding:0 3px;border-radius:3px}
+  .map .node.on .pin{box-shadow:0 0 0 4px #f2c94c}
+  .legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+  .bar{height:6px;background:var(--info-soft);border-radius:3px;overflow:hidden}
+  .bar i{display:block;height:100%;background:#6cbcef}
+
+  /* Agents page */
+  .runorder{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .runorder button{display:inline-flex;align-items:center;gap:8px;border:1px solid #cfe6f6;background:var(--primary-soft);
+    border-radius:999px;height:34px;padding:0 14px 0 6px;font-weight:500;color:var(--primary-ink)}
+  .runorder button:hover{background:var(--yellow-soft);border-color:var(--yellow-border)}
+  .runorder .n{width:24px;height:24px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;border:1px solid #cfe6f6}
+  .runorder i{color:var(--faint);font-style:normal}
+  .agent-card{scroll-margin-top:72px}
+  .agent-card .card-head .num{width:30px;height:30px;border-radius:50%;background:var(--yellow);color:var(--yellow-ink);
+    display:grid;place-items:center;font-weight:700;flex:none}
+  .agent-card .card-head h2{display:flex;align-items:center;gap:10px}
+  .agent-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
+  @media (max-width:900px){.agent-grid{grid-template-columns:1fr}}
+  .kv{font-size:13px;margin-bottom:12px}
+  .kv .k{font-size:12px;color:var(--faint);margin-bottom:3px}
+  .topics{display:flex;flex-wrap:wrap;gap:6px}
+  .topic{font-family:var(--mono);font-size:12px;padding:2px 8px;border-radius:4px;background:var(--primary-soft);color:var(--primary-ink);border:1px solid #cfe6f6}
+  .topic.out{background:var(--yellow-soft);border-color:var(--yellow-border);color:var(--yellow-ink)}
+  .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+  .mini-stats div{background:var(--surface-2);border:1px solid #d6e8f5;border-radius:6px;padding:8px 10px}
+  .mini-stats b{display:block;font-size:17px;color:var(--primary-ink);font-variant-numeric:tabular-nums}
+  .mini-stats span{font-size:12px;color:var(--muted)}
+  .decision{border-left:3px solid #f2c94c;background:var(--yellow-soft);padding:8px 10px;border-radius:0 6px 6px 0;font-size:13px;margin-bottom:8px}
+  .decision .meta{font-size:12px;color:var(--muted);margin-bottom:2px}
+  .ledger-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media (max-width:760px){.ledger-steps{grid-template-columns:1fr}}
+  .lstep{border:1px solid #d6e8f5;border-radius:6px;padding:12px;background:var(--surface-2)}
+  .lstep .k{font-size:12px;color:var(--faint)}
+  .lstep .r{font-weight:600;margin:4px 0}
+  .lstep .d{font-size:12.5px;color:var(--muted)}
+
+  .rlist{display:flex;flex-direction:column}
+  .rlist button{text-align:left;border:none;border-bottom:1px solid var(--border);background:none;padding:12px 14px;color:var(--text)}
+  .rlist button:last-child{border-bottom:none}
+  .rlist button:hover{background:var(--surface-2)}
+  .rlist button.on{background:var(--yellow-soft);box-shadow:inset 3px 0 0 #f2c94c}
+  .rlist button small{display:block;color:var(--faint);font-size:12px;margin-top:2px;line-height:1.4}
+  .footnote{font-size:12.5px;color:var(--muted);white-space:pre-line;margin-top:14px;line-height:1.6}
+  .prose p{color:var(--muted);margin-bottom:10px;line-height:1.65}
+  .prose p:last-child{margin-bottom:0}
+  .prose ul{color:var(--muted);padding-left:18px;margin:0;line-height:1.8}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--info-soft);padding:1px 5px;border-radius:4px}
+  details summary{cursor:pointer;color:var(--primary);font-size:13px}
+
+  @media (max-width:640px){
+    .topbar .inner{padding:0 16px;gap:12px}
+    .user .who{display:none}
+    main{padding:18px 16px 48px}
+    .brand small{display:none}
+    .card-head{flex-wrap:wrap}
+    .toolbar input,.toolbar select{min-width:0;flex:1}
+  }
+  .toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:60}
+  .toast{background:#0e3a5c;color:#fff;padding:10px 14px;border-radius:6px;font-size:13px;box-shadow:0 6px 20px rgba(16,24,40,.2);max-width:360px}
+  .toast.bad{background:var(--bad)}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="bar">
-    <div class="brand">Pharma<span>DT</span> · Control Room</div>
-    <div class="status">
-      <span>state <b id="s-status">idle</b></span>
-      <span>day <b id="s-day">—</b></span>
-      <span>events <b id="s-events">0</b></span>
-      <span>ledger <b id="s-ledger">—</b></span>
+<!-- ═══ Sign in ══════════════════════════════════════════════════════ -->
+<div id="view-login" class="login-wrap">
+  <div class="login">
+    <div class="brandline">
+      <h1>Pharma<span style="color:var(--primary)">DT</span></h1>
+      <p>Pharmaceutical supply chain network</p>
     </div>
-    <div class="spacer"></div>
-    <div class="signin">
-      <input id="user" value="operator" title="username" aria-label="username">
-      <input id="pass" type="password" value="pharmadt" title="password" aria-label="password">
-      <button id="btn-login" class="ghost">Sign in</button>
+    <form class="card" id="login-form" autocomplete="on">
+      <div class="field">
+        <div class="segmented full" role="tablist" aria-label="Portal">
+          <button type="button" data-portal="customer" class="on">Customer</button>
+          <button type="button" data-portal="admin">Admin</button>
+        </div>
+      </div>
+      <p class="muted small" id="portal-blurb" style="margin-bottom:16px">Place orders and track deliveries.</p>
+      <div class="field">
+        <label for="login-user">Username</label>
+        <input id="login-user" name="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="login-pass">Password</label>
+        <input id="login-pass" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn primary block" type="submit" id="login-btn">Sign in</button>
+      <p class="error-text" id="login-err"></p>
+      <div class="demo" id="demo-hint"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ App shell (shared by both portals) ═════════════════════════════ -->
+<div id="view-app" hidden>
+  <header class="topbar">
+    <div class="inner">
+      <div class="brand">Pharma<span>DT</span><small id="portal-name"></small></div>
+      <nav class="tabs" id="tabs"></nav>
+      <div class="grow"></div>
+      <div class="user">
+        <div class="who"><b id="who-name"></b><span id="who-role"></span></div>
+        <button class="btn sm" id="logout">Sign out</button>
+      </div>
     </div>
+  </header>
+
+  <main>
+
+  <!-- ─── CUSTOMER: orders ─────────────────────────────────────────── -->
+  <section class="page" data-portal="customer" data-page="orders">
+    <div class="page-head">
+      <div><h1>Orders</h1><p>Place a new order or follow one you have already placed.</p></div>
+      <form class="toolbar" id="track-form">
+        <input id="track-id" placeholder="Order number, e.g. ORD-00001" aria-label="Order number">
+        <button class="btn" type="submit">Track</button>
+      </form>
+    </div>
+
+    <div class="grid g-side">
+      <form class="card" id="order-form">
+        <div class="card-head"><div><h2>New order</h2></div></div>
+        <div class="card-body">
+          <div class="field">
+            <label for="o-drug">Medicine</label>
+            <select id="o-drug" required></select>
+            <div class="help" id="o-drug-tags"></div>
+          </div>
+          <div class="field">
+            <label for="o-qty">Quantity (units)</label>
+            <input id="o-qty" type="number" min="1" value="100" required>
+            <div class="help" id="o-qty-help"></div>
+          </div>
+          <div class="field">
+            <label for="o-dest">Deliver to</label>
+            <select id="o-dest" required></select>
+          </div>
+          <div class="field">
+            <label>Priority</label>
+            <div class="segmented full" id="o-priority">
+              <button type="button" data-v="standard" class="on">Standard</button>
+              <button type="button" data-v="urgent">Urgent</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="o-notes">Notes <span class="faint">(optional)</span></label>
+            <textarea id="o-notes" maxlength="500" placeholder="Prescription reference, delivery instructions…"></textarea>
+          </div>
+          <div class="quote" id="o-quote">Choose a delivery point to see the expected date.</div>
+          <button class="btn primary block" type="submit" id="o-submit" style="margin-top:14px">Place order</button>
+          <p class="error-text" id="o-err"></p>
+        </div>
+      </form>
+
+      <div class="card">
+        <div class="card-head">
+          <div><h2>My orders</h2><p>Updates appear here as the network processes them.</p></div>
+          <div class="chips" id="my-filter">
+            <button class="chip on" data-f="all">All</button>
+            <button class="chip" data-f="active">Active</button>
+            <button class="chip" data-f="delivered">Delivered</button>
+            <button class="chip" data-f="cancelled">Cancelled</button>
+          </div>
+        </div>
+        <div class="order-list" id="my-orders"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: overview ──────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="overview">
+    <div class="page-head">
+      <div><h1>Overview</h1><p>System readiness, open orders, and the headline measured results.</p></div>
+    </div>
+    <div class="grid">
+      <div class="stats" id="ov-orders"></div>
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-head">
+            <div><h2>Machine readiness</h2><p>The checks <code>make doctor</code> runs.</p></div>
+            <span class="pill" id="doctor-pill">Checking</span>
+          </div>
+          <div class="table-wrap scroll" style="max-height:340px">
+            <table id="doctor-table"><thead><tr><th>Check</th><th>Result</th><th>Detail</th></tr></thead>
+              <tbody><tr><td colspan="3" class="empty">Checking…</td></tr></tbody></table>
+          </div>
+          <div class="card-body" style="border-top:1px solid var(--border);padding:10px 16px">
+            <button class="btn sm" id="btn-doctor">Re-check</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2>Headline results</h2><p>Measured values from <code>experiments/</code>.</p></div>
+            <button class="btn sm" data-goto="results">All results</button></div>
+          <div class="card-body"><div class="stats inset" id="headline-kpis"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: orders ────────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="orders">
+    <div class="page-head">
+      <div><h1>Customer orders</h1><p>Confirm, dispatch and deliver orders placed through the customer portal.</p></div>
+      <div class="toolbar" id="demo-bar">
+        <span class="small muted">Demo data</span>
+        <button class="btn sm" data-demo="smooth">Load smooth fortnight</button>
+        <button class="btn sm" data-demo="mixed">Load mixed fortnight</button>
+        <button class="btn sm" data-demo="disrupted">Load disrupted fortnight</button>
+        <button class="btn sm" data-demo="clear">Clear</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="chips" id="adm-filter"></div>
+        <input id="adm-search" type="search" placeholder="Search order, customer or medicine" style="max-width:280px;height:32px">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order</th><th>Customer</th><th>Medicine</th><th class="right">Qty</th>
+            <th>Deliver to</th><th>Status</th><th>Expected</th><th class="right">Action</th></tr></thead>
+          <tbody id="adm-orders"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: simulation ────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="simulation">
+    <div class="page-head">
+      <div><h1>Simulation</h1><p>Run the twelve-node network, optionally under a disruption, and watch the agents respond.</p></div>
+    </div>
+    <div class="grid g-side">
+      <div class="grid">
+        <div class="card">
+          <div class="card-head"><div><h2>What-if scenarios</h2><p>A 365-day run takes about twelve seconds.</p></div></div>
+          <div class="card-body">
+            <div class="field">
+              <label for="scenario">Scenario</label>
+              <select id="scenario"><option value="">Normal operation</option></select>
+              <div class="help" id="scenario-desc">No disruption; the baseline world with all agents active.</div>
+            </div>
+            <div class="field">
+              <label for="days">Days to simulate</label>
+              <input id="days" type="number" min="1" max="3650" value="365">
+            </div>
+            <button class="btn primary block" id="btn-run">Start run</button>
+            <p class="error-text" id="run-err"></p>
+            <div style="margin-top:12px">
+              <div class="small muted" style="display:flex;justify-content:space-between;margin-bottom:5px">
+                <span id="run-status">Idle</span><span class="num" id="run-day"></span></div>
+              <div class="bar"><i id="run-bar" style="width:0"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2>Key indicators</h2><p>For the run currently loaded.</p></div></div>
+          <div class="card-body">
+            <div class="stats inset">
+              <div class="stat"><div class="v" id="k-service">—</div><div class="l">Service level</div></div>
+              <div class="stat"><div class="v" id="k-stockout">—</div><div class="l">Stockout rate</div></div>
+              <div class="stat"><div class="v" id="k-waste">—</div><div class="l">Units wasted</div></div>
+              <div class="stat"><div class="v" id="k-excursion">—</div><div class="l">Cold-chain excursions</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-head"><div><h2>Network status</h2><p>Positioned by real coordinates. Select a node for details.</p></div></div>
+          <div class="card-body">
+            <div class="map" id="map"><div class="empty">Start a run to see stock levels.</div></div>
+            <div class="legend">
+              <span><i style="background:var(--ok)"></i>Healthy</span>
+              <span><i style="background:#d08a1a"></i>Low stock</span>
+              <span><i style="background:var(--bad)"></i>Critical</span>
+              <span><i style="background:#9aa1ad"></i>Offline</span>
+            </div>
+            <div id="node-detail" class="quote" style="margin-top:12px" hidden></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div><h2>Agent decision log</h2><p>Every decision with its recorded reason.</p></div>
+            <div class="toolbar">
+              <select id="log-agent" aria-label="Filter by agent"><option value="">All agents</option></select>
+              <input id="log-search" type="search" placeholder="Search reasons">
+            </div>
+          </div>
+          <div class="table-wrap scroll">
+            <table><thead><tr><th>Day</th><th>Agent</th><th>Action</th><th>Reason</th></tr></thead>
+              <tbody id="log-body"><tr><td colspan="4" class="empty">Run a simulation to populate the log.</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: agents ────────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="agents">
+    <div class="page-head">
+      <div><h1>Agents</h1><p>Five autonomous agents run every simulated day. Each observes the network, decides, acts, and records why.</p></div>
+      <button class="btn sm" id="agents-refresh">Refresh</button>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-head"><div><h2>Daily run order</h2><p>Each agent consumes what the one before it publishes. Select one to jump to it.</p></div>
+          <span class="pill" id="agents-run-pill">No run loaded</span></div>
+        <div class="card-body"><div class="runorder" id="runorder"></div></div>
+      </div>
+      <div id="agent-cards" class="grid"></div>
+      <div class="card">
+        <div class="card-head"><div><h2>Messages between agents</h2><p>The typed topics on the message bus: who publishes each, and who listens.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Topic</th><th>Published by</th><th>Received by</th><th>Carries</th></tr></thead>
+          <tbody id="topic-table"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: ledger ────────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="ledger">
+    <div class="page-head">
+      <div><h1>Provenance ledger</h1><p>Every custody handoff is hash-chained and signed; verification recomputes all of it.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <div class="card-head"><div><h2>Chain integrity</h2><p>Recomputes every hash and ECDSA signature.</p></div>
+          <span class="pill" id="chain-pill">Not checked</span></div>
+        <div class="card-body">
+          <p class="muted" id="chain-detail">Verify to walk the chain.</p>
+          <button class="btn" id="btn-verify" style="margin-top:12px">Verify chain</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h2>Tamper demonstration</h2><p>Edits one mid-chain record, verifies, then restores it.</p></div></div>
+        <div class="card-body">
+          <div class="ledger-steps">
+            <div class="lstep"><div class="k">1. Before</div><div class="r" id="t1r">—</div><div class="d" id="t1d">Chain as it stands.</div></div>
+            <div class="lstep"><div class="k">2. After edit</div><div class="r" id="t2r">—</div><div class="d" id="t2d">Should break at the edited record.</div></div>
+            <div class="lstep"><div class="k">3. Restored</div><div class="r" id="t3r">—</div><div class="d" id="t3d">Put back exactly as found.</div></div>
+          </div>
+          <button class="btn danger" id="btn-tamper" style="margin-top:12px">Run demonstration</button>
+          <p class="error-text" id="tamper-err"></p>
+        </div>
+      </div>
+      <div class="card span-all">
+        <div class="card-head">
+          <div><h2>Batch provenance</h2><p>Custody trail for one batch: who held it, when, and who signed.</p></div>
+          <form class="toolbar" id="trace-form">
+            <input id="batch" list="batch-ids" value="BATCH-0001" aria-label="Batch id">
+            <datalist id="batch-ids"></datalist>
+            <button class="btn" type="submit">Trace</button>
+          </form>
+        </div>
+        <div class="table-wrap scroll">
+          <table><thead><tr><th>Seq</th><th>Day</th><th>Event</th><th>From</th><th>To</th><th>Signed by</th></tr></thead>
+            <tbody id="trace-body"><tr><td colspan="6" class="empty">Enter a batch id and trace it.</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: results ───────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="results">
+    <div class="page-head">
+      <div><h1>Results</h1><p>Every experiment and the command that reproduces it. Read from <code>experiments/</code>, never recomputed.</p></div>
+    </div>
+    <div class="grid g-results">
+      <div class="card rlist" id="rlist"></div>
+      <div class="card">
+        <div class="card-head"><div><h2 id="r-title">—</h2><p id="r-question"></p></div></div>
+        <div class="card-body">
+          <div class="stats inset" id="r-headline"></div>
+          <div class="table-wrap" style="margin-top:16px;border:1px solid var(--border);border-radius:6px">
+            <table id="r-table"><thead></thead><tbody></tbody></table>
+          </div>
+          <p class="footnote" id="r-footnote"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMIN: guide ─────────────────────────────────────────────── -->
+  <section class="page" data-portal="admin" data-page="guide">
+    <div class="page-head">
+      <div><h1>Reading the numbers</h1><p>What each metric means, and which comparisons are fair to quote.</p></div>
+    </div>
+    <div class="grid g2">
+      <div class="card"><div class="card-head"><h2>Service level and stockout</h2></div><div class="card-body prose">
+        <p>Stockout rate is the share of demand that could not be met from stock on hand; service level is its complement.</p>
+        <p>They are read alongside average inventory, because stockouts can always be driven to zero by holding unlimited stock.</p>
+      </div></div>
+      <div class="card"><div class="card-head"><h2>Wastage and its control</h2></div><div class="card-body prose">
+        <p>Wastage reduction is measured against the agent stack <b>without</b> the Expiry Agent, not against the no-agent baseline.</p>
+        <p>The no-agent baseline wastes little only because it holds less stock and runs out more often, so comparing against it would measure service level, not redistribution.</p>
+      </div></div>
+      <div class="card"><div class="card-head"><h2>Forecast error</h2></div><div class="card-body prose">
+        <p>MAPE is undefined at zero demand, so sMAPE and MASE carry the conclusions. MASE is scaled so seasonal-naive scores exactly 1.00.</p>
+        <p>On the shared protocol a moving average and the ensemble edge out the LSTM; the defensible claim is that the LSTM beats the seasonal baseline.</p>
+      </div></div>
+      <div class="card"><div class="card-head"><h2>Detection</h2></div><div class="card-body prose">
+        <p>Anomalies are about 5% of shipments, so a detector that flags nothing scores 95% accuracy. Precision, recall and F1 are the useful columns.</p>
+        <p>Counterfeits change nothing observable in a shipment; only the ledger's fingerprint check catches them.</p>
+      </div></div>
+      <div class="card span-all"><div class="card-head"><h2>Commands behind each view</h2></div><div class="card-body prose">
+        <ul>
+          <li><code>make doctor</code>: readiness checks on the Overview page</li>
+          <li><code>make tamper-demo</code> and <code>make verify-chain</code>: the Ledger page, in a terminal</li>
+          <li><code>make gate</code>, <code>make evaluate</code>, <code>make crisis</code>, <code>make federated</code>: the Results page</li>
+          <li><code>make demo-reset</code>: rebuild a clean world before a live demo</li>
+        </ul>
+      </div></div>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<!-- ═══ Order detail drawer (both portals) ═══════════════════════════ -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="d-title">
+  <div class="drawer-head">
+    <div><h2 id="d-title">Order</h2><div class="small muted" id="d-sub"></div></div>
+    <button class="close" id="d-close" aria-label="Close">×</button>
   </div>
-  <nav>
-    <button data-tab="overview" class="on">Overview</button>
-    <button data-tab="live">Live run</button>
-    <button data-tab="integrity">Integrity</button>
-    <button data-tab="results">Results</button>
-    <button data-tab="guide">Reading the numbers</button>
-  </nav>
-</header>
+  <div class="drawer-body" id="d-body"></div>
+  <div class="drawer-foot" id="d-foot"></div>
+</aside>
 
-<main>
-
-<!-- ═══ OVERVIEW ═══════════════════════════════════════════════════ -->
-<section class="tab on" id="tab-overview">
-  <p class="lead">
-    A digital twin of a twelve-node pharmaceutical supply chain, five autonomous agents that
-    run it, and a cryptographic ledger that makes every custody handoff tamper-evident.
-    This page is the whole system: check the machine is ready below, drive a simulation
-    under <b>Live run</b>, prove the ledger under <b>Integrity</b>, and read every measured
-    result under <b>Results</b>.
-  </p>
-
-  <div class="grid">
-    <section class="panel span2">
-      <h2>Machine readiness</h2>
-      <p class="hint">The same checks <code>make doctor</code> runs. Anything failing here
-        explains a dashboard that loads but shows no data — the commonest demo failure is a
-        stopped container, not a bug.</p>
-      <div id="doctor-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
-      <div class="scroll" style="margin-top:.8rem;max-height:300px">
-        <table id="doctor-table"><thead><tr>
-          <th>check</th><th>result</th><th>detail</th><th>fix</th>
-        </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
-          Checking…</td></tr></tbody></table>
-      </div>
-      <div class="row" style="margin:.8rem 0 0"><button id="btn-doctor">Re-check</button></div>
-    </section>
-
-    <section class="panel">
-      <h2>Headline results</h2>
-      <p class="hint">Measured, not targeted. Every figure here is reproducible from the
-        command shown beside it under Results.</p>
-      <div class="kpis" id="headline-kpis">
-        <div class="kpi"><div class="v">—</div><div class="l">loading</div></div>
-      </div>
-    </section>
-  </div>
-</section>
-
-<!-- ═══ LIVE RUN ═══════════════════════════════════════════════════ -->
-<section class="tab" id="tab-live">
-  <p class="lead">
-    Start a run and watch the network respond. Choose <b>undisrupted</b> for the normal
-    world, or pick a disruption to see the agents absorb a shock and recover.
-    Signing in is required to start a run — reading is open to anyone.
-  </p>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>What-if scenarios</h2>
-      <p class="hint">Run the network normally, or under a disruption, and compare the two.
-        A 365-day run takes roughly twelve seconds.</p>
-      <div class="row">
-        <div style="flex:2"><label for="scenario">Disruption</label>
-          <select id="scenario" style="width:100%"></select></div>
-        <div><label for="days">Days</label>
-          <input id="days" type="number" value="365" style="width:100%"></div>
-      </div>
-      <div class="row" style="margin-bottom:0">
-        <button id="btn-normal" disabled>Run undisrupted</button>
-        <button id="btn-crisis" class="ghost" disabled>Run with disruption</button>
-      </div>
-      <p class="err" id="crisis-err"></p>
-      <p class="note" id="scenario-desc"></p>
-    </section>
-
-    <section class="panel">
-      <h2>Key indicators</h2>
-      <p class="hint">From the run currently loaded. These populate when it finishes.</p>
-      <div class="kpis">
-        <div class="kpi"><div class="v" id="k-service">—</div><div class="l">service level</div></div>
-        <div class="kpi"><div class="v" id="k-stockout">—</div><div class="l">stockout rate</div></div>
-        <div class="kpi"><div class="v" id="k-waste">—</div><div class="l">wastage units</div></div>
-        <div class="kpi"><div class="v" id="k-excursion">—</div><div class="l">cold-chain excursions</div></div>
-      </div>
-    </section>
-
-    <section class="panel span2">
-      <h2>Network status</h2>
-      <p class="hint">Twelve nodes across Karnataka, positioned by real coordinates and
-        coloured by stock health. Hover a node for its stock level.</p>
-      <div class="map" id="map"></div>
-      <div class="legend">
-        <span><i style="background:var(--ok)"></i>healthy</span>
-        <span><i style="background:var(--warn)"></i>low stock</span>
-        <span><i style="background:var(--bad)"></i>critical</span>
-        <span><i style="background:var(--ink-faint)"></i>offline (disrupted)</span>
-      </div>
-    </section>
-
-    <section class="panel span2">
-      <h2>Agent decision log</h2>
-      <p class="hint">Every decision with the reasoning behind it. This is the audit trail
-        NFR-08 requires: no agent acts without recording why.</p>
-      <div class="scroll" style="max-height:360px"><table id="log-table"><thead><tr>
-        <th>day</th><th>agent</th><th>action</th><th>justification</th>
-      </tr></thead><tbody><tr><td colspan="4" style="color:var(--ink-faint)">
-        Run a simulation to populate the log.</td></tr></tbody></table></div>
-    </section>
-  </div>
-</section>
-
-<!-- ═══ INTEGRITY ══════════════════════════════════════════════════ -->
-<section class="tab" id="tab-integrity">
-  <p class="lead">
-    Every custody handoff is hash-chained and signed. Verification recomputes the whole
-    chain from scratch, so a single altered byte anywhere in it is caught and located.
-  </p>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>Chain integrity</h2>
-      <p class="hint">Recomputes every hash and every ECDSA signature in the ledger.</p>
-      <div id="chain-badge" class="badge idle"><span class="dot"></span> not yet checked</div>
-      <p class="note" id="chain-detail">Press verify to walk the chain.</p>
-      <div class="row" style="margin:.8rem 0 0"><button id="btn-verify">Verify chain</button></div>
-    </section>
-
-    <section class="panel span2">
-      <h2>Tamper demonstration</h2>
-      <p class="hint">Edits one record in the middle of the chain, verifies, then restores it.
-        Mid-chain rather than at the tip on purpose: editing the newest record would prove
-        only that the last hash was recomputed.</p>
-      <div class="steps">
-        <div class="step"><div class="n">1 · before</div>
-          <div class="r" id="t1r">—</div><div class="d" id="t1d">Chain as it stands.</div></div>
-        <div class="step"><div class="n">2 · after the edit</div>
-          <div class="r" id="t2r">—</div><div class="d" id="t2d">Should break, and name the record.</div></div>
-        <div class="step"><div class="n">3 · after restore</div>
-          <div class="r" id="t3r">—</div><div class="d" id="t3d">Put back exactly as found.</div></div>
-      </div>
-      <div class="row" style="margin:.9rem 0 0">
-        <button id="btn-tamper" class="danger" disabled>Run tamper demonstration</button>
-      </div>
-      <p class="err" id="tamper-err"></p>
-      <p class="note" id="tamper-note">Sign in to run this — it writes to the ledger, though it
-restores exactly what it changed. Read-only verification stays open to everyone.</p>
-    </section>
-
-    <section class="panel span3">
-      <h2>Batch provenance</h2>
-      <p class="hint">The manufacturer-to-patient custody trail for a single batch — who held
-        it, when, and which node signed for it.</p>
-      <div class="row">
-        <div style="max-width:220px"><label for="batch">Batch id</label>
-          <input id="batch" value="BATCH-0001" style="width:100%"></div>
-        <button id="btn-trace">Trace</button>
-      </div>
-      <div class="scroll"><table id="trace-table"><thead><tr>
-        <th>seq</th><th>day</th><th>event</th><th>from</th><th>to</th><th>signer</th>
-      </tr></thead><tbody><tr><td colspan="6" style="color:var(--ink-faint)">
-        No batch traced yet.</td></tr></tbody></table></div>
-    </section>
-  </div>
-</section>
-
-<!-- ═══ RESULTS ════════════════════════════════════════════════════ -->
-<section class="tab" id="tab-results">
-  <p class="lead">
-    Every experiment the project ran, with the command that reproduces it. Nothing here is
-    recomputed on load — these are the artifacts written to <code>experiments/</code> by the
-    runs themselves.
-  </p>
-  <div class="split">
-    <div class="rlist" id="rlist"></div>
-    <section class="panel" id="rpanel">
-      <h2 id="r-title">—</h2>
-      <p class="hint" id="r-question"></p>
-      <div class="kpis" id="r-headline"></div>
-      <div class="scroll" style="margin-top:.9rem;max-height:460px">
-        <table id="r-table"><thead></thead><tbody></tbody></table>
-      </div>
-      <p class="note" id="r-footnote"></p>
-    </section>
-  </div>
-</section>
-
-<!-- ═══ GUIDE ══════════════════════════════════════════════════════ -->
-<section class="tab guide" id="tab-guide">
-  <p class="lead">What each number means, and which ones are honest to quote.</p>
-
-  <div class="grid">
-    <section class="panel">
-      <h2>Service level and stockout</h2>
-      <p>Stockout rate is the fraction of demand that could not be met from stock on hand.
-        Service level is its complement. These are the headline operational metrics, and the
-        agents' clearest win: stockout falls by about 86% against a no-agent baseline,
-        averaged over ten seeds.</p>
-      <p>They are reported together because either alone is easy to game — you can drive
-        stockout to zero by holding unlimited inventory, which is why average inventory sits
-        in the same table.</p>
-    </section>
-
-    <section class="panel">
-      <h2>Wastage, and the control that matters</h2>
-      <p>Wastage is units expired before use. The reduction is measured against a
-        <b>no-redistribution control</b> — the full agent stack with the Expiry Agent removed
-        — not against the no-agent baseline.</p>
-      <p>That distinction is the single most important methodological point in the project.
-        The no-agent baseline wastes very little, but only because it holds less stock and
-        stocks out far more often. Comparing wastage across two policies running at different
-        service levels measures the service level, not the redistribution. Both comparisons
-        are printed; only the controlled one is the claim.</p>
-    </section>
-
-    <section class="panel">
-      <h2>Forecast error: sMAPE, not MAPE</h2>
-      <p>MAPE is undefined when actual demand is zero, which at a pharmacy happens
-        constantly. sMAPE and MASE are reported alongside it for that reason. MASE is scaled
-        so that 1.00 is exactly the seasonal-naive baseline — below 1.00 beats it.</p>
-      <p>Read the shared protocol before the broad sweep. On identical windows, a moving
-        average and the ensemble both edge out the LSTM; the LSTM's larger margin on the
-        broad sweep comes from different windows against a weaker baseline. The defensible
-        claim is that it beats the seasonal baseline comfortably — not that it beats every
-        classical method.</p>
-    </section>
-
-    <section class="panel">
-      <h2>Detection: why accuracy is absent</h2>
-      <p>Anomalies are about 5% of shipments. A detector that flags nothing scores 95%
-        accuracy and catches no counterfeits, so accuracy is the trap here. Precision,
-        recall, F1 and ROC-AUC are the columns that carry information.</p>
-      <p>One injected anomaly type — counterfeit — deliberately changes nothing observable
-        about the shipment. It is undetectable from shipment features alone and is caught by
-        the ledger's fingerprint check instead. That is the argument for pairing ML with
-        cryptographic provenance rather than relying on either alone.</p>
-    </section>
-
-    <section class="panel">
-      <h2>Privacy: the rows that look bad</h2>
-      <p>The differential-privacy regimes at &epsilon;&nbsp;=&nbsp;1 destroy the forecast, and
-        those rows are shown rather than dropped. At this dataset size that is the real
-        privacy/utility trade-off, and the honest finding is that meaningful privacy costs
-        meaningful accuracy here.</p>
-      <p>Noise is calibrated to the clipped update and divided by the client count, because
-        it is applied to the <i>mean</i> rather than the sum — an earlier version added noise
-        N times too large.</p>
-    </section>
-
-    <section class="panel">
-      <h2>Commands behind each view</h2>
-      <ul>
-        <li><code>make doctor</code> — the readiness table on Overview</li>
-        <li><code>make api</code> — this dashboard</li>
-        <li><code>make sim</code> — a run without the API</li>
-        <li><code>make tamper-demo</code> — the Integrity demonstration, in a terminal</li>
-        <li><code>make gate</code> — the six integration conditions</li>
-        <li><code>make evaluate</code> — the experiment matrix, ten seeds</li>
-        <li><code>make crisis</code>, <code>make federated</code>,
-            <code>make anomaly-eval</code>, <code>make routing-benchmark</code></li>
-        <li><code>make demo-reset</code> — rebuild a clean world before a live demo</li>
-      </ul>
-    </section>
-  </div>
-</section>
-
-</main>
+<div class="toasts" id="toasts"></div>
 
 <script>
+"use strict";
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g,
-  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-let token = null;
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString());
+const store = {
+  get(k) { try { return sessionStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { sessionStorage.setItem(k, v); } catch { /* private mode */ } },
+  del(k) { try { sessionStorage.removeItem(k); } catch { /* ignore */ } },
+};
+
+let token = null, me = null, catalog = { drugs: [], nodes: [] };
+const nodeName = (id) => (catalog.nodes.find((n) => n.node_id === id) || {}).name || id;
 
 const api = async (path, opts = {}) => {
   const headers = Object.assign({}, opts.headers || {});
-  if (token) headers["Authorization"] = "Bearer " + token;
+  if (token) headers.Authorization = "Bearer " + token;
+  if (opts.json !== undefined) {
+    headers["Content-Type"] = "application/json";
+    opts = Object.assign({}, opts, { body: JSON.stringify(opts.json) });
+  }
   const res = await fetch(path, Object.assign({}, opts, { headers }));
-  if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || res.statusText);
+  if (res.status === 401 && token) { signOut(); throw new Error("Your session has ended. Please sign in again."); }
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.map((d) => d.msg).join("; ") : body.detail;
+    throw new Error(detail || res.statusText);
+  }
   return res.json();
 };
 
-// ── Tabs ─────────────────────────────────────────────────────────────
-document.querySelectorAll("nav button").forEach((b) => {
-  b.onclick = () => {
-    document.querySelectorAll("nav button").forEach((x) => x.classList.remove("on"));
-    document.querySelectorAll(".tab").forEach((x) => x.classList.remove("on"));
-    b.classList.add("on");
-    $("tab-" + b.dataset.tab).classList.add("on");
-  };
+const toast = (msg, bad = false) => {
+  const el = document.createElement("div");
+  el.className = "toast" + (bad ? " bad" : "");
+  el.textContent = msg;
+  $("toasts").appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+};
+const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—";
+const fmtShort = (iso) => iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : "—";
+const fmtTime = (iso) => iso ? new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+
+const STATUS = {
+  placed: ["Placed", "blue"], confirmed: ["Confirmed", "yellow"], dispatched: ["In transit", "warn"],
+  delivered: ["Delivered", "ok"], cancelled: ["Cancelled", "bad"],
+};
+const statusPill = (s) => `<span class="pill ${STATUS[s] ? STATUS[s][1] : ""}">${esc(STATUS[s] ? STATUS[s][0] : s)}</span>`;
+const STEPS = ["placed", "confirmed", "dispatched", "delivered"];
+const ACTION_LABEL = { confirmed: "Confirm", dispatched: "Dispatch", delivered: "Mark delivered" };
+
+/* ── Sign in / out ───────────────────────────────────────────────── */
+const PORTALS = {
+  customer: { blurb: "Place orders and track deliveries.", demo: "Demo accounts: <b>customer</b> or <b>hospital</b>, password <b>pharmadt</b>" },
+  admin: { blurb: "Run the network, verify the ledger and fulfil orders.", demo: "Demo account: <b>admin</b>, password <b>pharmadt</b>" },
+};
+let portal = "customer";
+const choosePortal = (p) => {
+  portal = p;
+  document.querySelectorAll("[data-portal-btn], #login-form .segmented button").forEach((b) =>
+    b.classList.toggle("on", b.dataset.portal === p));
+  $("portal-blurb").textContent = PORTALS[p].blurb;
+  $("demo-hint").innerHTML = PORTALS[p].demo;
+  $("login-err").textContent = "";
+};
+document.querySelectorAll("#login-form .segmented button").forEach((b) => (b.onclick = () => choosePortal(b.dataset.portal)));
+
+$("login-form").onsubmit = async (e) => {
+  e.preventDefault();
+  $("login-err").textContent = "";
+  $("login-btn").disabled = true;
+  try {
+    const body = new URLSearchParams({ username: $("login-user").value.trim(), password: $("login-pass").value });
+    const data = await api("/auth/token", { method: "POST", body });
+    const isAdmin = data.role !== "customer";
+    if (isAdmin !== (portal === "admin")) {
+      throw new Error(isAdmin ? "This is an admin account. Choose Admin above."
+                              : "This is a customer account. Choose Customer above.");
+    }
+    token = data.access_token;
+    store.set("pdt-token", token);
+    enter({ username: $("login-user").value.trim(), role: data.role, name: data.name, default_node: data.default_node });
+    $("login-pass").value = "";
+  } catch (err) {
+    $("login-err").textContent = err.message;
+  } finally {
+    $("login-btn").disabled = false;
+  }
+};
+
+const timers = [];
+const every = (fn, ms) => timers.push(setInterval(fn, ms));
+let ws = null;
+
+function signOut() {
+  token = null; me = null;
+  store.del("pdt-token");
+  timers.splice(0).forEach(clearInterval);
+  if (ws) { ws.onclose = null; ws.close(); ws = null; }
+  closeDrawer();
+  $("view-app").hidden = true;
+  $("view-login").hidden = false;
+}
+$("logout").onclick = signOut;
+
+/* ── Shell and navigation ────────────────────────────────────────── */
+const NAV = {
+  customer: [["orders", "Orders"]],
+  admin: [["overview", "Overview"], ["orders", "Orders"], ["simulation", "Simulation"],
+          ["agents", "Agents"], ["ledger", "Ledger"], ["results", "Results"], ["guide", "Guide"]],
+};
+let currentPage = null;
+const showPage = (page) => {
+  currentPage = page;
+  document.querySelectorAll(".page").forEach((s) =>
+    (s.hidden = !(s.dataset.portal === (me.role === "customer" ? "customer" : "admin") && s.dataset.page === page)));
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.page === page));
+  if (PAGE_LOAD[page]) PAGE_LOAD[page]();
+};
+document.addEventListener("click", (e) => {
+  const go = e.target.closest("[data-goto]");
+  if (go) {
+    if (go.dataset.filter) admFilter = go.dataset.filter;
+    showPage(go.dataset.goto);
+    if (go.dataset.filter) { renderOrderStats(); renderAdminOrders(); }
+  }
 });
 
-// ── Sign in ──────────────────────────────────────────────────────────
-// One sign-in for the whole page. Every write action enables together, so
-// nobody hunts for a login buried inside the panel they happen to want.
-const setSignedIn = (role) => {
-  ["btn-crisis", "btn-normal", "btn-tamper"].forEach((id) => ($(id).disabled = false));
-  $("btn-login").textContent = "Signed in · " + role;
-  $("btn-login").disabled = true;
-  $("tamper-note").textContent =
-    "This writes to the ledger, then restores exactly what it changed.";
-};
-$("btn-login").onclick = async () => {
-  try {
-    const body = new URLSearchParams({ username: $("user").value, password: $("pass").value });
-    const data = await api("/auth/token", { method: "POST", body });
-    token = data.access_token;
-    setSignedIn(data.role);
-  } catch (e) {
-    $("crisis-err").textContent = e.message;
-    $("tamper-err").textContent = e.message;
-  }
+async function enter(user) {
+  me = user;
+  const side = me.role === "customer" ? "customer" : "admin";
+  $("view-login").hidden = true;
+  $("view-app").hidden = false;
+  $("portal-name").textContent = side === "admin" ? "Admin" : "Customer";
+  $("who-name").textContent = me.name || me.username;
+  $("who-role").textContent = side === "admin" ? `${me.username} · ${me.role}` : me.username;
+  $("tabs").innerHTML = NAV[side].map(([k, l]) => `<button data-page="${k}">${l}</button>`).join("");
+  $("tabs").hidden = NAV[side].length < 2;
+  document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showPage(b.dataset.page)));
+
+  try { catalog = await api("/catalog"); } catch { /* forms show their own error */ }
+  if (side === "customer") { initCustomer(); showPage("orders"); }
+  else { initAdmin(); showPage("overview"); }
+}
+
+/* ── Order detail drawer ─────────────────────────────────────────── */
+let drawerOrder = null;
+function closeDrawer() { $("drawer").hidden = true; $("scrim").hidden = true; drawerOrder = null; }
+$("d-close").onclick = closeDrawer;
+$("scrim").onclick = closeDrawer;
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+const openOrder = async (id) => {
+  try { renderDrawer(await api("/orders/" + encodeURIComponent(id))); }
+  catch (e) { toast(e.message, true); }
 };
 
-// ── Readiness ────────────────────────────────────────────────────────
-const loadDoctor = async () => {
-  const badge = $("doctor-badge");
-  badge.className = "badge idle";
-  badge.innerHTML = '<span class="dot"></span> checking…';
+function renderDrawer(o) {
+  drawerOrder = o;
+  $("d-title").textContent = o.order_id;
+  $("d-sub").innerHTML = `${statusPill(o.status)} <span style="margin-left:6px">Placed ${esc(fmtTime(o.created_at))}</span>`;
+
+  const reached = Object.fromEntries(o.history.map((h) => [h.status, h.at]));
+  const at = STEPS.indexOf(o.status);
+  const stepper = `<div class="stepper">${STEPS.map((s, i) => {
+    const cls = reached[s] ? "done" : (i === at + 1 && o.status !== "cancelled" ? "current" : "");
+    return `<div class="step ${cls}"><div class="dot">${reached[s] ? "✓" : i + 1}</div>${esc(STATUS[s][0])}
+      <time>${reached[s] ? esc(fmtTime(reached[s])) : ""}</time></div>`;
+  }).join("")}</div>`;
+
+  const drug = catalog.drugs.find((d) => d.drug_id === o.drug_id) || {};
+  const tags = [drug.cold_chain ? '<span class="tag cold">Cold chain</span>' : "",
+                drug.controlled ? '<span class="tag ctrl">Controlled</span>' : "",
+                o.priority === "urgent" ? '<span class="tag urgent">Urgent</span>' : ""].join(" ");
+
+  const admin = me.role !== "customer";
+  const issueBox = o.issue ? `<div class="issue-box">
+      <h3>${esc(o.issue.title)}</h3>
+      <p>${esc(admin ? o.issue.detail : o.issue.customer_text)}</p>
+      <div class="meta">Reported ${esc(fmtTime(o.issue.raised_at))}${admin ? ` · Handled by ${esc(o.issue.agent)}` +
+        (o.issue.scenario ? ` · Mirrors the <code>${esc(o.issue.scenario)}</code> simulation scenario` : "") : ""}</div>
+      ${admin ? `<div class="meta" style="color:var(--text)">Recommended fix: <b>${esc(o.issue.fix.label)}</b></div>` : ""}
+    </div>` : "";
+  const dateRow = o.status === "delivered"
+    ? `${esc(fmtDate(reached.delivered))}${o.late_days ? ` <span class="tag urgent">${o.late_days} day${o.late_days > 1 ? "s" : ""} late</span>` : ' <span class="faint">on time</span>'}`
+    : `${esc(fmtDate(o.expected_by))}${o.expected_by !== o.promised_by && o.status !== "cancelled"
+        ? ` <span class="faint">(first promised ${esc(fmtShort(o.promised_by))})</span>` : ""}`;
+  const fixed = (o.resolved_issues || []).length ? `<div class="section"><h3>Problems handled</h3><ul class="fixed-list">
+      ${o.resolved_issues.map((r) => `<li><b>${esc(r.title)}</b>${esc(r.resolution)} · ${esc(fmtTime(r.resolved_at))}</li>`).join("")}
+    </ul></div>` : "";
+
+  $("d-body").innerHTML = `
+    ${issueBox}
+    ${o.status === "cancelled" ? '<div class="verify bad">This order was cancelled.</div>' : stepper}
+    <div class="section"><h3>Details</h3><dl class="facts">
+      ${me.role !== "customer" ? `<dt>Customer</dt><dd>${esc(o.customer_name)} <span class="faint">(${esc(o.customer)})</span></dd>` : ""}
+      <dt>Medicine</dt><dd>${esc(o.drug_name)} ${tags}</dd>
+      <dt>Quantity</dt><dd class="num">${fmt(o.quantity)} units</dd>
+      <dt>Deliver to</dt><dd>${esc(o.deliver_to_name)}</dd>
+      <dt>Supplied from</dt><dd>${esc(o.supplier_name)} <span class="faint">· ${fmt(o.distance_km)} km</span></dd>
+      <dt>${o.status === "delivered" ? "Delivered" : "Expected by"}</dt>
+      <dd>${dateRow}</dd>
+      <dt>Batch</dt><dd>${o.batch_id ? `<span class="id">${esc(o.batch_id)}</span>` : '<span class="faint">Assigned at dispatch</span>'}</dd>
+      ${o.notes ? `<dt>Notes</dt><dd>${esc(o.notes)}</dd>` : ""}
+    </dl></div>
+    <div class="section"><h3>Supply route</h3>
+      <div class="route">${o.route.map((n) => `<span>${esc(nodeName(n))}</span>`).join("<i>→</i>")}</div></div>
+    ${o.batch_id ? `<div class="section"><h3>Authenticity</h3><div id="d-verify">
+      <p class="muted small" style="margin-bottom:8px">Check this batch's custody trail on the provenance ledger.</p>
+      <button class="btn sm" id="d-verify-btn">Verify batch ${esc(o.batch_id)}</button></div></div>` : ""}
+    ${fixed}
+    <div class="section"><h3>Activity</h3><ul class="history">
+      ${o.history.slice().reverse().map((h) => `<li class="${esc(h.status)}">${esc(h.note)}<time>${esc(fmtTime(h.at))}</time></li>`).join("")}
+    </ul></div>`;
+
+  const foot = [];
+  if (admin && o.issue) {
+    foot.push(`<button class="btn primary" data-fix="1">Apply fix: ${esc(o.issue.fix.label)}</button>`);
+  } else if (admin && o.next_status) {
+    foot.push(`<button class="btn primary" data-act="${o.next_status}">${ACTION_LABEL[o.next_status]}</button>`);
+  }
+  if (o.can_cancel) foot.push('<button class="btn danger" data-act="cancelled">Cancel order</button>');
+  $("d-foot").innerHTML = foot.join("") || '<span class="faint small">No actions available.</span>';
+  $("d-foot").querySelectorAll("[data-act]").forEach((b) => (b.onclick = () => changeStatus(o.order_id, b.dataset.act)));
+  $("d-foot").querySelectorAll("[data-fix]").forEach((b) => (b.onclick = () => applyFix(o.order_id, b)));
+  if ($("d-verify-btn")) $("d-verify-btn").onclick = () => verifyBatch(o.batch_id);
+
+  $("drawer").hidden = false; $("scrim").hidden = false;
+}
+
+async function applyFix(id, button) {
+  button.disabled = true;
+  try {
+    const o = await api(`/orders/${encodeURIComponent(id)}/resolve`, { method: "POST" });
+    toast(`${id}: fix applied`);
+    renderDrawer(o);
+    refreshOrders();
+  } catch (e) { toast(e.message, true); button.disabled = false; }
+}
+
+async function changeStatus(id, status) {
+  if (status === "cancelled" && !confirmCancel(id)) return;
+  try {
+    const o = await api(`/orders/${encodeURIComponent(id)}/status`, { method: "POST", json: { status } });
+    toast(status === "cancelled" ? `${id} cancelled` : `${id}: ${STATUS[o.status][0].toLowerCase()}`);
+    if (drawerOrder && drawerOrder.order_id === id) renderDrawer(o);
+    refreshOrders();
+  } catch (e) { toast(e.message, true); }
+}
+// An inline second click rather than a browser confirm() dialog.
+const pendingCancel = new Map();
+function confirmCancel(id) {
+  if (pendingCancel.get(id) > Date.now()) { pendingCancel.delete(id); return true; }
+  pendingCancel.set(id, Date.now() + 4000);
+  toast("Press cancel again to confirm.");
+  return false;
+}
+
+async function verifyBatch(batch) {
+  const box = $("d-verify");
+  box.innerHTML = '<p class="muted small">Checking the ledger…</p>';
+  try {
+    const r = await api("/ledger/provenance/" + encodeURIComponent(batch));
+    const first = r.trace[0] || {};
+    box.innerHTML = `<div class="verify ok"><b>Genuine.</b> ${fmt(r.records)} signed custody records,
+      starting at ${esc(nodeName(first.to_node || first.signer_node))}.</div>
+      <details style="margin-top:8px"><summary>Show custody trail</summary>
+      <div class="table-wrap" style="margin-top:8px;max-height:220px;border:1px solid var(--border);border-radius:6px">
+      <table><thead><tr><th>Day</th><th>Event</th><th>Signed by</th></tr></thead><tbody>
+      ${r.trace.slice(0, 50).map((t) => `<tr><td class="num">${t.sim_day}</td><td>${esc(prettyEvent(t.event_type))}</td>
+        <td>${esc(nodeName(t.signer_node))}</td></tr>`).join("")}</tbody></table></div></details>`;
+  } catch (e) {
+    const missing = /no provenance/i.test(e.message);
+    box.innerHTML = `<div class="verify bad">${missing
+      ? `<b>Not genuine.</b> Batch ${esc(batch)} has no custody record on the provenance ledger. It must not be dispensed.`
+      : esc(e.message)}</div>`;
+  }
+}
+const prettyEvent = (t) => String(t || "").toLowerCase().replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+
+/* ── Orders: shared refresh ──────────────────────────────────────── */
+let orders = [];
+async function refreshOrders() {
+  if (!me) return;
+  try { orders = (await api("/orders")).orders; } catch (e) { return; }
+  if (me.role === "customer") renderMyOrders(); else { renderAdminOrders(); renderOrderStats(); }
+  if (drawerOrder) {
+    const fresh = orders.find((o) => o.order_id === drawerOrder.order_id);
+    if (fresh && (fresh.history.length !== drawerOrder.history.length || !!fresh.issue !== !!drawerOrder.issue)) renderDrawer(fresh);
+  }
+}
+
+/* ── CUSTOMER ────────────────────────────────────────────────────── */
+let priority = "standard", myFilter = "all";
+
+function initCustomer() {
+  const drugs = catalog.drugs;
+  $("o-drug").innerHTML = drugs.map((d) => `<option value="${esc(d.drug_id)}">${esc(d.name)}</option>`).join("");
+  $("o-drug").onchange = onDrugChange;
+  $("o-dest").onchange = updateQuote;
+  $("o-qty").oninput = () => ($("o-err").textContent = "");
+  document.querySelectorAll("#o-priority button").forEach((b) => (b.onclick = () => {
+    priority = b.dataset.v;
+    document.querySelectorAll("#o-priority button").forEach((x) => x.classList.toggle("on", x === b));
+    updateQuote();
+  }));
+  document.querySelectorAll("#my-filter .chip").forEach((c) => (c.onclick = () => {
+    myFilter = c.dataset.f;
+    document.querySelectorAll("#my-filter .chip").forEach((x) => x.classList.toggle("on", x === c));
+    renderMyOrders();
+  }));
+  onDrugChange();
+  refreshOrders();
+  every(refreshOrders, 5000);
+}
+
+function onDrugChange() {
+  const drug = catalog.drugs.find((d) => d.drug_id === $("o-drug").value);
+  if (!drug) return;
+  $("o-drug-tags").innerHTML = [
+    drug.cold_chain ? '<span class="tag cold">Cold chain, 2–8 °C</span> Only delivery points with cold storage are available.' : "",
+    drug.controlled ? '<span class="tag ctrl">Controlled</span> Held for a prescription check before confirmation.' : "",
+  ].filter(Boolean).join("<br>") || "No special handling.";
+  $("o-qty").max = drug.max_quantity;
+  $("o-qty-help").textContent = `Up to ${fmt(drug.max_quantity)} units per order.`;
+
+  const previous = $("o-dest").value || me.default_node;
+  const points = catalog.nodes.filter((n) => n.delivery_point);
+  $("o-dest").innerHTML = points.map((n) => {
+    const blocked = drug.cold_chain && !n.cold_storage;
+    return `<option value="${esc(n.node_id)}" ${blocked ? "disabled" : ""}>${esc(n.name)}${blocked ? " (no cold storage)" : ""}</option>`;
+  }).join("");
+  const keep = points.find((n) => n.node_id === previous && !(drug.cold_chain && !n.cold_storage));
+  const fallback = points.find((n) => !(drug.cold_chain && !n.cold_storage));
+  $("o-dest").value = (keep || fallback || {}).node_id || "";
+  updateQuote();
+}
+
+let quoteSeq = 0;
+async function updateQuote() {
+  const dest = $("o-dest").value;
+  if (!dest) { $("o-quote").textContent = "Choose a delivery point to see the expected date."; return; }
+  const seq = ++quoteSeq;
+  try {
+    const q = await api(`/orders/quote?deliver_to=${encodeURIComponent(dest)}&priority=${priority}`);
+    if (seq !== quoteSeq) return;
+    const by = new Date(Date.now() + q.lead_days * 86400000);
+    $("o-quote").innerHTML = `Supplied from <b>${esc(nodeName(q.supplier))}</b>, ${fmt(q.distance_km)} km away.
+      Expected by <b>${esc(by.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" }))}</b>
+      (${q.lead_days} day${q.lead_days === 1 ? "" : "s"}).`;
+  } catch (e) { $("o-quote").textContent = e.message; }
+}
+
+$("order-form").onsubmit = async (e) => {
+  e.preventDefault();
+  $("o-err").textContent = "";
+  $("o-submit").disabled = true;
+  try {
+    const o = await api("/orders", { method: "POST", json: {
+      drug_id: $("o-drug").value, quantity: parseInt($("o-qty").value, 10) || 0,
+      deliver_to: $("o-dest").value, priority, notes: $("o-notes").value,
+    }});
+    toast(`Order ${o.order_id} placed`);
+    $("o-notes").value = "";
+    priority = "standard";
+    document.querySelectorAll("#o-priority button").forEach((x) => x.classList.toggle("on", x.dataset.v === "standard"));
+    updateQuote();
+    await refreshOrders();
+    renderDrawer(o);
+  } catch (err) {
+    $("o-err").textContent = err.message;
+  } finally { $("o-submit").disabled = false; }
+};
+
+$("track-form").onsubmit = (e) => {
+  e.preventDefault();
+  let id = $("track-id").value.trim().toUpperCase();
+  if (/^\d+$/.test(id)) id = "ORD-" + id.padStart(5, "0");
+  if (id) openOrder(id);
+};
+
+function renderMyOrders() {
+  const list = orders.filter((o) => myFilter === "all" ? true
+    : myFilter === "active" ? !["delivered", "cancelled"].includes(o.status) : o.status === myFilter);
+  if (!list.length) {
+    $("my-orders").innerHTML = `<div class="empty">${orders.length ? "No orders in this view." : "You have not placed any orders yet."}</div>`;
+    return;
+  }
+  $("my-orders").innerHTML = list.map((o) => {
+    const at = o.status === "cancelled" ? -1 : STEPS.indexOf(o.status);
+    return `<div class="order-row" data-id="${esc(o.order_id)}" tabindex="0">
+      <div><b>${esc(o.drug_name)}</b> <span class="faint">× ${fmt(o.quantity)}</span></div>
+      <div>${statusPill(o.status)}</div>
+      <div class="meta"><span class="id">${esc(o.order_id)}</span> · ${esc(o.deliver_to_name)}</div>
+      <div class="meta">${o.status === "delivered" ? (o.late_days ? `Delivered ${o.late_days} day${o.late_days > 1 ? "s" : ""} late` : "Delivered on time")
+        : o.status === "cancelled" ? "" : "Expected " + esc(fmtDate(o.expected_by))}</div>
+      ${o.issue ? `<div class="alert-line">${esc(o.issue.title)}: we are handling it.</div>` : ""}
+      <div class="progress ${o.status === "cancelled" ? "cancelled" : ""}">${STEPS.map((_, i) => `<i class="${i <= at ? "done" : ""}"></i>`).join("")}</div>
+    </div>`;
+  }).join("");
+  $("my-orders").querySelectorAll(".order-row").forEach((r) => {
+    r.onclick = () => openOrder(r.dataset.id);
+    r.onkeydown = (e) => { if (e.key === "Enter") openOrder(r.dataset.id); };
+  });
+}
+
+/* ── ADMIN ───────────────────────────────────────────────────────── */
+let admFilter = "open";
+const PAGE_LOAD = {};
+
+function initAdmin() {
+  $("adm-search").oninput = renderAdminOrders;
+  refreshOrders();
+  every(refreshOrders, 5000);
+  loadDoctor(); loadResults(); loadScenarios(); verifyChain(); refreshSim();
+  every(refreshSim, 1500);
+  $("batch-ids").innerHTML = Array.from({ length: 20 }, (_, i) => `<option value="BATCH-${String(i + 1).padStart(4, "0")}">`).join("");
+  connectEvents();
+}
+PAGE_LOAD.simulation = () => drawMap();
+
+function renderOrderStats() {
+  const c = { open: 0, urgent: 0, delivered: 0, issues: 0, late: 0, total: orders.length };
+  orders.forEach((o) => {
+    if (o.issue) c.issues++;
+    if (o.status === "delivered" && o.late_days) c.late++;
+    if (!["delivered", "cancelled"].includes(o.status)) { c.open++; if (o.priority === "urgent") c.urgent++; }
+    if (o.status === "delivered") c.delivered++;
+  });
+  $("ov-orders").innerHTML = [
+    ["Open orders", c.open, "Awaiting confirmation, dispatch or delivery"],
+    ["Urgent and open", c.urgent, "Picked the same day"],
+    ["Open issues", c.issues, c.issues ? "Waiting for a fix to be applied" : "Nothing needs attention", c.issues > 0],
+    ["Delivered", c.delivered, c.late ? `${fmt(c.late)} arrived late` : `All on time · ${fmt(c.total)} orders in total`],
+  ].map(([l, v, n, alert]) => `<div class="stat click ${alert ? "alert" : ""}" data-goto="orders" ${l === "Open issues" ? 'data-filter="issues"' : ""}>
+    <div class="v">${fmt(v)}</div><div class="l">${l}</div><div class="n">${n}</div></div>`).join("");
+
+  const filters = [["open", "Open"], ["issues", "Issues"], ["placed", "Placed"], ["confirmed", "Confirmed"], ["dispatched", "In transit"],
+                   ["delivered", "Delivered"], ["cancelled", "Cancelled"], ["all", "All"]];
+  const count = (f) => f === "all" ? orders.length : f === "issues" ? orders.filter((o) => o.issue).length : f === "open"
+    ? orders.filter((o) => !["delivered", "cancelled"].includes(o.status)).length
+    : orders.filter((o) => o.status === f).length;
+  $("adm-filter").innerHTML = filters.map(([k, l]) =>
+    `<button class="chip ${k === admFilter ? "on" : ""}" data-f="${k}">${l}<b>${count(k)}</b></button>`).join("");
+  $("adm-filter").querySelectorAll(".chip").forEach((c) => (c.onclick = () => { admFilter = c.dataset.f; renderOrderStats(); renderAdminOrders(); }));
+}
+
+function renderAdminOrders() {
+  const q = $("adm-search").value.trim().toLowerCase();
+  const list = orders.filter((o) => {
+    const inFilter = admFilter === "all" ? true : admFilter === "issues" ? !!o.issue : admFilter === "open"
+      ? !["delivered", "cancelled"].includes(o.status) : o.status === admFilter;
+    const hay = `${o.order_id} ${o.customer_name} ${o.customer} ${o.drug_name}`.toLowerCase();
+    return inFilter && (!q || hay.includes(q));
+  });
+  if (!list.length) {
+    $("adm-orders").innerHTML = `<tr><td colspan="8" class="empty">${orders.length
+      ? "No orders match." : "No orders yet. They appear here when a customer places one."}</td></tr>`;
+    return;
+  }
+  $("adm-orders").innerHTML = list.map((o) => `<tr class="clickable" data-id="${esc(o.order_id)}">
+    <td><span class="id">${esc(o.order_id)}</span>${o.priority === "urgent" ? ' <span class="tag urgent">Urgent</span>' : ""}
+      <div class="small faint">${esc(fmtTime(o.created_at))}</div></td>
+    <td>${esc(o.customer_name)}</td><td>${esc(o.drug_name)}</td><td class="right num">${fmt(o.quantity)}</td>
+    <td>${esc(o.deliver_to_name)}</td><td>${statusPill(o.status)}${o.issue
+      ? `<div style="margin-top:4px"><span class="tag urgent">${esc(o.issue.title)}</span></div>`
+      : o.late_days ? `<div style="margin-top:4px"><span class="tag ctrl">${o.late_days}d late</span></div>` : ""}</td>
+    <td class="num" style="white-space:nowrap">${o.status === "cancelled" ? "—" : esc(fmtShort(o.expected_by))}</td>
+    <td class="right">${o.issue ? '<button class="btn sm primary" data-review="1">Review issue</button>'
+      : o.next_status ? `<button class="btn sm" data-act="${o.next_status}">${ACTION_LABEL[o.next_status]}</button>` : ""}</td>
+  </tr>`).join("");
+  $("adm-orders").querySelectorAll("tr[data-id]").forEach((tr) => {
+    tr.onclick = (e) => {
+      const act = e.target.closest("[data-act]");
+      if (act) { e.stopPropagation(); changeStatus(tr.dataset.id, act.dataset.act); }
+      else openOrder(tr.dataset.id);
+    };
+  });
+}
+
+/* Demo data: replace the order book with a prepared scenario */
+const DEMO_LABEL = { smooth: "smooth fortnight", mixed: "mixed fortnight", disrupted: "disrupted fortnight", clear: "empty order book" };
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-demo]");
+  if (!b) return;
+  const scenario = b.dataset.demo;
+  // Replacing the book is destructive, so it takes a second click to confirm.
+  if (orders.length && !(pendingCancel.get("demo:" + scenario) > Date.now())) {
+    pendingCancel.set("demo:" + scenario, Date.now() + 4000);
+    toast(`This replaces all ${orders.length} current orders. Click again to load the ${DEMO_LABEL[scenario]}.`);
+    return;
+  }
+  pendingCancel.delete("demo:" + scenario);
+  b.disabled = true;
+  try {
+    const r = await api("/orders/demo?scenario=" + scenario, { method: "POST" });
+    toast(scenario === "clear" ? "Order book cleared"
+      : `Loaded ${r.orders} orders` + (r.with_issues ? `, ${r.with_issues} with open issues` : ""));
+    admFilter = scenario === "smooth" || scenario === "clear" ? "all" : "issues";
+    await refreshOrders();
+  } catch (err) { toast(err.message, true); }
+  finally { b.disabled = false; }
+});
+
+/* Agents */
+const AGENTS = [
+  { name: "DemandAgent", label: "Demand Agent",
+    role: "Forecasts consumer demand at every pharmacy for the next 14 days, and raises alerts when stock will not cover it.",
+    how: "An LSTM forecaster with a moving-average fallback. It forecasts only consumer-facing nodes: forecasting warehouses meant forecasting the agents' own order bursts, which created a bullwhip loop.",
+    listens: [], publishes: ["forecast.data", "shortage.alert", "demand.hotspot"],
+    metric: (m) => m.series_forecast != null ? [fmt(m.series_forecast), "series forecast"] : null,
+    orders: "Demand surge: rations stock and splits the shipment." },
+  { name: "InventoryAgent", label: "Inventory Agent",
+    role: "Decides when each node reorders and how much, replacing the fixed-threshold baseline.",
+    how: "Reorder point = mean demand × risk period + z·σ·√(risk period), where the risk period is the whole chain's lead time plus one review day, and z = 0.84.",
+    listens: ["forecast.data", "shortage.alert"], publishes: ["replenishment.order"],
+    metric: null,
+    orders: "Back-ordered stock: sources it from a nearby pharmacy instead." },
+  { name: "ExpiryAgent", label: "Expiry Agent",
+    role: "Moves stock that is close to expiry to a node that will sell it in time, instead of letting it be thrown away.",
+    how: "Runs a sealed-bid second-price (Vickrey) auction with a 120-day horizon. Buyers subtract stock they already hold, and suspect batches are never auctioned.",
+    listens: ["demand.hotspot", "counterfeit.flag"], publishes: ["redistribution.request"],
+    metric: null,
+    orders: "Holds back quarantined batches so a counterfeit is never redistributed." },
+  { name: "RouteAgent", label: "Route Agent",
+    role: "Plans each day's delivery tours from the distribution centres.",
+    how: "Solves a capacitated vehicle routing problem with Google OR-Tools. Cold-chain stock only goes on refrigerated vehicles. Within 2.25% of published optima on benchmark instances.",
+    listens: ["replenishment.order", "redistribution.request"], publishes: ["route.plan"],
+    metric: (m) => m.distance_km != null ? [fmt(Math.round(m.distance_km)), "km planned"] : null,
+    orders: "Route closed by flooding: reroutes around the closed lanes." },
+  { name: "AnomalyAgent", label: "Anomaly Agent",
+    role: "Screens every completed shipment for anomalies and checks each batch is genuine.",
+    how: "An Isolation Forest and an autoencoder score 12 shipment features, then the provenance ledger checks the batch fingerprint. The ML models alone caught 0 of 15 counterfeits; the ledger catches them.",
+    listens: ["ledger.event"], publishes: ["counterfeit.flag"],
+    metric: (m) => m.ledger_catches != null ? [fmt(m.ledger_catches), "caught by the ledger"] : null,
+    orders: "Cold-chain breaches and failed authenticity checks." },
+];
+const TOPICS = [
+  ["forecast.data", "DemandAgent", "InventoryAgent", "14-day demand forecast per pharmacy and medicine"],
+  ["shortage.alert", "DemandAgent", "InventoryAgent", "Stock that will not cover forecast demand"],
+  ["demand.hotspot", "DemandAgent", "ExpiryAgent", "Where demand is rising, so near-expiry stock can go there"],
+  ["replenishment.order", "InventoryAgent", "RouteAgent", "A reorder that needs a delivery"],
+  ["redistribution.request", "ExpiryAgent", "RouteAgent", "A won auction that needs a transfer"],
+  ["route.plan", "RouteAgent", "Digital twin", "The day's delivery tours"],
+  ["counterfeit.flag", "AnomalyAgent", "ExpiryAgent, dashboard", "A batch that failed the ledger check"],
+  ["ledger.event", "Ledger", "AnomalyAgent", "Signed custody records to screen"],
+];
+const agentLabel = (name) => (AGENTS.find((a) => a.name === name) || {}).label || name;
+
+function renderAgentShell() {
+  $("runorder").innerHTML = AGENTS.map((a, i) => `<button data-jump="${a.name}"><span class="n">${i + 1}</span>${esc(a.label)}</button>`)
+    .join("<i>→</i>");
+  $("runorder").querySelectorAll("[data-jump]").forEach((b) => (b.onclick = () =>
+    document.getElementById("agent-" + b.dataset.jump).scrollIntoView({ behavior: "smooth", block: "start" })));
+  $("topic-table").innerHTML = TOPICS.map(([t, from, to, what]) => `<tr><td><span class="topic">${esc(t)}</span></td>
+    <td>${esc(agentLabel(from))}</td><td>${esc(to.split(", ").map(agentLabel).join(", "))}</td><td class="small muted">${esc(what)}</td></tr>`).join("");
+}
+
+async function loadAgents() {
+  renderAgentShell();
+  let cards = [];
+  try { cards = (await api("/agents/summary")).agents; } catch { /* shown as not run */ }
+  const byName = Object.fromEntries(cards.map((c) => [c.name, c]));
+  const days = Math.max(0, ...cards.map((c) => c.days_active));
+  $("agents-run-pill").className = "pill " + (cards.length ? "ok" : "");
+  $("agents-run-pill").textContent = cards.length ? `${cards.length} agents · ${fmt(days)} days` : "No run loaded";
+
+  $("agent-cards").innerHTML = AGENTS.map((a, i) => {
+    const c = byName[a.name];
+    const metric = c && a.metric ? a.metric(c.metrics || {}) : null;
+    const types = c ? Object.entries(c.by_type).filter(([t]) => t !== "NONE") : [];
+    const stats = c ? `<div class="mini-stats">
+        <div><b>${fmt(c.days_active)}</b><span>days active</span></div>
+        <div><b>${fmt(c.actions)}</b><span>actions taken</span></div>
+        <div><b>${metric ? metric[0] : fmt(c.decisions)}</b><span>${metric ? metric[1] : "decisions logged"}</span></div>
+      </div>
+      ${types.length ? `<div class="kv"><div class="k">What it did</div><div class="topics">${types.map(([t, n]) =>
+          `<span class="tag">${esc(prettyEvent(t))} · ${fmt(n)}</span>`).join("")}</div></div>` : ""}
+      <div class="kv"><div class="k">Latest decisions, with the reason it recorded</div>
+        ${c.latest.length ? c.latest.slice(0, 2).map((d) => `<div class="decision"><div class="meta">Day ${d.sim_day} · ${esc(prettyEvent(d.type))}</div>
+          ${esc(d.justification || "No reason recorded")}</div>`).join("") : '<span class="faint">No decisions yet.</span>'}
+      </div>
+      <button class="btn sm" data-log="${a.name}">All ${esc(a.label)} decisions</button>`
+      : `<div class="empty" style="padding:18px 0;text-align:left">No run loaded yet. <button class="btn link" data-goto="simulation">Start one on the Simulation page</button> to see what this agent decides.</div>`;
+    return `<div class="card agent-card" id="agent-${a.name}">
+      <div class="card-head"><div><h2><span class="num">${i + 1}</span>${esc(a.label)}</h2><p>${esc(a.role)}</p></div>
+        ${c ? `<span class="pill ok">Active ${fmt(c.days_active)} days</span>` : '<span class="pill">Not run</span>'}</div>
+      <div class="card-body agent-grid">
+        <div>
+          <div class="kv"><div class="k">How it decides</div>${esc(a.how)}</div>
+          <div class="kv"><div class="k">Listens to</div><div class="topics">${a.listens.length
+            ? a.listens.map((t) => `<span class="topic">${esc(t)}</span>`).join("") : '<span class="faint small">Reads the network state directly</span>'}</div></div>
+          <div class="kv"><div class="k">Publishes</div><div class="topics">${a.publishes.map((t) => `<span class="topic out">${esc(t)}</span>`).join("")}</div></div>
+          <div class="kv" style="margin-bottom:0"><div class="k">In the order portal</div>${esc(a.orders)}</div>
+        </div>
+        <div>${stats}</div>
+      </div></div>`;
+  }).join("");
+
+  $("agent-cards").querySelectorAll("[data-log]").forEach((b) => (b.onclick = () => {
+    const name = b.dataset.log;
+    if (![...$("log-agent").options].some((o) => o.value === name)) {
+      $("log-agent").insertAdjacentHTML("beforeend", `<option>${esc(name)}</option>`);
+    }
+    $("log-agent").value = name;
+    $("log-search").value = "";
+    renderLog();
+    showPage("simulation");
+    document.querySelector('[data-page="simulation"] #log-body').closest(".card").scrollIntoView({ behavior: "smooth" });
+  }));
+}
+PAGE_LOAD.agents = loadAgents;
+$("agents-refresh").onclick = loadAgents;
+
+/* Readiness */
+async function loadDoctor() {
+  const pill = $("doctor-pill");
+  pill.className = "pill"; pill.textContent = "Checking";
   try {
     const r = await api("/system/doctor");
-    badge.className = "badge " + (r.ready ? "ok" : "bad");
-    badge.innerHTML = '<span class="dot"></span> ' +
-      (r.ready ? `READY · ${r.passed}/${r.total} checks passed`
-               : `${r.total - r.passed} check(s) need attention`);
-    $("doctor-table").querySelector("tbody").innerHTML = r.checks.map((c) => `<tr>
-      <td class="nowrap">${esc(c.name)}</td>
-      <td class="${c.passed ? "pass" : c.optional ? "warnc" : "fail"} nowrap">${
-        c.passed ? "ok" : c.optional ? "warn" : "FAIL"}</td>
-      <td class="mono" style="color:var(--ink-soft)">${esc(c.detail)}</td>
-      <td class="mono" style="color:var(--ink-faint)">${c.passed ? "" : esc(c.fix)}</td></tr>`).join("");
+    pill.className = "pill " + (r.ready ? "ok" : "bad");
+    pill.textContent = r.ready ? `Ready · ${r.passed}/${r.total}` : `${r.total - r.passed} need attention`;
+    const rows = r.checks.slice().sort((a, b) => a.passed - b.passed);
+    $("doctor-table").querySelector("tbody").innerHTML = rows.map((c) => `<tr>
+      <td>${esc(c.name)}</td>
+      <td>${c.passed ? '<span class="pill ok">OK</span>' : c.optional ? '<span class="pill warn">Optional</span>' : '<span class="pill bad">Fail</span>'}</td>
+      <td class="small"><span class="muted">${esc(c.detail)}</span>${c.passed || !c.fix ? "" : `<div class="faint">Fix: <code>${esc(c.fix)}</code></div>`}</td></tr>`).join("");
   } catch (e) {
-    badge.className = "badge bad";
-    badge.innerHTML = '<span class="dot"></span> unavailable';
-    $("doctor-table").querySelector("tbody").innerHTML =
-      `<tr><td colspan="4" style="color:var(--bad)">${esc(e.message)}</td></tr>`;
+    pill.className = "pill bad"; pill.textContent = "Unavailable";
+    $("doctor-table").querySelector("tbody").innerHTML = `<tr><td colspan="3" class="empty">${esc(e.message)}</td></tr>`;
   }
-};
+}
 $("btn-doctor").onclick = loadDoctor;
 
-// ── Chain verification ───────────────────────────────────────────────
-const verifyChain = async () => {
-  const badge = $("chain-badge");
-  badge.className = "badge idle";
-  badge.innerHTML = '<span class="dot"></span> checking…';
+/* Ledger */
+async function verifyChain() {
+  const pill = $("chain-pill");
+  pill.className = "pill"; pill.textContent = "Checking";
+  $("btn-verify").disabled = true;
   try {
     const r = await api("/ledger/verify");
-    badge.className = "badge " + (r.valid ? "ok" : "bad");
-    badge.innerHTML = '<span class="dot"></span> ' + (r.valid ? "CHAIN INTACT" : "CHAIN BROKEN");
-    $("chain-detail").textContent = r.valid
-      ? `${r.records_checked.toLocaleString()} records verified. Tip ${r.tip.slice(0, 20)}…`
-      : `Broken at seq ${r.broken_at_seq}: ${r.reason}`;
-    $("s-ledger").textContent = r.height.toLocaleString();
+    pill.className = "pill " + (r.valid ? "ok" : "bad");
+    pill.textContent = r.valid ? "Intact" : "Broken";
+    $("chain-detail").innerHTML = r.valid
+      ? `${fmt(r.records_checked)} records verified. Latest hash <span class="id">${esc(r.tip.slice(0, 16))}…</span>`
+      : `Broken at record <b>${fmt(r.broken_at_seq)}</b>: ${esc(r.reason)}`;
   } catch (e) {
-    badge.className = "badge idle";
-    badge.innerHTML = '<span class="dot"></span> unavailable';
+    pill.className = "pill"; pill.textContent = "Unavailable";
     $("chain-detail").textContent = e.message;
-  }
-};
+  } finally { $("btn-verify").disabled = false; }
+}
 $("btn-verify").onclick = verifyChain;
 
-// ── Tamper demonstration ─────────────────────────────────────────────
 const showStep = (n, state, detail) => {
-  const r = $("t" + n + "r");
-  r.textContent = state.valid ? "VALID" : "BROKEN";
-  r.style.color = state.valid ? "var(--ok)" : "var(--bad)";
+  $("t" + n + "r").textContent = state.valid ? "Valid" : "Broken";
+  $("t" + n + "r").style.color = state.valid ? "var(--ok)" : "var(--bad)";
   $("t" + n + "d").textContent = detail;
 };
 $("btn-tamper").onclick = async () => {
   $("tamper-err").textContent = "";
-  $("btn-tamper").disabled = true;
-  $("btn-tamper").textContent = "Running…";
+  $("btn-tamper").disabled = true; $("btn-tamper").textContent = "Running…";
   try {
     const r = await api("/ledger/tamper-demo", { method: "POST" });
-    showStep(1, r.before, `${r.before.records_checked.toLocaleString()} records verified.`);
-    showStep(2, r.during, r.during.valid
-      ? "The edit was NOT caught — the chain is not doing its job."
-      : `Caught at seq ${r.during.broken_at_seq}. ${r.during.reason}`);
-    showStep(3, r.after, `Record ${r.seq} restored; chain verifies over ` +
-      `${r.after.records_checked.toLocaleString()} records again.`);
-    $("tamper-note").textContent =
-      `Quantity on record ${r.seq} was changed to 999,999 and put back. The database's ` +
-      `append-only trigger had to be disabled first — and the hash chain still caught the ` +
-      `edit the trigger could not prevent, naming the exact record out of ${r.height.toLocaleString()}.`;
+    showStep(1, r.before, `${fmt(r.before.records_checked)} records verified.`);
+    showStep(2, r.during, r.during.valid ? "The edit was not caught." : `Caught at record ${fmt(r.during.broken_at_seq)}.`);
+    showStep(3, r.after, `Record ${fmt(r.seq)} restored; chain verifies again.`);
     verifyChain();
-  } catch (e) {
-    $("tamper-err").textContent = e.message;
-  } finally {
-    $("btn-tamper").disabled = false;
-    $("btn-tamper").textContent = "Run tamper demonstration";
-  }
+  } catch (e) { $("tamper-err").textContent = e.message; }
+  finally { $("btn-tamper").disabled = false; $("btn-tamper").textContent = "Run demonstration"; }
 };
 
-// ── Provenance trace ─────────────────────────────────────────────────
-$("btn-trace").onclick = async () => {
-  const body = $("trace-table").querySelector("tbody");
-  body.innerHTML = '<tr><td colspan="6" style="color:var(--ink-faint)">Loading…</td></tr>';
+$("trace-form").onsubmit = async (e) => {
+  e.preventDefault();
+  const body = $("trace-body");
+  body.innerHTML = '<tr><td colspan="6" class="empty">Loading…</td></tr>';
   try {
     const r = await api("/ledger/provenance/" + encodeURIComponent($("batch").value.trim()));
-    body.innerHTML = r.trace.slice(0, 80).map((t) => `<tr>
-      <td class="mono">${t.seq}</td><td class="mono">${t.sim_day}</td>
-      <td class="mono">${esc(t.event_type)}</td><td class="mono">${esc(t.from_node || "—")}</td>
-      <td class="mono">${esc(t.to_node || "—")}</td>
-      <td class="mono">${esc(t.signer_node)}</td></tr>`).join("");
-  } catch (e) {
-    body.innerHTML = `<tr><td colspan="6" style="color:var(--bad)">${esc(e.message)}</td></tr>`;
-  }
+    body.innerHTML = r.trace.slice(0, 100).map((t) => `<tr>
+      <td class="num">${t.seq}</td><td class="num">${t.sim_day}</td><td>${esc(prettyEvent(t.event_type))}</td>
+      <td>${esc(t.from_node ? nodeName(t.from_node) : "—")}</td><td>${esc(t.to_node ? nodeName(t.to_node) : "—")}</td>
+      <td>${esc(nodeName(t.signer_node))}</td></tr>`).join("");
+  } catch (err) { body.innerHTML = `<tr><td colspan="6" class="empty">${esc(err.message)}</td></tr>`; }
 };
 
-// ── Scenarios ────────────────────────────────────────────────────────
+/* Simulation */
 let scenarios = [];
-const loadScenarios = async () => {
+async function loadScenarios() {
   try {
     scenarios = (await api("/crisis/scenarios")).scenarios;
-    $("scenario").innerHTML = scenarios
-      .map((s) => `<option value="${esc(s.name)}">${esc(s.name.replace(/_/g, " "))}</option>`).join("");
-    describeScenario();
-  } catch (e) { /* the picker stays empty; the error shows on run */ }
-};
-const describeScenario = () => {
+    $("scenario").innerHTML = '<option value="">Normal operation</option>' + scenarios
+      .map((s) => `<option value="${esc(s.name)}">${esc(s.name.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase()))}</option>`).join("");
+  } catch { /* stays on normal operation */ }
+}
+$("scenario").onchange = () => {
   const s = scenarios.find((x) => x.name === $("scenario").value);
   $("scenario-desc").textContent = s
-    ? `${s.description}. Triggers on day ${s.trigger_day} for ${s.duration_days} days.` : "";
+    ? `${s.description}. Starts on day ${s.trigger_day} and lasts ${s.duration_days} days.`
+    : "No disruption; the baseline world with all agents active.";
 };
-$("scenario").onchange = describeScenario;
-
-const startRun = async (withScenario) => {
-  $("crisis-err").textContent = "";
-  const days = parseInt($("days").value, 10) || 365;
+$("btn-run").onclick = async () => {
+  $("run-err").textContent = "";
+  const days = Math.min(3650, Math.max(1, parseInt($("days").value, 10) || 365));
+  const scenario = $("scenario").value;
+  $("btn-run").disabled = true;
   try {
-    if (withScenario) {
-      await api(`/crisis/inject?scenario=${encodeURIComponent($("scenario").value)}&days=${days}`,
-                { method: "POST" });
-    } else {
-      await api(`/simulation/run?days=${days}&with_agents=true`, { method: "POST" });
+    await api(scenario ? `/crisis/inject?scenario=${encodeURIComponent(scenario)}&days=${days}`
+                       : `/simulation/run?days=${days}&with_agents=true`, { method: "POST" });
+    toast("Simulation started");
+    lastStatus = "running";
+    refreshSim();
+  } catch (e) { $("run-err").textContent = e.message; $("btn-run").disabled = false; }
+};
+
+let simNodes = [], selectedNode = null, lastStatus = null, decisions = [];
+async function refreshSim() {
+  if (!me || me.role === "customer") return;
+  let s;
+  try { s = await api("/simulation/state"); } catch { return; }
+  simNodes = s.nodes || [];
+  const running = s.status === "running";
+  $("btn-run").disabled = running;
+  $("run-status").textContent = { idle: "Idle", running: "Running", complete: "Complete", failed: "Failed" }[s.status] || s.status;
+  $("run-day").textContent = s.days ? `Day ${fmt(s.current_day)} of ${fmt(s.days)}` : "";
+  $("run-bar").style.width = s.days ? Math.min(100, (s.current_day / s.days) * 100) + "%" : "0";
+  if (s.status === "failed" && s.error) $("run-err").textContent = s.error;
+  if (currentPage === "simulation") drawMap();
+
+  if ((s.status === "complete" || s.status === "failed") && lastStatus !== s.status) {
+    if (lastStatus === "running" && s.status === "complete") toast("Simulation complete");
+    const k = await api("/kpi").catch(() => null);
+    if (k) {
+      $("k-service").textContent = (k.service_level * 100).toFixed(2) + "%";
+      $("k-stockout").textContent = (k.stockout_rate * 100).toFixed(3) + "%";
+      $("k-waste").textContent = fmt(k.wastage_units);
+      $("k-excursion").textContent = fmt(k.cold_chain_excursions);
     }
-  } catch (e) { $("crisis-err").textContent = e.message; }
-};
-$("btn-crisis").onclick = () => startRun(true);
-$("btn-normal").onclick = () => startRun(false);
-
-// ── Results ──────────────────────────────────────────────────────────
-let results = [];
-const renderResult = (a) => {
-  $("r-title").textContent = a.title;
-  $("r-question").textContent = a.question + "   ·   reproduce with: " + a.command;
-
-  if (!a.present) {
-    $("r-headline").innerHTML =
-      `<div class="kpi"><div class="v missing">not run</div>
-       <div class="l">no artifact</div>
-       <div class="n">${esc(a.footnote || "Run " + a.command + " to produce " + a.file + ".")}</div></div>`;
-    $("r-table").querySelector("thead").innerHTML = "";
-    $("r-table").querySelector("tbody").innerHTML = "";
-    $("r-footnote").textContent = "";
-    return;
+    const d = await api("/agents/decisions?limit=500").catch(() => null);
+    decisions = d ? d.decisions : [];
+    const agents = [...new Set(decisions.map((r) => r.agent_name))].sort();
+    $("log-agent").innerHTML = '<option value="">All agents</option>' +
+      agents.map((a) => `<option>${esc(a)}</option>`).join("");
+    renderLog();
+    if (currentPage === "agents") loadAgents();
   }
+  lastStatus = s.status;
+}
 
-  $("r-headline").innerHTML = a.headline.map((h) => `<div class="kpi">
-    <div class="v">${esc(h.value)}</div><div class="l">${esc(h.label)}</div>
-    <div class="n">${esc(h.note)}</div></div>`).join("")
-    || '<div class="kpi"><div class="v">—</div><div class="l">no summary</div></div>';
+function renderLog() {
+  const agent = $("log-agent").value, q = $("log-search").value.trim().toLowerCase();
+  const rows = decisions.filter((r) => (!agent || r.agent_name === agent) &&
+    (!q || (r.justification || "").toLowerCase().includes(q))).slice(0, 200);
+  $("log-body").innerHTML = rows.length ? rows.map((r) => `<tr>
+    <td class="num">${r.sim_day}</td><td>${esc(r.agent_name.replace("Agent", ""))}</td>
+    <td>${esc(prettyEvent((r.action && r.action.type) || "none"))}</td>
+    <td class="small muted">${esc(r.justification || "")}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="empty">${decisions.length ? "No decisions match." : "Run a simulation to populate the log."}</td></tr>`;
+}
+$("log-agent").onchange = renderLog;
+$("log-search").oninput = renderLog;
 
-  $("r-table").querySelector("thead").innerHTML =
-    "<tr>" + a.columns.map((c) => `<th>${esc(c)}</th>`).join("") + "</tr>";
-  $("r-table").querySelector("tbody").innerHTML = a.rows.map((row) => "<tr>" +
-    row.map((cell, i) => {
-      const text = esc(cell);
-      const cls = text === "PASS" ? "pass" : text === "FAIL" ? "fail"
-                : i === 0 ? "" : "mono";
-      return `<td class="${cls}">${text}</td>`;
-    }).join("") + "</tr>").join("");
-
-  $("r-footnote").textContent = a.footnote +
-    (a.generated ? `\n\nArtifact: ${a.file}, generated ${a.generated}.` : "");
-};
-
-const selectResult = (key) => {
-  document.querySelectorAll("#rlist button").forEach((b) =>
-    b.classList.toggle("on", b.dataset.key === key));
-  renderResult(results.find((r) => r.key === key));
-};
-
-const loadResults = async () => {
-  try {
-    results = (await api("/results")).results;
-    $("rlist").innerHTML = results.map((r) => `<button data-key="${esc(r.key)}">
-      ${esc(r.title)}${r.present ? "" : ' <span class="missing">· not run</span>'}
-      <small>${esc(r.question)}</small></button>`).join("");
-    document.querySelectorAll("#rlist button").forEach((b) => {
-      b.onclick = () => selectResult(b.dataset.key);
-    });
-    if (results.length) selectResult(results[0].key);
-
-    // Overview cards: the first headline number from each experiment that ran.
-    const cards = results.filter((r) => r.present && r.headline.length)
-      .map((r) => ({ ...r.headline[0], from: r.title }));
-    $("headline-kpis").innerHTML = cards.map((h) => `<div class="kpi">
-      <div class="v">${esc(h.value)}</div><div class="l">${esc(h.label)}</div>
-      <div class="n">${esc(h.from)}</div></div>`).join("")
-      || '<div class="kpi"><div class="v">—</div><div class="l">no results yet</div></div>';
-  } catch (e) {
-    $("rlist").innerHTML = `<p class="err">${esc(e.message)}</p>`;
-  }
-};
-
-// ── Map ──────────────────────────────────────────────────────────────
-const COLOUR = { healthy: "var(--ok)", low: "var(--warn)", critical: "var(--bad)" };
-const drawMap = (nodes) => {
+const HEALTH = { healthy: "var(--ok)", low: "#d08a1a", critical: "var(--bad)" };
+function drawMap() {
+  // Before any run, plot the network from the catalog so the map is never blank.
+  const nodes = simNodes.length ? simNodes : catalog.nodes.map((n) => ({ ...n, health: null }));
   if (!nodes.length) return;
   const lats = nodes.map((n) => n.lat), lons = nodes.map((n) => n.lon);
   const [y0, y1, x0, x1] = [Math.min(...lats), Math.max(...lats), Math.min(...lons), Math.max(...lons)];
-  const pad = 12;
+  const pad = 10, placed = [];
   $("map").innerHTML = nodes.map((n) => {
-    // Latitude increases northward, screen y increases downward, so invert.
-    const x = pad + ((n.lon - x0) / (x1 - x0 || 1)) * (100 - 2 * pad);
-    const y = pad + ((y1 - n.lat) / (y1 - y0 || 1)) * (100 - 2 * pad);
-    const colour = n.offline ? "var(--ink-faint)" : COLOUR[n.health];
-    const size = n.node_type.includes("MANUFACTURER") ? 18
-               : n.node_type.includes("WAREHOUSE") ? 15 : 11;
-    return `<div class="node" style="left:${x}%;top:${y}%" title="${esc(n.node_id)}: ${
-      n.stock.toLocaleString()} units, ${(n.utilisation * 100).toFixed(0)}% full">
-      <div class="pin" style="background:${colour};width:${size}px;height:${size}px"></div>
-      <div class="lbl">${esc(n.node_id.replace("NODE-", ""))}</div></div>`;
-  }).join("");
-};
-
-// ── Live polling ─────────────────────────────────────────────────────
-const refresh = async () => {
-  try {
-    const s = await api("/simulation/state");
-    $("s-status").textContent = s.status;
-    $("s-day").textContent = s.current_day || "—";
-    $("s-events").textContent = (s.event_count || 0).toLocaleString();
-    drawMap(s.nodes || []);
-
-    if (s.status === "complete" || s.status === "failed") {
-      const k = await api("/kpi").catch(() => null);
-      if (k) {
-        $("k-service").textContent = (k.service_level * 100).toFixed(2) + "%";
-        $("k-stockout").textContent = (k.stockout_rate * 100).toFixed(3) + "%";
-        $("k-waste").textContent = k.wastage_units.toLocaleString();
-        $("k-excursion").textContent = k.cold_chain_excursions;
-      }
-      const d = await api("/agents/decisions?limit=60").catch(() => null);
-      if (d && d.decisions.length) {
-        $("log-table").querySelector("tbody").innerHTML = d.decisions.map((r) => `<tr>
-          <td class="mono">${r.sim_day}</td><td>${esc(r.agent_name)}</td>
-          <td class="mono">${esc((r.action && r.action.type) || "—")}</td>
-          <td style="color:var(--ink-soft)">${esc(r.justification || "")}</td></tr>`).join("");
-      }
+    let x = pad + ((n.lon - x0) / (x1 - x0 || 1)) * (100 - 2 * pad);
+    let y = pad + ((y1 - n.lat) / (y1 - y0 || 1)) * (100 - 2 * pad);
+    // Bengaluru holds four nodes within a few km; fan them out so each is clickable.
+    let k = 0;
+    while (placed.some((q) => Math.abs(q.x - x) < 3.2 && Math.abs(q.y - y) < 5) && k < 8) {
+      const a = (k++ * Math.PI) / 2.5;
+      x += 3.4 * Math.cos(a); y += 5.5 * Math.sin(a);
     }
-  } catch (e) { /* the API may still be starting; the next tick retries */ }
-};
+    const crowded = placed.some((q) => Math.abs(q.x - x) < 11 && Math.abs(q.y - y) < 9);
+    placed.push({ x, y });
+    const colour = n.offline ? "#9aa1ad" : HEALTH[n.health] || "#6cbcef";
+    const t = String(n.node_type);
+    const size = t.includes("MANUFACTURER") ? 18 : t.includes("WAREHOUSE") ? 15 : t.includes("DISTRIBUTOR") ? 13 : 11;
+    return `<button class="node ${n.node_id === selectedNode ? "on" : ""}" style="left:${x}%;top:${y}%" data-id="${esc(n.node_id)}"
+      aria-label="${esc(nodeName(n.node_id))}" title="${esc(nodeName(n.node_id))}"><span class="pin" style="background:${colour};width:${size}px;height:${size}px"></span>
+      ${crowded && n.node_id !== selectedNode ? "" : `<span class="lbl">${esc(shortName(n.node_id))}</span>`}</button>`;
+  }).join("");
+  $("map").querySelectorAll(".node").forEach((b) => (b.onclick = () => { selectedNode = b.dataset.id; drawMap(); }));
+  showNode();
+}
+const shortName = (id) => nodeName(id).replace(/ (Pharmacy|Regional Warehouse|Central Warehouse|Distribution Centre|Manufacturing Plant)$/, "");
+function showNode() {
+  const n = simNodes.find((x) => x.node_id === selectedNode);
+  const info = catalog.nodes.find((x) => x.node_id === selectedNode);
+  if (!info) { $("node-detail").hidden = true; return; }
+  const type = String(info.node_type).toLowerCase();
+  $("node-detail").hidden = false;
+  $("node-detail").innerHTML = `<b>${esc(info.name)}</b> <span class="faint">· ${esc(type)}${info.cold_storage ? " · cold storage" : ""}</span>` +
+    (n ? `<div style="display:flex;justify-content:space-between;margin:8px 0 5px"><span>${fmt(n.stock)} of ${fmt(n.capacity)} units</span>
+      <span>${(n.utilisation * 100).toFixed(0)}% full${n.offline ? " · offline" : ""}</span></div>
+      <div class="bar"><i style="width:${Math.min(100, n.utilisation * 100)}%;background:${HEALTH[n.health] || "#6cbcef"}"></i></div>`
+       : '<div class="faint" style="margin-top:4px">Start a run to see stock levels.</div>');
+}
 
-// The WebSocket keeps the day counter moving during a run; polling fills in
-// the aggregates, which only become meaningful once the run finishes.
-const connect = () => {
-  const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://")
-    + location.host + "/ws/events");
-  ws.onmessage = (m) => {
-    const d = JSON.parse(m.data);
-    if (d.type === "events" && d.day) $("s-day").textContent = d.day;
-  };
-  ws.onclose = () => setTimeout(connect, 3000);
-};
+function connectEvents() {
+  try {
+    ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws/events");
+    ws.onmessage = (m) => {
+      const d = JSON.parse(m.data);
+      if (d.type === "events" && d.day && lastStatus === "running") {
+        $("run-day").textContent = `Day ${fmt(d.day)}`;
+      }
+    };
+    ws.onclose = () => { if (me && me.role !== "customer") setTimeout(connectEvents, 3000); };
+  } catch { /* polling still covers progress */ }
+}
 
-loadDoctor();
-loadResults();
-loadScenarios();
-refresh();
-verifyChain();
-setInterval(refresh, 1500);
-connect();
+/* Results */
+let results = [];
+function renderResult(a) {
+  $("r-title").textContent = a.title;
+  $("r-question").innerHTML = `${esc(a.question)} Reproduce with <code>${esc(a.command)}</code>.`;
+  if (!a.present) {
+    $("r-headline").innerHTML = `<div class="stat"><div class="v faint">Not run</div><div class="l">${esc(a.footnote || "Run " + a.command)}</div></div>`;
+    $("r-table").querySelector("thead").innerHTML = ""; $("r-table").querySelector("tbody").innerHTML = "";
+    $("r-footnote").textContent = ""; return;
+  }
+  $("r-headline").innerHTML = a.headline.map((h) => `<div class="stat"><div class="v">${esc(h.value)}</div>
+    <div class="l">${esc(h.label)}</div>${h.note ? `<div class="n">${esc(h.note)}</div>` : ""}</div>`).join("");
+  $("r-table").querySelector("thead").innerHTML = "<tr>" + a.columns.map((c) => `<th>${esc(c)}</th>`).join("") + "</tr>";
+  $("r-table").querySelector("tbody").innerHTML = a.rows.map((row) => "<tr>" + row.map((cell, i) => {
+    const t = String(cell);
+    const inner = t === "PASS" ? '<span class="pill ok">Pass</span>' : t === "FAIL" ? '<span class="pill bad">Fail</span>' : esc(t);
+    return `<td class="${i ? "num" : ""}">${inner}</td>`;
+  }).join("") + "</tr>").join("");
+  $("r-footnote").textContent = (a.footnote || "") + (a.generated ? `\n\nSource: ${a.file}, generated ${a.generated}.` : "");
+}
+async function loadResults() {
+  try {
+    results = (await api("/results")).results;
+    $("rlist").innerHTML = results.map((r) => `<button data-key="${esc(r.key)}">${esc(r.title)}
+      ${r.present ? "" : '<span class="pill" style="margin-left:4px">Not run</span>'}<small>${esc(r.question)}</small></button>`).join("");
+    $("rlist").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+      $("rlist").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+      renderResult(results.find((r) => r.key === b.dataset.key));
+    }));
+    if (results.length) $("rlist").querySelector("button").click();
+    const cards = results.filter((r) => r.present && r.headline.length).map((r) => ({ ...r.headline[0], from: r.title }));
+    $("headline-kpis").innerHTML = cards.slice(0, 6).map((h) => `<div class="stat"><div class="v">${esc(h.value)}</div>
+      <div class="l">${esc(h.label)}</div><div class="n">${esc(h.from)}</div></div>`).join("")
+      || '<div class="empty">No experiment results yet.</div>';
+  } catch (e) {
+    $("rlist").innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+    $("headline-kpis").innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+  }
+}
+
+/* ── Start ───────────────────────────────────────────────────────── */
+choosePortal("customer");
+(async () => {
+  const saved = store.get("pdt-token");
+  if (!saved) return;
+  token = saved;
+  try {
+    const user = await api("/auth/me");
+    enter(user);
+  } catch { token = null; store.del("pdt-token"); }
+})();
 </script>
 </body>
 </html>

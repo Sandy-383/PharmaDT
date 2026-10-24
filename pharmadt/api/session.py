@@ -121,13 +121,19 @@ class SimulationSession:
                 session.scalars(select(Drug.drug_id).where(Drug.requires_cold_chain.is_(True)))
             )
 
+        from pharmadt.agents.anomaly import AnomalyAgent
         from pharmadt.agents.route_agent import RouteAgent
+        from pharmadt.ledger.chain import HashChainLedger
 
+        # All five, exactly as the integration gate runs them. The Anomaly
+        # Agent was previously left out here, so a run started from the
+        # dashboard showed four agents while every report described five.
         return [
             DemandAgent(),
             InventoryAgent(graph=world.graph),
             ExpiryAgent(graph=world.graph),
             RouteAgent(graph=world.graph, cold_chain_drugs=cold),
+            AnomalyAgent(ledger=HashChainLedger(), world=world),
         ]
 
     # ── Reads ─────────────────────────────────────────────────────────
@@ -161,6 +167,56 @@ class SimulationSession:
         ]
         rows.sort(key=lambda r: r["sim_day"], reverse=True)
         return rows[:limit]
+
+    def agent_summary(self) -> list[dict[str, Any]]:
+        """One card per agent: what it did over the run, and its latest decisions.
+
+        Counts cover the whole run, not just the recent window the decision
+        log shows, so "how often did this agent act?" has an honest answer.
+        """
+        if self.orchestrator is None:
+            return []
+        cards = []
+        for agent in self.orchestrator.agents:
+            decisions = agent.decisions
+            by_type: dict[str, int] = {}
+            for d in decisions:
+                kind = (d.action or {}).get("type", "NONE")
+                by_type[kind] = by_type.get(kind, 0) + 1
+            acted = [d for d in decisions if (d.action or {}).get("type", "NONE") != "NONE"]
+            latest = sorted(acted or decisions, key=lambda d: d.sim_day, reverse=True)[:4]
+            cards.append(
+                {
+                    "name": agent.name,
+                    "decisions": len(decisions),
+                    "actions": len(acted),
+                    "days_active": len({d.sim_day for d in decisions}),
+                    "by_type": dict(sorted(by_type.items(), key=lambda kv: -kv[1])),
+                    "metrics": self._agent_metrics(agent),
+                    "latest": [
+                        {
+                            "sim_day": d.sim_day,
+                            "type": (d.action or {}).get("type", "NONE"),
+                            "justification": d.justification,
+                        }
+                        for d in latest
+                    ],
+                }
+            )
+        return cards
+
+    @staticmethod
+    def _agent_metrics(agent: Any) -> dict[str, Any]:
+        """The one or two numbers that say what each agent achieved."""
+        metrics: dict[str, Any] = {}
+        if hasattr(agent, "latest"):
+            metrics["series_forecast"] = len(agent.latest)
+        if hasattr(agent, "total_distance_km"):
+            metrics["distance_km"] = round(float(agent.total_distance_km), 1)
+        if hasattr(agent, "ledger_catches"):
+            metrics["ledger_catches"] = agent.ledger_catches
+            metrics["alerts"] = len(getattr(agent, "alerts", []))
+        return metrics
 
     def new_events(self, limit: int = 200) -> list[dict[str, Any]]:
         """Events emitted since the last call — the WebSocket's payload."""
